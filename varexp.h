@@ -7,6 +7,7 @@
 
 typedef enum
     {
+    VAR_USER_ABORT                   = -15,
     VAR_UNKNOWN_COMMAND_CHAR         = -14,
     VAR_INPUT_ISNT_TEXT_NOR_VARIABLE = -13,
     VAR_UNDEFINED_VARIABLE           = -12,

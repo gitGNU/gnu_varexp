@@ -411,6 +411,27 @@ int command(const char* begin, const char* end, const var_config_t* config,
                 }
             break;
 
+        case '?':               /* Return parameter as error string if data is empty. */
+            ++p;
+            rc = exptext_or_variable(p, end, config, nameclass, lookup, lookup_context,
+                                     force_expand, &tmptokbuf);
+            if (rc < 0)
+                return rc;
+            else
+                p += rc;
+            if (data->begin != NULL)
+                {
+                if (data->begin == data->end)
+                    {
+                    printf("We are returning error string '%s'.\n", tmptokbuf.begin);
+                    free_tokenbuf(&tmptokbuf);
+                    free_tokenbuf(data);
+                    return VAR_USER_ABORT;
+                    }
+                }
+            free_tokenbuf(&tmptokbuf);
+            break;
+
         case '+':               /* Substitute ${parameter} if data is not empty. */
             ++p;
             rc = exptext_or_variable(p, end, config, nameclass, lookup, lookup_context,

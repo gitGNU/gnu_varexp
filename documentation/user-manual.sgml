@@ -1,15 +1,8 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
 <!ENTITY version SYSTEM "../VERSION">
 <!ENTITY varexp "<application>libvarexp</application>">
-<!ENTITY unescape "<function>unescape</function>">
-<!ENTITY expand "<function>expand</function>">
-<!ENTITY sh "<citerefentry><refentrytitle>sh</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
-<!ENTITY make "<citerefentry><refentrytitle>make</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
-<!ENTITY perl "<citerefentry><refentrytitle>perl</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
-<!ENTITY tr "<citerefentry><refentrytitle>tr</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
-<!ENTITY sed "<citerefentry><refentrytitle>sed</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
-<!ENTITY tolower "<citerefentry><refentrytitle>tolower</refentrytitle><manvolnum>3</manvolnum></citerefentry>">
-<!ENTITY toupper "<citerefentry><refentrytitle>toupper</refentrytitle><manvolnum>3</manvolnum></citerefentry>">
+<!ENTITY unescape "<function>varexp::unescape</function>">
+<!ENTITY expand "<function>varexp::expand</function>">
 ]>
 
 <article lang="en">
@@ -30,10 +23,14 @@
     <para>&varexp; is a C++ library that allows its users to detach any kind of
 information from the representation of that information by providing a
 simple-to-use but powerful text-template mechanism. Similar mechanisms have been
-available in tools like &sh;, &make;, or &perl; forever and have proven to be
-very useful. The basic idea is that the relevant information is made available
-in variables, which the author of the template can than use within the text
-itself as he or she sees fit.</para>
+available in tools like
+<citerefentry><refentrytitle>sh</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+<citerefentry><refentrytitle>make</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+or
+<citerefentry><refentrytitle>perl</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+forever and have proven to be very useful. The basic idea is that the relevant
+information is made available in variables, which the author of the template can
+than use within the text itself as he or she sees fit.</para>
 
     <para>Consider, for example, a tool that will calculate the monthly
 financial reports of a small company. Such a program should only
@@ -184,7 +181,7 @@ is <quote>foobar</quote>, then <literal>${FOO:#}</literal> will result in
           <listitem>
             <para>This operation will turn the contents of
 <literal>$NAME</literal> to all lower-case, using the system routine
-&tolower;.</para>
+<citerefentry><refentrytitle>tolower</refentrytitle><manvolnum>3</manvolnum></citerefentry>.</para>
           </listitem>
         </varlistentry>
 
@@ -193,7 +190,7 @@ is <quote>foobar</quote>, then <literal>${FOO:#}</literal> will result in
           <listitem>
             <para>This operation will turn the contents of
 <literal>$NAME</literal> to all upper-case, using the system routine
-&toupper;.</para>
+<citerefentry><refentrytitle>toupper</refentrytitle><manvolnum>3</manvolnum></citerefentry>.</para>
           </listitem>
         </varlistentry>
 
@@ -284,11 +281,12 @@ the contents of <literal>$NAME</literal> and return the result. The behavior of
 the search-and-replace may be modified by the following flags: If a
 <literal>t</literal> flag has been provided, a plain text search-and-replace is
 performed, otherwise, the default is to do a regular expression
-search-and-replace as in the system utility &sed;. If the <literal>g</literal>
-flag has been provided, the search-and-replace will replace
-<emphasis>all</emphasis> instances of <replaceable>pattern</replaceable> by
-<replaceable>replace</replaceable>, instead of replacing only the first instance
-(the default). If the <literal>i</literal> flag has been provided, the
+search-and-replace as in the system utility
+<citerefentry><refentrytitle>sed</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+If the <literal>g</literal> flag has been provided, the search-and-replace will
+replace <emphasis>all</emphasis> instances of <replaceable>pattern</replaceable>
+by <replaceable>replace</replaceable>, instead of replacing only the first
+instance (the default). If the <literal>i</literal> flag has been provided, the
 search-and-replace will take place case-insensitively, otherwise, the default is
 to search case-sensitively.</para>
 
@@ -305,7 +303,8 @@ may contain other variables or even complex variable expressions, for example:
             <para>This operation will translate all characters in the contents
 of <literal>$NAME</literal> that are found in the
 <replaceable>ochars</replaceable> class to the corresponding character in the
-<replaceable>nchars</replaceable> class -- just like the system utility &tr;
+<replaceable>nchars</replaceable> class -- just like the system utility
+<citerefentry><refentrytitle>tr</refentrytitle><manvolnum>1</manvolnum></citerefentry>
 does. Both <replaceable>ochars</replaceable> and
 <replaceable>nchars</replaceable> may contain character range specifications,
 for example <quote>a-z0-9</quote>. A hyphon as the first or last character of
@@ -352,7 +351,7 @@ variable expressions, for example: <quote>${FOO:p/20/${BAR}/r/}</quote>.</para>
       </variablelist>
     </sect2>
 
-    <sect2>
+    <sect2 id="quoted-pairs">
       <title>Quoted Pairs</title>
 
       <para>In addition to the variable expressions discussed in the previous
@@ -569,7 +568,7 @@ and
       <para>Have fun!</para>
     </sect2>
 
-    <sect2>
+    <sect2 id="ebnf">
       <title>The Complete EBNF Grammar</title>
 
     <informalexample>
@@ -639,20 +638,408 @@ TEXT       : '[^$[\\]]+'
 
   <sect1>
     <title>The &expand; Function</title>
-    <para></para>
+
+    <para>The heart of &varexp; is the &expand; function, which is defined as
+follows:</para>
+
+    <funcsynopsis>
+      <funcprototype>
+        <funcdef>void <function>varexp::expand</function></funcdef>
+        <paramdef>const std::string& <parameter>input</parameter></paramdef>
+        <paramdef>std::string& <parameter>result</parameter></paramdef>
+        <paramdef>varexp::callback_t& <parameter>lookup</parameter></paramdef>
+        <paramdef>varexp::config_t* <parameter>config</parameter> = 0</paramdef>
+      </funcprototype>
+    </funcsynopsis>
+
+    <para>The parameters are pretty intuitive: <parameter>input</parameter> is
+obviously a reference to the input buffer in which variable expressions should
+be expanded. <parameter>result</parameter> is a reference to the target buffer,
+where the expanded result will be stored. The contens of
+<parameter>result</parameter> will be overwritten by &expand;. It legal to
+provide the same string instance for both <parameter>input</parameter> and
+<parameter>result</parameter> if the original template is no longer required
+after the expansion.</para>
+
+    <para>The <parameter>lookup</parameter> parameter contains a reference to a
+user-supplied class that serves as the lookup callback for accessing variable's
+contents. Such a callback class must be derived from
+<classname>varexp::callback_t</classname>. More details on this topic can be
+found in <xref linkend="callback"> below.</para>
+
+    <para>The last parameter, <parameter>config</parameter>, can be used to
+change the lexical tokens of the parser's grammar. If you omit this parameter --
+and thus pass <quote>0</quote> through the default value --, the default
+configuration will be used. The default configuration is what has been used in
+the examples throughout this manual; changing it will hardly be necessary. If
+you want to, though, because you want to disable looping or use variables of the
+form <quote>$(NAME)</quote> rather than <quote>${NAME}</quote>, please refer to
+<xref linkend="config"> for a detailed discussion.</para>
+
+    <para>In case of success, &expand; will return, otherwise, one of the
+exceptions listed in <xref linkend="exceptions"> is thrown.</para>
+
+    <sect2 id="callback">
+      <title>Writing Lookup Callbacks</title>
+
+      <para>&varexp;'s header file, <filename>varexp.hh</filename>, defines the
+abstract base class <classname>varexp::callback_t</classname>, which serves as
+an interface to user-supplied variable-lookup callbacks. The class is defined
+like this:</para>
+
+      <classsynopsis>
+        <ooclass>
+          <classname>varexp::callback_t</classname>
+        </ooclass>
+        <methodsynopsis>
+          <modifier>virtual</modifier>
+          <void>
+          <methodname>operator()</methodname>
+          <methodparam>
+            <type>const std::string&</type>
+            <parameter>name</parameter>
+          </methodparam>
+          <methodparam>
+            <type>std::string&</type>
+            <parameter>data</parameter>
+          </methodparam>
+        </methodsynopsis>
+        <methodsynopsis>
+          <modifier>virtual</modifier>
+          <void>
+          <methodname>operator()</methodname>
+          <methodparam>
+            <type>const std::string&</type>
+            <parameter>name</parameter>
+          </methodparam>
+          <methodparam>
+            <type>int</type>
+            <parameter>idx</parameter>
+          </methodparam>
+          <methodparam>
+            <type>std::string&</type>
+            <parameter>data</parameter>
+          </methodparam>
+        </methodsynopsis>
+      </classsynopsis>
+
+      <para>The first <function>operator()</function> is called by &expand; to
+resolve a normal variable such as <quote>$NAME</quote>. The parameter
+<parameter>name</parameter> will contain the name <quote>NAME</quote> in this
+case, and <parameter>data</parameter> is a reference to a string where the
+callback function should place the variable's contents.</para>
+
+      <para>The second <function>operator()</function> is called to resolve an
+array variable, such as <quote>${NAME[<replaceable>i</replaceable>]}</quote>.
+The two parameters <parameter>name</parameter> and <parameter>data</parameter>
+have the same meaning in this case, but an additional parameter is provided,
+<parameter>idx</parameter>, which will contain the index
+<replaceable>i</replaceable>.</para>
+
+      <para>Either callback function may throw any exception it sees fit in case
+of an error, but there are two exceptions that have a special meaning:
+<exceptionname>varexp::undefined_variable</exceptionname> should be thrown by
+either function in case requested variable is not defined, and the array version
+of the callback should throw
+<exceptionname>varexp::array_lookups_are_unsupported</exceptionname> when it has
+been called but should not have been.</para>
+
+      <para>Throwing <exceptionname>varexp::undefined_variable</exceptionname>
+in case of an undefined variable is very important because in some cases this
+exception will be caught by &expand; -- for example during the looping
+construct! -- and changes the course of action in the routine. Any other
+exception thrown by these callbacks will leave  &expand; and abort processing.
+Make sure your application catches them!</para>
+
+      <para>Sometimes it is useful to be able to determine the size of an array
+in the template. &varexp; does not provide any construct that would do that,
+mostly because most of the array's behavior is implementation defined anyway,
+but a good convention is to have the array callback return the size of the array
+in case a negative index is looked-up.</para>
+
+      <para>In order to illustrate how to write a callback of your own, here is
+a short example callback that will return variable from the Unix environment.
+The source code has been taken from the test program
+<filename>regression-tests/expand3.cc</filename>, so you might want to look
+there for further examples of more complex callbacks.</para>
+
+      <programlisting>using namespace std;
+using namespace varexp;
+
+struct env_lookup : public callback_t
+    {
+    virtual void operator()(const string&amp; name, string&amp; data)
+        {
+        const char* p = getenv(name.c_str());
+        if (p == NULL)
+            throw undefined_variable();
+        else
+            data = p;
+        }
+    virtual void operator()(const string&amp; name, int idx, string&amp; data)
+        {
+        throw array_lookups_are_unsupported();
+        }
+    };</programlisting>
+
+    </sect2>
+
+    <sect2 id="config">
+      <title>Configuring the Parser</title>
+
+      <para>One of the parameters passed to &expand; is a pointer to a date
+structure of type <type>varexp::config_t</type>. This structure defines the
+elementary tokens used by the parser to determine what is a variable expression
+and what is not. The structure is defined as follows:</para>
+
+      <classsynopsis>
+        <ooclass>
+          <classname>varexp::config_t</classname>
+        </ooclass>
+        <fieldsynopsis>
+          <type>char</type>
+          <varname>varinit</varname>
+        </fieldsynopsis>
+        <fieldsynopsis>
+          <type>char</type>
+          <varname>startdelim</varname>
+        </fieldsynopsis>
+        <fieldsynopsis>
+          <type>char</type>
+          <varname>enddelim</varname>
+        </fieldsynopsis>
+        <fieldsynopsis>
+          <type>char</type>
+          <varname>startindex</varname>
+        </fieldsynopsis>
+        <fieldsynopsis>
+          <type>char</type>
+          <varname>endindex</varname>
+        </fieldsynopsis>
+        <fieldsynopsis>
+          <type>char</type>
+          <varname>current_index</varname>
+        </fieldsynopsis>
+        <fieldsynopsis>
+          <type>char</type>
+          <varname>escape</varname>
+        </fieldsynopsis>
+        <fieldsynopsis>
+          <type>char*</type>
+          <varname>namechars</varname>
+        </fieldsynopsis>
+        <constructorsynopsis>
+          <methodname>config_t</methodname>
+          <void>
+        </constructorsynopsis>
+      </classsynopsis>
+
+      <para>The structure has a default constructor that will initialize the
+members of the instance to the default values used throughout this
+documentation:</para>
+
+      <programlisting>varexp::config_t()
+    {
+    varinit       = '$';
+    startdelim    = '{';
+    enddelim      = '}';
+    startindex    = '[';
+    endindex      = ']';
+    current_index = '#';
+    escape        = '\\;
+    namechars     = "a-zA-Z0-9_";
+    }
+</programlisting>
+
+      <para>If want to use this default configuration, don't mess with a
+<type>varexp::config_t</type> structure at all; passing <quote>0</quote> to
+&expand; or leaving <parameter>config</parameter> out entirely will use exactly
+this configuration. If you want to parse a different syntax than the default,
+though, get a local instance of the <type>varexp::config_t</type> class, modify
+those values, and pass a pointer to the instance into &expand;.</para>
+
+      <para>The members of the structure have the following meaning:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><varname>varinit</varname></term>
+          <listitem>
+            <para>This character defines the character that starts a variable in
+the input text.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><varname>startdelim</varname></term>
+          <term><varname>enddelim</varname></term>
+          <listitem>
+            <para>These variables define the characters which must be used to
+delimit a complex variable expression.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><varname>startindex</varname></term>
+          <term><varname>endindex</varname></term>
+          <listitem>
+            <para>These character define the characters used to delimit both an
+index specification to an array variable and the start and end delimiter of the
+looping construct. You may set these entries to <quote>0</quote> in order to
+disable array support and looping altogether.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><varname>current_index</varname></term>
+          <listitem>
+            <para>This entry defines the character to be replaced by the current
+loop counter in an index specification.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><varname>escape</varname></term>
+          <listitem>
+            <para>This entriy defines the character that will espace a
+<quote>varinit</quote> or <quote>startindex</quote> character in the input text
+so that &expand; interprets it literally and not as a special.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><varname>namechars</varname></term>
+          <listitem>
+            <para>This string defines the set of characters that are legal for a
+variable name. The specification may contain character ranges.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>Please note that it is possible to shoot yourself in the foot with
+an incorrect parser configuration. The <varname>namechars</varname> entry, for
+example, must not contain any of the specials defined above or the parser will
+not be able to determine the end of a variable expression anymore. There is a
+set of consistency checks that will be run by &expand;, which will throw an
+<exceptionname>varexp::invalid_configuration</exceptionname> exception in case
+the configuration is errorneous, but these checks will probably not catch all
+configurations that don't make sense. So better be careful when defininig your
+own configuration for the parser.</para>
+    </sect2>
+
   </sect1>
 
   <sect1>
     <title>The &unescape; Function</title>
-    <para></para>
+
+    <para>The missing piece in &varexp; is the &unescape; function. It will
+expand the quoted pairs described in <xref linkend="quoted-pairs">. Its
+prototype, as defined in <filename>varexp.hh</filename> is:</para>
+
+    <funcsynopsis>
+      <funcprototype>
+        <funcdef>void <function>varexp::unescape</function></funcdef>
+        <paramdef>const std::string& <parameter>input</parameter></paramdef>
+        <paramdef>std::string& <parameter>result</parameter></paramdef>
+        <paramdef>bool <parameter>unescape_all</parameter></paramdef>
+      </funcprototype>
+    </funcsynopsis>
+
+    <para>The parameters <parameter>input</parameter> and
+<parameter>result</parameter> are references to the input and output buffer
+respectively. It is legal to pass the same <type>std::string</type> instance as
+input and output if the original buffer isn't required anymore. The third
+parameter, <parameter>unescape_all</parameter> will determine whether &unescape;
+should expand only the <emphasis>known</emphasis> quoted pairs or whether it
+should expand <emphasis>all</emphasis> quoted pairs.</para>
+
+    <para>If this parameter is set to <literal>false</literal>, only the quoted
+pairs described in <xref linkend="quoted-pairs"> are expanded; all other quoted
+pairs -- the <quote>unknown</quote> ones -- will be left untouched. If
+<parameter>unescape_all</parameter> is set to <literal>true</literal>, though,
+any combination of <quote>\<replaceable>a</replaceable></quote> will be expanded
+to <quote><replaceable>a</replaceable></quote>.</para>
+
+    <para>You will need this parameter if you want to combine &unescape; with
+&expand;, because an input buffer might contain unknown quoted pairs that have a
+special meaning to variable constructs! One example is the quoted pair
+<quote>\1</quote>, which is used in regular expression search-and-replace.
+Another example is the string <quote>\${Not an variable}</quote>. These quoted
+pairs must be preserved for &expand;, so the usual approach for combining
+&unescape; und &expand; is to call the functions in the following order:</para>
+
+    <procedure>
+      <step>
+        <para>Call &unescape; with <parameter>unescape_all</parameter> set to
+<literal>false</literal>.</para>
+      </step>
+      <step>
+        <para>Call &expand; on the resulting buffer.</para>
+      </step>
+      <step>
+        <para>Call &unescape; on the resulting buffer with
+<parameter>unescape_all</parameter> set to <literal>true</literal>.</para>
+      </step>
+    </procedure>
+
+    <para>This approach is illustrated in the example program shown in <xref
+linkend="example">.</para>
+
+    <para>&unescape; will return if no error occured. If the input buffer
+contained syntax errors, the apropriate exception as described in <xref
+linkend="exceptions"> will be thrown.</para>
   </sect1>
 
-  <sect1>
+  <sect1 id="exceptions">
     <title>Exceptions Thrown by &varexp;</title>
+
+    <para>&varexp; throws various exceptions in case of a syntax error or when
+required system resources (memory) cannot be reserved. The complete list is
+found below. In addition to these, &varexp; may throw practically any of the
+exceptions thrown by the STL's containers.</para>
+
+    <para>All of the following exceptions are derived from the abstract base
+class <exceptionname>varexp::error</exceptionname>, so by catching this
+exception, you can catch all of them. The
+<exceptionname>varexp::error</exceptionname> exception provides the following
+interface:</para>
+
+    <classsynopsis>
+      <ooclass>
+        <classname>varexp::error : public std::runtime_error</classname>
+      </ooclass>
+      <constructorsynopsis>
+        <methodname>error</methodname>
+        <methodparam>
+          <type>const std::string&</type>
+          <parameter>what_msg</parameter>
+        </methodparam>
+      </constructorsynopsis>
+      <methodsynopsis>
+        <modifier>virtual</modifier>
+        <type>const char*</type>
+        <methodname>what</methodname>
+        <void>
+      </methodsynopsis>
+      <fieldsynopsis>
+        <type>size_t</type>
+        <varname>current_position</varname>
+      </fieldsynopsis>
+    </classsynopsis>
+
+    <para>As you can see, <exceptionname>varexp::error</exceptionname> is
+derived from <exceptionname>std::runtime_error</exceptionname>. This inheritance
+relationship also defines the <function>what</function> member function that
+will return a short, clear-text description of the error that caused the actual
+execption instance to be thrown. In addition to this member funcition, the
+member variable <varname>current_position</varname> is available, which contains
+the offset position in the input buffer that was parsed when the error
+occured.</para>
+
+    <para>Here is the complete list of all &varexp;-specific exceptions:</para>
 
     <variablelist>
       <varlistentry>
-        <term><exceptionname>incomplete_hex</exceptionname></term>
+        <term><exceptionname>varexp::incomplete_hex</exceptionname></term>
         <listitem>
           <para>The input buffer ended before a hexadecimal
 <quote>\x<replaceable>aa</replaceable></quote> quoted pair was complete.</para>
@@ -660,7 +1047,7 @@ TEXT       : '[^$[\\]]+'
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>invalid_hex</exceptionname></term>
+        <term><exceptionname>varexp::invalid_hex</exceptionname></term>
         <listitem>
           <para>Any of the <replaceable>a</replaceable> characters in an
 <quote>\x<replaceable>aa</replaceable></quote> quoted pair was not a valid
@@ -669,7 +1056,7 @@ hexadecimal character.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>octal_too_large</exceptionname></term>
+        <term><exceptionname>varexp::octal_too_large</exceptionname></term>
         <listitem>
           <para>The first digit of an octal
 <quote>\<replaceable>abb</replaceable></quote> quoted pair was not in the range
@@ -678,7 +1065,7 @@ from 0 to 3.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>invalid_octal</exceptionname></term>
+        <term><exceptionname>varexp::invalid_octal</exceptionname></term>
         <listitem>
           <para>A digit of an octal
 <quote>\<replaceable>abb</replaceable></quote> expression was not in the range
@@ -687,7 +1074,7 @@ from 0 to 7.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>incomplete_octal</exceptionname></term>
+        <term><exceptionname>varexp::incomplete_octal</exceptionname></term>
         <listitem>
           <para>The input buffer ended in the before an octal
 <quote>\<replaceable>abb</replaceable></quote> quoted pair was complete.</para>
@@ -695,7 +1082,7 @@ from 0 to 7.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>incomplete_grouped_hex</exceptionname></term>
+        <term><exceptionname>varexp::incomplete_grouped_hex</exceptionname></term>
         <listitem>
           <para>A hexadecimal
 <quote>\x{<replaceable>&hellip;</replaceable>}</quote> expression contained an
@@ -705,7 +1092,7 @@ parameter.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>incorrect_class_spec</exceptionname></term>
+        <term><exceptionname>varexp::incorrect_class_spec</exceptionname></term>
         <listitem>
           <para>In a character range specification
 <quote><replaceable>a</replaceable>-<replaceable>b</replaceable></quote>, the
@@ -716,14 +1103,14 @@ terms of the ASCII code) than the end of the range
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>invalid_configuration</exceptionname></term>
+        <term><exceptionname>varexp::invalid_configuration</exceptionname></term>
         <listitem>
           <para>&expand;'s configuration is inconsistent.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>incomplete_variable_spec</exceptionname></term>
+        <term><exceptionname>varexp::incomplete_variable_spec</exceptionname></term>
         <listitem>
           <para>Either, the input buffer ended right after a variable
 initializer token (<quote>$</quote>) was found, or a complex variable expression
@@ -733,7 +1120,7 @@ was missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>undefined_variable</exceptionname></term>
+        <term><exceptionname>varexp::undefined_variable</exceptionname></term>
         <listitem>
           <para>This exception is supposed to be thrown by the user-provided
 callback when an unknown variable is requested.</para>
@@ -741,7 +1128,7 @@ callback when an unknown variable is requested.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>input_isnt_text_nor_variable</exceptionname></term>
+        <term><exceptionname>varexp::input_isnt_text_nor_variable</exceptionname></term>
         <listitem>
           <para>This exception is throw in the rather unlikely case that the
 parser could not process the complete buffer, yet no error occured. When this
@@ -751,7 +1138,7 @@ I defined it.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>unknown_command_char</exceptionname></term>
+        <term><exceptionname>varexp::unknown_command_char</exceptionname></term>
         <listitem>
           <para>In an <quote>${NAME:<replaceable>c</replaceable>}</quote>
 expression, <replaceable>c</replaceable> was none of the supported
@@ -760,7 +1147,7 @@ operations.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>malformatted_replace</exceptionname></term>
+        <term><exceptionname>varexp::malformatted_replace</exceptionname></term>
         <listitem>
           <para>In an <quote>${NAME:s&hellip;}</quote> expression, one of the
 required parameters is missing.</para>
@@ -768,7 +1155,7 @@ required parameters is missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>unknown_replace_flag</exceptionname></term>
+        <term><exceptionname>varexp::unknown_replace_flag</exceptionname></term>
         <listitem>
           <para>An unsupported flag was provided in an
 <quote>${NAME:s&hellip;}</quote> expression.</para>
@@ -776,7 +1163,7 @@ required parameters is missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>invalid_regex_in_replace</exceptionname></term>
+        <term><exceptionname>varexp::invalid_regex_in_replace</exceptionname></term>
         <listitem>
           <para>The regular expression given as pattern in an
 <quote>${NAME:s&hellip;}</quote> expression failed to compile.</para>
@@ -784,7 +1171,7 @@ required parameters is missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>missing_parameter_in_command</exceptionname></term>
+        <term><exceptionname>varexp::missing_parameter_in_command</exceptionname></term>
         <listitem>
           <para>The required <replaceable>word</replaceable> parameter was
 missing in an <quote>${NAME:-<replaceable>word</replaceable>}</quote>,
@@ -794,7 +1181,7 @@ missing in an <quote>${NAME:-<replaceable>word</replaceable>}</quote>,
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>empty_search_string</exceptionname></term>
+        <term><exceptionname>varexp::empty_search_string</exceptionname></term>
         <listitem>
           <para>In an <quote>${NAME:s&hellip;} expression, the
 <replaceable>search</replaceable> parameter was empty.</quote>
@@ -802,7 +1189,7 @@ missing in an <quote>${NAME:-<replaceable>word</replaceable>}</quote>,
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>missing_start_offset</exceptionname></term>
+        <term><exceptionname>varexp::missing_start_offset</exceptionname></term>
         <listitem>
           <para>The <replaceable>start</replaceable> parameter was missing in an
 <quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
@@ -812,7 +1199,7 @@ expression.</para>
 
 
       <varlistentry>
-        <term><exceptionname>invalid_offset_delimiter</exceptionname></term>
+        <term><exceptionname>varexp::invalid_offset_delimiter</exceptionname></term>
         <listitem>
           <para>In an
 <quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
@@ -825,7 +1212,7 @@ expression, the delimiter between <replaceable>start</replaceable> and
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>range_out_of_bounds</exceptionname></term>
+        <term><exceptionname>varexp::range_out_of_bounds</exceptionname></term>
         <listitem>
           <para>The <replaceable>stop</replaceable> parameter in an
 <quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
@@ -836,7 +1223,7 @@ expression exceeded the actual length of the string.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>offset_out_of_bounds</exceptionname></term>
+        <term><exceptionname>varexp::offset_out_of_bounds</exceptionname></term>
         <listitem>
           <para>The <replaceable>start</replaceable> parameter in an
 <quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
@@ -847,7 +1234,7 @@ expression exceeded the actual length of the string.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>offset_logic</exceptionname></term>
+        <term><exceptionname>varexp::offset_logic</exceptionname></term>
         <listitem>
           <para>In an
 <quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
@@ -857,7 +1244,7 @@ expression, <replaceable>start</replaceable> was larger than
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>malformatted_transpose</exceptionname></term>
+        <term><exceptionname>varexp::malformatted_transpose</exceptionname></term>
         <listitem>
           <para>In an <quote>${NAME:y&hellip;}</quote> expression, one of the
 required parameters is missing.</para>
@@ -865,7 +1252,7 @@ required parameters is missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>transpose_classes_mismatch</exceptionname></term>
+        <term><exceptionname>varexp::transpose_classes_mismatch</exceptionname></term>
         <listitem>
           <para>The <replaceable>ochars</replaceable> range has not the same
 number of characters as the <replaceable>nchars</replaceable> range in an
@@ -874,7 +1261,7 @@ number of characters as the <replaceable>nchars</replaceable> range in an
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>empty_transpose_class</exceptionname></term>
+        <term><exceptionname>varexp::empty_transpose_class</exceptionname></term>
         <listitem>
           <para>In an <quote>${NAME:y&hellip;}</quote> expression, either the
 <replaceable>ochars</replaceable> or the <replaceable>nchars</replaceable> range
@@ -883,7 +1270,7 @@ was empty.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>incorrect_transpose_class_spec</exceptionname></term>
+        <term><exceptionname>varexp::incorrect_transpose_class_spec</exceptionname></term>
         <listitem>
           <para>In a character range given in an
 <quote>${NAME:y&hellip;}</quote> expression, the start of the range was larger
@@ -892,7 +1279,7 @@ was empty.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>malformatted_padding</exceptionname></term>
+        <term><exceptionname>varexp::malformatted_padding</exceptionname></term>
         <listitem>
           <para>In an <quote>${NAME:p&hellip;}</quote> expression, one of the
 required parameters is missing.</para>
@@ -900,7 +1287,7 @@ required parameters is missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>missing_padding_width</exceptionname></term>
+        <term><exceptionname>varexp::missing_padding_width</exceptionname></term>
         <listitem>
           <para>The <replaceable>width</replaceable> parameter in an
 <quote>${NAME:p&hellip;}</quote> expression was empty.</para>
@@ -908,7 +1295,7 @@ required parameters is missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>empty_padding_fill_string</exceptionname></term>
+        <term><exceptionname>varexp::empty_padding_fill_string</exceptionname></term>
         <listitem>
           <para>The <replaceable>fill</replaceable> parameter in an
 <quote>${NAME:p&hellip;}</quote> expression was empty.</para>
@@ -916,7 +1303,7 @@ required parameters is missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>unknown_quoted_pair_in_replace</exceptionname></term>
+        <term><exceptionname>varexp::unknown_quoted_pair_in_replace</exceptionname></term>
         <listitem>
           <para>In the <replaceable>replace</replaceable> parameter of an
 <quote>${NAME:s&hellip;}</quote> expression, an invalid quoted pair was
@@ -926,7 +1313,7 @@ specified. Valid are only quoted pairs of the form
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>submatch_out_of_range</exceptionname></term>
+        <term><exceptionname>varexp::submatch_out_of_range</exceptionname></term>
         <listitem>
           <para>In the <replaceable>replace</replaceable> parameter an
 <quote>${NAME:s&hellip;}</quote> expression, a submatch with a number greater
@@ -936,14 +1323,14 @@ parameter was accessed.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>incomplete_quoted_pair</exceptionname></term>
+        <term><exceptionname>varexp::incomplete_quoted_pair</exceptionname></term>
         <listitem>
           <para>The input buffer ended right after a backslash character.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>array_lookups_are_unsupported</exceptionname></term>
+        <term><exceptionname>varexp::array_lookups_are_unsupported</exceptionname></term>
         <listitem>
           <para>This exception is supposed to be thrown by the user-supplied
 callback when the array lookup function is called even though arrays should not
@@ -953,7 +1340,7 @@ via the parser's configuration instead.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>invalid_char_in_index_spec</exceptionname></term>
+        <term><exceptionname>varexp::invalid_char_in_index_spec</exceptionname></term>
         <listitem>
           <para>The index specification of array variable contains an invalid
 character, a character that is not part of a <literal>num-exp</literal> that
@@ -962,7 +1349,7 @@ is.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>incomplete_index_spec</exceptionname></term>
+        <term><exceptionname>varexp::incomplete_index_spec</exceptionname></term>
         <listitem>
           <para>The input buffer ended in an open variable index specification;
 meaning that the terminating <quote>]</quote> delimiter was missing.</para>
@@ -970,7 +1357,7 @@ meaning that the terminating <quote>]</quote> delimiter was missing.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>unclosed_bracket_in_index</exceptionname></term>
+        <term><exceptionname>varexp::unclosed_bracket_in_index</exceptionname></term>
         <listitem>
           <para>An arithmetic group in an index specification was closed
 properly with a <quote>)</quote> bracket.</para>
@@ -978,14 +1365,14 @@ properly with a <quote>)</quote> bracket.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>division_by_zero_in_index</exceptionname></term>
+        <term><exceptionname>varexp::division_by_zero_in_index</exceptionname></term>
         <listitem>
           <para>Division by zero error in index specification.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>unterminated_loop_construct</exceptionname></term>
+        <term><exceptionname>varexp::unterminated_loop_construct</exceptionname></term>
         <listitem>
           <para>The buffer ended in the midst of on open looping
 construct.</para>
@@ -993,7 +1380,7 @@ construct.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><exceptionname>invalid_char_in_loop_limits</exceptionname></term>
+        <term><exceptionname>varexp::invalid_char_in_loop_limits</exceptionname></term>
         <listitem>
           <para>The looping limits specification of contained invalid
 characters.</para>
@@ -1002,7 +1389,7 @@ characters.</para>
     </variablelist>
   </sect1>
 
-  <sect1>
+  <sect1 id="example">
     <title>Example Program</title>
 
     <para>The following source code may be found in

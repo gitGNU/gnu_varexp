@@ -7,6 +7,7 @@
 
 typedef enum
     {
+    VAR_EMPTY_SEARCH_STRING          = -20,
     VAR_MISSING_PARAMETER_IN_COMMAND = -19,
     VAR_INVALID_REGEX_IN_REPLACE     = -18,
     VAR_UNKNOWN_REPLACE_FLAG         = -17,

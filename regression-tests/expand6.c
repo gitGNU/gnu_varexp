@@ -54,8 +54,19 @@ int main(int argc, char** argv)
         { "${EMPTY:*claus}",            "claus",                          VAR_OK },
         { "${TERM}",                    "regression-term",                VAR_OK },
         { "${HOME:s/reg/bla/}",         "/home/blaression-tests",         VAR_OK },
-        { "${HOME:s/e/bla/g}",          "/hombla/rblagrblassion-tblasts", VAR_OK }
+        { "${HOME:s/e/bla/}",           "/hombla/regression-tests",       VAR_OK },
+        { "${HOME:s/e/bla/g}",          "/hombla/rblagrblassion-tblasts", VAR_OK },
+        { "${HOME:s/\\//_/g}",          "_home_regression-tests",         VAR_OK },
+        { "${HOME:s/[eso]/_/g}",        "/h_m_/r_gr___i_n-t__t_",         VAR_OK },
+        { "${HOME:s/[esO]/_/g}",        "/hom_/r_gr___ion-t__t_",         VAR_OK },
+        { "${HOME:s/[esO]/_/gi}",       "/h_m_/r_gr___i_n-t__t_",         VAR_OK },
+        { "${OSTYPE:s/^[re]/_/g}",      "_egression-os",                  VAR_OK },
+        { "${EMPTY:s/^[re]/_/g}",       "",                               VAR_OK },
+        { "${HOME:s/.*/heinz/}",        "heinz",                          VAR_OK },
         };
+    /*
+        { "${HOME:s/\\x65/\\x45/g}",    "/homE/rEgrEssion-tEsts",         VAR_OK }
+    */
     char*    tmp;
     size_t   tmp_len;
     var_rc_t rc;

@@ -10,6 +10,7 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -ansi -pedantic' \
     parser.c
     expand.c
     append-to-tokenbuf.c
+    free-tokenbuf.c
 
 %clean ! == !<<
     rm -f libvarexp.a

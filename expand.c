@@ -55,8 +55,7 @@ var_rc_t var_expand(const char* input_buf, size_t input_len,
                lookup, lookup_context, force_expand, &output);
     if (rc != VAR_OK)
         {
-        if (output.buffer_size > 0)
-            free((char*)output.begin);
+        free_tokenbuf(&output);
         return rc;
         }
     *result     = (char*)output.begin;

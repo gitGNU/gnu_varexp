@@ -7,26 +7,27 @@
 
 typedef enum
     {
+    VAR_UNKNOWN_COMMAND_CHAR         = -14,
     VAR_INPUT_ISNT_TEXT_NOR_VARIABLE = -13,
-    VAR_UNDEFINED_VARIABLE          = -12,
-    VAR_INCOMPLETE_VARIABLE_SPEC    = -11,
+    VAR_UNDEFINED_VARIABLE           = -12,
+    VAR_INCOMPLETE_VARIABLE_SPEC     = -11,
 
-    VAR_OUT_OF_MEMORY               = -10,
+    VAR_OUT_OF_MEMORY                = -10,
 
-    VAR_INVALID_CONFIGURATION       = -9,
+    VAR_INVALID_CONFIGURATION        = -9,
 
-    VAR_INCORRECT_CLASS_SPEC        = -8,
+    VAR_INCORRECT_CLASS_SPEC         = -8,
 
-    VAR_INCOMPLETE_GROUPED_HEX      = -7,
-    VAR_INCOMPLETE_OCTAL            = -6,
-    VAR_INVALID_OCTAL               = -5,
-    VAR_OCTAL_TOO_LARGE             = -4,
-    VAR_INVALID_HEX                 = -3,
-    VAR_INCOMPLETE_HEX              = -2,
-    VAR_INCOMPLETE_NAMED_CHARACTER  = -1,
-    VAR_INCOMPLETE_QUOTED_PAIR      = -1,
+    VAR_INCOMPLETE_GROUPED_HEX       = -7,
+    VAR_INCOMPLETE_OCTAL             = -6,
+    VAR_INVALID_OCTAL                = -5,
+    VAR_OCTAL_TOO_LARGE              = -4,
+    VAR_INVALID_HEX                  = -3,
+    VAR_INCOMPLETE_HEX               = -2,
+    VAR_INCOMPLETE_NAMED_CHARACTER   = -1,
+    VAR_INCOMPLETE_QUOTED_PAIR       = -1,
 
-    VAR_OK                          = 0
+    VAR_OK                           = 0
     }
 var_rc_t;
 

@@ -22,9 +22,25 @@ typedef struct
 tokenbuf;
 
 int append_to_tokenbuf(tokenbuf* output, const char* begin, int rc);
+void free_tokenbuf(tokenbuf* buf);
 
 var_rc_t input(const char* begin, const char* end, const var_config_t* config,
                const char nameclass[256], var_cb_t lookup, void* lookup_context,
                int force_expand, tokenbuf* output);
+
+int variable(const char* begin, const char* end, const var_config_t* config,
+             const char nameclass[256], var_cb_t lookup, void* lookup_context,
+             int force_expand, tokenbuf* result);
+
+
+int command(const char* begin, const char* end, const var_config_t* config,
+            const char nameclass[256], var_cb_t lookup, void* lookup_context,
+            int force_expand, tokenbuf* result);
+
+int exptext(const char* begin, const char* end, const var_config_t* config);
+
+int exptext_or_variable(const char* begin, const char* end, const var_config_t* config,
+                        const char nameclass[256], var_cb_t lookup, void* lookup_context,
+                        int force_expand, tokenbuf* result);
 
 #endif /* !defined(INTERNAL_H) */

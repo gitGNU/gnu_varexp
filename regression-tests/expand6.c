@@ -91,7 +91,7 @@ int main(int argc, char** argv)
         printf("Failed to set the environment: %s.\n", strerror(errno));
         return 1;
         }
-    unsetenv("UNDEFINED") != 0;
+    unsetenv("UNDEFINED");
 
     for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {

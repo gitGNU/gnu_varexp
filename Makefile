@@ -1,8 +1,7 @@
 #
 # Build libvarexp.a.
 #
-
-# This Makefile assumes you are using the GNU compiler. Please changes
+# This Makefile assumes you are using the GNU compiler. Please change
 # these defines if you are not.
 #
 CXX		= g++

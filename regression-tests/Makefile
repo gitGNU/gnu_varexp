@@ -22,10 +22,13 @@ TESTS		= unescape.exe expand-character-class.exe expand1.exe expand2.exe \
 .SUFFIXES:	.cc .exe
 
 .cc.exe:
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(WARNFLAGS) $(OPTIMFLAGS) $(LDFLAGS) $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(WARNFLAGS) $(OPTIMFLAGS) $(LDFLAGS) $< ../libvarexp.a -o $@
 
-check all::	$(TESTS)
+check all::	../libvarexp.a $(TESTS)
 	$(SHELL) .run-tests $(TESTS)
+
+../libvarexp.a:
+	(cd .. && $(MAKE) libvarexp.a)
 
 realclean distclean clean::
 	@find . -name '*.rpo' -exec rm -f {} \;
@@ -34,18 +37,6 @@ realclean distclean clean::
 	@find . -name '.#*'   -exec rm -f {} \;
 	@echo All dependent files have been removed.
 
-depend::
-	makedepend -Y -fMakefile '-s# Dependencies' `find . -name '*.cc' ` 2>/dev/null
-
 # Dependencies
 
-empty-search-pattern.o: ../varexp.hh
-expand-character-class.o: ../internal.hh ../varexp.hh
-expand1.o: ../varexp.hh
-expand2.o: ../varexp.hh
-expand3.o: ../varexp.hh
-expand4.o: ../varexp.hh
-expand5.o: ../varexp.hh
-expand6.o: ../varexp.hh
-offset-failure.o: ../varexp.hh
-unescape.o: ../varexp.hh
+$(TESTS): ../varexp.hh

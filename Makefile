@@ -30,11 +30,15 @@ libvarexp.a:	$(OBJS)
 	$(AR) cr $@ $(OBJS)
 	$(RANLIB) $@
 
+check:
+	@(cd regression-tests && $(MAKE) check)
+
 realclean distclean clean::
+	@find . -name '*.exe' -exec rm -f {} \;
 	@find . -name '*.rpo' -exec rm -f {} \;
 	@find . -name '*.a'   -exec rm -f {} \;
 	@find . -name '*.o'   -exec rm -f {} \;
-	@find . -name '.#*' -exec rm -f {} \;
+	@find . -name '.#*'   -exec rm -f {} \;
 	@echo All dependent files have been removed.
 
 depend::

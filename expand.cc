@@ -2,8 +2,6 @@
 
 namespace varexp
     {
-    using namespace internal;
-
     // The default configuration for the parser.
 
     const config_t config_default;
@@ -23,7 +21,7 @@ namespace varexp
         // Call the parser.
 
         string tmp;
-        parser p(*config, lookup);
+        internal::parser p(*config, lookup);
         size_t rc = p.input(buffer.data(), buffer.data() + buffer.size(), tmp);
         if (rc != buffer.size())
             {

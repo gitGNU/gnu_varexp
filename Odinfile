@@ -6,6 +6,7 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -ansi -pedantic' \
 
 %libvarexp.a.sm == <<
     expand-named-characters.c
+    expand-character-class.c
 
 %clean ! == !<<
     rm -f libvarexp.a

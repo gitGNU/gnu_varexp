@@ -2,10 +2,12 @@
 
 %test == () +cmd='sh' (%run-tests) \
                       (expand-named-characters.exe) \
+                      (expand-character-class.exe) \
                       +output_show \
                       :stdout
 
 expand-named-characters.exe == expand-named-characters.c +(%test.flags) :exe
+expand-character-class.exe == expand-character-class.c +(%test.flags) :exe
 
 %test.flags == <<
     +lib=(../libvarexp.a)

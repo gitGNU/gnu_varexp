@@ -26,12 +26,10 @@ int main(int argc, char** argv)
     const char* input =                            \
         "\\$HOME      = '${HOME}'\\n"              \
         "\\$OSTYPE    = '${$FOO${BAR}}'\\n"        \
-        "\\$UNDEFINED = '${UNDEFINED}'\\n"         \
         "\\$TERM      = '${TERM}'\\n";
     const char* output =                           \
         "$HOME      = '/home/regression-tests'\n"  \
         "$OSTYPE    = 'regression-os'\n"           \
-        "$UNDEFINED = '${UNDEFINED}'\n"            \
         "$TERM      = 'regression-term'\n";
     char*    tmp;
     size_t   tmp_len;

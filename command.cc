@@ -4,277 +4,206 @@ namespace varexp
     {
     namespace internal
         {
-        size_t command(const char* begin, const char* end,
-                    const var_config_t* config, const char_class_t nameclass,
-                    var_cb_t lookup, void* lookup_context,
-                    tokenbuf_t* data, int current_index, int* rel_lookup_flag)
+        size_t parser::command(const char *begin, const char *end, std::string& result)
             {
             const char* p = begin;
-            tokenbuf_t tmptokbuf;
-            tokenbuf_t search, replace, flags;
-            tokenbuf_t number1, number2;
-            int isrange;
-            int rc;
-            char* ptr;
+            size_t rc;
 
             if (begin == end)
                 return 0;
 
             switch (tolower(*p))
                 {
-                case 'l':                   /* Turn data to lowercase. */
-                    /* If the buffer does not live in an allocated buffer,
-                       we have to copy it before modifying the contents. */
-
-                    data->force_copy();
-                    for (ptr = (char*)data->begin; ptr != data->end; ++ptr)
-                        *ptr = tolower(*ptr);
-                    p++;
-                    break;
-
-                case 'u':                   /* Turn data to uppercase. */
-                    data->force_copy();
-                    for (ptr = (char*) data->begin; ptr != data->end; ++ptr)
-                        *ptr = toupper(*ptr);
+                case 'l':                   // Turn data to lowercase.
+                    for (size_t i = 0; i < result.size(); ++i)
+                        result[i] = tolower(result[i]);
                     ++p;
                     break;
 
-                case 'o':                   /* Cut out substrings. */
+                case 'u':                   // Turn data to uppercase.
+                    for (size_t i = 0; i < result.size(); ++i)
+                        result[i] = toupper(result[i]);
                     ++p;
-                    rc = number(p, end);
+                    break;
+
+                case 'o':                   // Cut out substrings.
+                    ++p;
+                    {
+                    unsigned int num1, num2;
+                    bool is_range;
+
+                    rc = number(p, end, num1);
                     if (rc == 0)
-                        {
                         throw missing_start_offset();
-                        }
-                    number1.begin = p;
-                    number1.end = p + rc;
-                    number1.buffer_size = 0;
                     p += rc;
 
                     if (*p == ',')
-                        {
-                        isrange = 0;
-                        ++p;
-                        }
+                        is_range = false;
+                    else if (*p == '-')
+                        is_range = true;
                     else
-                        if (*p == '-')
-                            {
-                            isrange = 1;
-                            ++p;
-                            }
-                        else
-                            {
-                            throw invalid_offset_delimiter();
-                            }
-
-                    rc = number(p, end);
-                    number2.begin = p;
-                    number2.end = p + rc;
-                    number2.buffer_size = 0;
-                    p += rc;
-                    cut_out_offset(data, &number1, &number2, isrange);
-                    break;
-
-                case '#':                   /* Substitute length of the string. */
-                    char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
-                    sprintf(buf, "%d", (int)(data->end - data->begin));
-                    data->clear();
-                    data->append(buf, strlen(buf));
+                        throw invalid_offset_delimiter();
                     ++p;
+
+                    rc = number(p, end, num2);
+                    if (rc == 0)
+                        num2 = 0;
+                    p += rc;
+
+                    cut_out_offset(result, num1, num2, is_range);
+                    }
                     break;
 
-                case '-':                   /* Substitute parameter if data is empty. */
-                    p++;
-                    rc = exptext_or_variable(p, end, config, nameclass, lookup,
-                                             lookup_context, &tmptokbuf,
-                                             current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
-                    if (rc == 0)
-                        {
-                        throw missing_parameter_in_command();
-                        }
-                    p += rc;
-                    if (data->begin != NULL && data->begin == data->end)
-                        {
-                        data->shallow_move(&tmptokbuf);
-                        }
+                case '#':                   // Substitute length of the string.
+                    ++p;
+                    {
+                    char buf[((sizeof(int)*8)/3)+10];   // sufficient size: <#bits> x log_10(2) + safety
+                    sprintf(buf, "%d", result.size());
+                    result.assign(buf);
+                    }
                     break;
 
-                case '*':                   /* Return "" if data is not empty, parameter otherwise. */
+                case '-':                   // Substitute parameter if data is empty.
                     p++;
-                    rc = exptext_or_variable(p, end, config, nameclass, lookup,
-                                             lookup_context, &tmptokbuf, current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
+                    {
+                    string tmp;
+                    rc = exptext_or_variable(p, end, tmp);
                     if (rc == 0)
-                        {
                         throw missing_parameter_in_command();
-                        }
                     p += rc;
-                    if (data->begin == data->end)
-                        {
-                        data->shallow_move(&tmptokbuf);
-                        }
+                    if (result.empty())
+                        result = tmp;
+                    }
+                    break;
+
+                case '*':                   // Return "" if data is not empty, parameter otherwise.
+                    p++;
+                    {
+                    string tmp;
+                    rc = exptext_or_variable(p, end, tmp);
+                    if (rc == 0)
+                        throw missing_parameter_in_command();
+                    p += rc;
+                    if (result.empty())
+                        result = tmp;
                     else
-                        {
-                        data->clear();
-                        data->begin = data->end = "";
-                        data->buffer_size = 0;
-                        }
+                        result.clear();
+                    }
                     break;
 
-                case '+':                   /* Substitute parameter if data is not empty. */
+                case '+':                   // Substitute parameter if data is not empty.
                     p++;
-                    rc = exptext_or_variable(p, end, config, nameclass, lookup,
-                                             lookup_context, &tmptokbuf, current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
+                    {
+                    string tmp;
+                    rc = exptext_or_variable(p, end, tmp);
                     if (rc == 0)
-                        {
                         throw missing_parameter_in_command();
-                        }
                     p += rc;
-                    if (data->begin != NULL && data->begin != data->end)
+                    if (!result.empty())
                         {
-                        data->shallow_move(&tmptokbuf);
+                        result = tmp;
                         }
+                    }
                     break;
 
-                case 's':                   /* Search and replace. */
+                case 's':                   // Search and replace.
                     p++;
+                    {
+                    if (*p != '/')
+                        throw malformatted_replace();
+                    p++;
+
+                    string search;
+                    rc = substext_or_variable(p, end, search);
+                    p += rc;
 
                     if (*p != '/')
                         throw malformatted_replace();
                     p++;
 
-                    rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                              lookup_context, &search, current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
+
+                    string replace;
+                    rc = substext_or_variable(p, end, replace);
                     p += rc;
 
                     if (*p != '/')
-                        {
                         throw malformatted_replace();
-                        }
                     p++;
 
-                    rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                              lookup_context, &replace, current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
+                    rc = exptext(p, end);
+                    string flags(p, rc);
                     p += rc;
 
-                    if (*p != '/')
-                        {
-                        throw malformatted_replace();
-                        goto error_return;
-                        }
-                    p++;
-
-                    rc = exptext(p, end, config);
-                    if (rc < 0)
-                        goto error_return;
-                    flags.begin = p;
-                    flags.end = p + rc;
-                    flags.buffer_size = 0;
-                    p += rc;
-                    search_and_replace(data, &search, &replace, &flags);
+                    search_and_replace(result, search, replace, flags);
+                    }
                     break;
 
-                case 'y':                   /* Transpose characters from class A to class B. */
+                case 'y':                   // Transpose characters from class A to class B.
                     p++;
-
+                    {
                     if (*p != '/')
                         throw malformatted_transpose();
                     p++;
 
-                    rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                              lookup_context, &search, current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
+                    string srcclass;
+                    rc = substext_or_variable(p, end, srcclass);
                     p += rc;
 
                     if (*p != '/')
-                        {
                         throw malformatted_transpose();
-                        goto error_return;
-                        }
                     p++;
 
-                    rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                              lookup_context, &replace, current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
+                    string dstclass;
+                    rc = substext_or_variable(p, end, dstclass);
                     p += rc;
 
                     if (*p != '/')
-                        {
                         throw malformatted_transpose();
-                        goto error_return;
-                        }
-                    else
-                        ++p;
-                    transpose(data, &search, &replace);
+                    ++p;
+
+                    transpose(result, srcclass, dstclass);
+                    }
                     break;
 
-
-                case 'p':                   /* Padding. */
+                case 'p':                   // Padding.
                     p++;
-
+                    {
                     if (*p != '/')
                         throw malformatted_padding();
                     p++;
 
-                    rc = number(p, end);
+                    unsigned int width;
+                    rc = number(p, end, width);
                     if (rc == 0)
-                        {
                         throw missing_padding_width();
-                        }
-                    number1.begin = p;
-                    number1.end = p + rc;
-                    number1.buffer_size = 0;
                     p += rc;
 
                     if (*p != '/')
-                        {
                         throw malformatted_padding();
-                        }
                     p++;
 
-                    rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                              lookup_context, &replace, current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
+                    string fillstring;
+                    rc = substext_or_variable(p, end, fillstring);
                     p += rc;
 
                     if (*p != '/')
-                        {
                         throw malformatted_padding();
-                        }
                     p++;
 
                     if (*p != 'l' && *p != 'c' && *p != 'r')
-                        {
                         throw malformatted_padding();
-                        goto error_return;
-                        }
                     p++;
-                    padding(data, &number1, &replace, p[-1]);
+                    padding(result, width, fillstring, p[-1]);
+                    }
                     break;
 
                 default:
                     throw unknown_command_char();
                 }
 
-            /* Exit gracefully. */
+            // Exit gracefully.
 
             return p - begin;
-
-          error_return:
-            data->clear();
-            return rc;
             }
         }
     }

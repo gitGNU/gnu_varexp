@@ -4,49 +4,35 @@ namespace varexp
     {
     namespace internal
         {
-        void cut_out_offset(tokenbuf_t* data, tokenbuf_t* number1,
-                            tokenbuf_t* number2, int isrange)
+        void cut_out_offset(std::string& data, unsigned int num1, unsigned int num2, bool is_range)
             {
-            tokenbuf_t res;
-            const char* p;
-            size_t num1;
-            size_t num2;
-
-            num1 = number1->toint();
-            num2 = number2->toint();
-
-            /* Determine begin of result string. */
-
-            if ((size_t)(data->end - data->begin) < num1)
+            if (data.size() < num1)
                 throw offset_out_of_bounds();
-            else
-                p = data->begin + num1;
-
-            /* If num2 is zero, we copy the rest from there. */
 
             if (num2 == 0)
                 {
-                res.append(p, data->end - p);
+                data.erase(0, num1);
                 }
             else
                 {
-                /* OK, then use num2. */
-                if (isrange)
+                if (is_range)
                     {
-                    if ((p + num2) > data->end)
+                    if (num1 + num2 > data.size())
                         throw range_out_of_bounds();
-                    res.append(p, num2);
+                    else
+                        data.erase(num1 + num2).erase(0, num1);
                     }
                 else
                     {
                     if (num2 < num1)
                         throw offset_logic();
-                    if ((data->begin + num2) > data->end)
+                    else if (num2 > data.size())
                         throw range_out_of_bounds();
-                    res.append(p, num2 - num1 + 1);
+                    else
+                        data.erase(num2 + 1).erase(0, num1);
                     }
                 }
-            data->shallow_move(&res);
             }
         }
     }
+

@@ -6,59 +6,48 @@ namespace varexp
     {
     namespace internal
         {
-        static void expand_class_description(tokenbuf_t* src, tokenbuf_t* dst)
+        static void expand_class_description(const string& src, string& dst)
             {
-            unsigned char c, d;
-            const char* p = src->begin;
-
-            while (p != src->end)
+            for (string::const_iterator p = src.begin(); p != src.end(); )
                 {
-                if ((src->end - p) >= 3 && p[1] == '-')
+                if (src.end() - p >= 3 && p[1] == '-')
                     {
                     if (*p > p[2])
                         throw incorrect_transpose_class_spec();
+                    unsigned c, d;
                     for (c = *p, d = p[2]; c <= d; ++c)
                         {
-                        dst->append((char*)&c, 1);
+                        dst.append(1, static_cast<string::value_type>(c));
                         }
                     p += 3;
                     }
                 else
                     {
-                    dst->append(p, 1);
+                    dst.append(1, *p);
                     ++p;
                     }
                 }
             }
 
-        void transpose(tokenbuf_t* data, tokenbuf_t* search,
-                      tokenbuf_t* replace)
+        void transpose(std::string& data, const std::string& srcdesc, const std::string& dstdesc)
             {
-            tokenbuf_t srcclass, dstclass;
-            const char* p;
-            size_t i;
+            string srcclass, dstclass;
 
-            expand_class_description(search, &srcclass);
-            expand_class_description(replace, &dstclass);
+            expand_class_description(srcdesc, srcclass);
+            expand_class_description(dstdesc, dstclass);
 
-            if (srcclass.begin == srcclass.end)
-                {
+            if (srcclass.empty())
                 throw empty_transpose_class();
-                }
-            if ((srcclass.end - srcclass.begin) != (dstclass.end - dstclass.begin))
-                {
+            if (srcclass.size() != dstclass.size())
                 throw transpose_classes_mismatch();
-                }
 
-            data->force_copy();
-
-            for (p = data->begin; p != data->end; ++p)
+            for (string::iterator p = data.begin(); p != data.end(); ++p)
                 {
-                for (i = 0; i <= (size_t)(srcclass.end - srcclass.begin); ++i)
+                for (size_t i = 0; i <= srcclass.size(); ++i)
                     {
-                    if (*p == srcclass.begin[i])
+                    if (*p == srcclass[i])
                         {
-                        *((char*) p) = dstclass.begin[i];
+                        *p = dstclass[i];
                         break;
                         }
                     }

@@ -6,26 +6,24 @@ namespace varexp
     {
     namespace internal
         {
-        static void expand_regex_replace(const char* data, tokenbuf_t* orig,
-                                         regmatch_t* pmatch, tokenbuf_t* expanded)
+        static void expand_regex_replace(const char* data, const string& orig,
+                                         regmatch_t* pmatch, string& expanded)
             {
-            const char* p = orig->begin;
+            const char* p = orig.c_str();
             size_t i;
 
-            expanded->clear();
-
-            while (p != orig->end)
+            while (p != orig.c_str() + orig.size())
                 {
                 if (*p == '\\')
                     {
-                    if (orig->end - p <= 1)
+                    if (orig.c_str() + orig.size() - p <= 1)
                         {
                         throw incomplete_quoted_pair();
                         }
                     p++;
                     if (*p == '\\')
                         {
-                        expanded->append(p, 1);
+                        expanded.append(p, 1);
                         ++p;
                         continue;
                         }
@@ -39,41 +37,40 @@ namespace varexp
                         {
                         throw submatch_out_of_range();
                         }
-                    expanded->append(data + pmatch[i].rm_so, pmatch[i].rm_eo - pmatch[i].rm_so);
+                    expanded.append(data + pmatch[i].rm_so, pmatch[i].rm_eo - pmatch[i].rm_so);
                     }
                 else
                     {
-                    expanded->append(p, 1);
+                    expanded.append(p, 1);
                     ++p;
                     }
                 }
             }
 
-        void search_and_replace(tokenbuf_t* data, tokenbuf_t* search,
-                                tokenbuf_t* replace, tokenbuf_t* flags)
-
+        void search_and_replace(std::string& data,
+                                const std::string& search,
+                                const std::string& replace,
+                                const std::string& flags)
             {
-            const char* p;
-            int case_insensitive = 0;
-            int global = 0;
-            int no_regex = 0;
-            int rc;
+            bool case_insensitive = false;
+            bool global = false;
+            bool no_regex = false;
 
-            if (search->begin == search->end)
+            if (search.empty())
                 throw empty_search_string();
 
-            for (p = flags->begin; p != flags->end; ++p)
+            for (string::const_iterator p = flags.begin(); p != flags.end(); ++p)
                 {
                 switch (tolower(*p))
                     {
                     case 'i':
-                        case_insensitive = 1;
+                        case_insensitive = true;
                         break;
                     case 'g':
-                        global = 1;
+                        global = true;
                         break;
                     case 't':
-                        no_regex = 1;
+                        no_regex = true;
                         break;
                     default:
                         throw unknown_replace_flag();
@@ -82,36 +79,32 @@ namespace varexp
 
             if (no_regex)
                 {
-                tokenbuf_t tmp;
-
-                for (p = data->begin; p != data->end;)
+                string tmp;
+                for (const char* p = data.data(); p != data.data() + data.size();)
                     {
+                    int rc;
                     if (case_insensitive)
-                        rc = strncasecmp(p, search->begin,
-                                         search->end - search->begin);
+                        rc = strncasecmp(p, search.data(), search.size());
                     else
-                        rc = strncmp(p, search->begin,
-                                     search->end - search->begin);
+                        rc = strncmp(p, search.data(), search.size());
                     if (rc != 0)
                         {
-                        /* no match, copy character */
+                        // No match, copy character.
                         tmp.append(p, 1);
                         ++p;
                         }
                     else
                         {
-                        tmp.append(replace->begin,
-                                   replace->end - replace->begin);
-                        p += search->end - search->begin;
+                        tmp.append(replace);
+                        p += search.size();
                         if (!global)
                             {
-                            tmp.append(p, data->end - p);
+                            tmp.append(p, data.data() + data.size() - p);
                             break;
                             }
                         }
                     }
-
-                data->shallow_move(&tmp);
+                data = tmp;
                 }
             else
                 {
@@ -121,23 +114,13 @@ namespace varexp
                     ~sentry()          { if (preg) regfree(preg); }
                     regex_t* preg;
                     } s;
-                tokenbuf_t tmp;
-                tokenbuf_t mydata;
-                tokenbuf_t myreplace;
                 regex_t preg;
                 regmatch_t pmatch[10];
                 int regexec_flag;
 
-                /* Copy the pattern and the data to our own buffer to make
-                   sure they're terminated with a null byte. */
+                // Compile the pattern.
 
-                tmp.append(search->begin, search->end - search->begin);
-                mydata.append(data->begin, data->end - data->begin);
-
-                /* Compile the pattern. */
-
-                rc = regcomp(&preg, tmp.begin, REG_EXTENDED|((case_insensitive)?REG_ICASE:0));
-                tmp.clear();
+                int rc = regcomp(&preg, search.c_str(), REG_EXTENDED|((case_insensitive)?REG_ICASE:0));
                 if (rc != 0)
                     {
                     throw invalid_regex_in_replace();
@@ -145,38 +128,35 @@ namespace varexp
                 else
                     s.preg = &preg;
 
-                /* Match the pattern and create the result string in the tmp
-                   buffer. */
+                // Match the pattern and create the result string in
+                // the tmp buffer.
 
-                for (p = mydata.begin; p != mydata.end; )
+                string tmp;
+                for (const char* p = data.c_str(); p != data.c_str() + data.size(); )
                     {
-                    if (p == mydata.begin || p[-1] == '\n')
+                    if (p == data.c_str() || p[-1] == '\n')
                         regexec_flag = 0;
                     else
                         regexec_flag = REG_NOTBOL;
-                    if (regexec
-                        (&preg, p, sizeof(pmatch) / sizeof(regmatch_t), pmatch,
-                         regexec_flag) == REG_NOMATCH)
+                    if (regexec(&preg, p, sizeof(pmatch) / sizeof(regmatch_t), pmatch, regexec_flag) == REG_NOMATCH)
                         {
-                        tmp.append(p, mydata.end - p);
+                        tmp.append(p, data.c_str() + data.size() - p);
                         break;
                         }
                     else
                         {
-                        expand_regex_replace(p, replace, pmatch, &myreplace);
-                        tmp.append(p, pmatch[0].rm_so);
-                        tmp.append(myreplace.begin, myreplace.end - myreplace.begin);
+                        string expanded;
+                        expand_regex_replace(p, replace, pmatch, expanded);
+                        tmp.append(p, pmatch[0].rm_so).append(expanded);
                         p += (pmatch[0].rm_eo > 0) ? pmatch[0].rm_eo : 1;
-                        myreplace.clear();
                         if (!global)
                             {
-                            tmp.append(p, mydata.end - p);
+                            tmp.append(p, data.c_str() + data.size() - p);
                             break;
                             }
                         }
                     }
-
-                data->shallow_move(&tmp);
+                data = tmp;
                 }
             }
         }

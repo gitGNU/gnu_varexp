@@ -4,141 +4,109 @@ namespace varexp
     {
     namespace internal
         {
-        size_t expression(const char* begin, const char* end,
-                       const var_config_t* config,
-                       const char_class_t nameclass, var_cb_t lookup,
-                       void* lookup_context,
-                       tokenbuf_t* result, int current_index, int* rel_lookup_flag)
+        size_t parser::expression(const char *begin, const char *end, std::string& result)
             {
             const char* p = begin;
-            const char* data;
-            size_t len, buffer_size;
-            int rc;
-            int idx = 0;
-            tokenbuf_t name;
-            tokenbuf_t tmp;
+            size_t rc;
+            bool have_index;
+            int idx;
 
-            result->clear();
+            // Expect STARTDELIM.
 
-            /* Expect STARTDELIM. */
-
-            if (p == end || *p != config->startdelim)
+            if (p == end || *p != config.startdelim)
                 return 0;
 
             if (++p == end)
                 throw incomplete_variable_spec();
 
-            /* Get the name of the variable to expand. The name may consist of
-               an arbitrary number of VARNAMEs and VARIABLEs. */
+            // Get the name of the variable to expand. The name may
+            // consist of an arbitrary number of VARNAMEs and
+            // VARIABLEs.
 
+            string name;
             do
                 {
-                rc = varname(p, end, nameclass);
+                rc = varname(p, end);
                 if (rc > 0)
                     {
                     name.append(p, rc);
                     p += rc;
                     }
 
-                rc = variable(p, end, config, nameclass, lookup, lookup_context,
-                              &tmp, current_index, rel_lookup_flag);
-                if (rc < 0)
-                    goto error_return;
+                string tmp;
+                rc = variable(p, end, tmp);
                 if (rc > 0)
                     {
-                    name.append(tmp.begin, tmp.end - tmp.begin);
+                    name.append(tmp);
                     p += rc;
                     }
                 }
             while (rc > 0);
 
-            /* We must have the complete variable name now, so make sure we
-               do. */
+            // We must have the complete variable name now, so make
+            // sure we do.
 
-            if (name.begin == name.end)
-                {
+            if (name.empty())
                 throw incomplete_variable_spec();
-                }
 
-            /* If the next token is START-INDEX, read the index specification. */
+            // If the next token is START-INDEX, read the index
+            // specification.
 
-            if (config->startindex && *p == config->startindex)
+            if (config.startindex && *p == config.startindex)
                 {
-                rc = num_exp(++p, end, current_index, &idx,
-                             rel_lookup_flag, config, nameclass, lookup, lookup_context);
-                if (rc < 0)
-                    goto error_return;
+                rc = num_exp(++p, end, idx);
                 if (rc == 0)
-                    {
                     throw incomplete_index_spec();
-                    }
+                have_index = true;
                 p += rc;
 
                 if (p == end)
-                    {
                     throw incomplete_index_spec();
-                    }
-                if (*p != config->endindex)
-                    {
+                else if (*p != config.endindex)
                     throw invalid_char_in_index_spec();
-                    }
-                p++;
+                else
+                    p++;
                 }
+            else
+                have_index = false;
 
-            /* Now we have the name of the variable stored in "name". The next
-               token here must either be an END-DELIM or a ':'. */
+            // Now we have the name of the variable stored in "name".
+            // The next token here must either be an END-DELIM or a
+            // ':'.
 
-            if (p == end || (*p != config->enddelim && *p != ':'))
-                {
+            if (p == end || (*p != config.enddelim && *p != ':'))
                 throw incomplete_variable_spec();
-                }
-            p++;
+            else
+                p++;
 
-            /* Use the lookup callback to get the variable's contents. */
+            // Use the lookup callback to get the variable's contents.
 
-            rc = (*lookup) (lookup_context, name.begin, name.end - name.begin, idx,
-                            &data, &len, &buffer_size);
+            string data;
+            if (have_index)
+                (*lookup)(name, idx, data);
+            else
+                (*lookup)(name, data);
 
-            /* The preliminary result is the contents of the variable.
-               This may be modified by the commands that may follow. */
-
-            result->begin = data;
-            result->end = data + len;
-            result->buffer_size = buffer_size;
+            // The preliminary result is the contents of the variable.
+            // This may be modified by the commands that may follow.
 
             if (p[-1] == ':')
                 {
-                /* Parse and execute commands. */
+                // Parse and execute commands.
 
-                tmp.clear();
-                p--;
-                while (p != end && *p == ':')
-                    {
-                    p++;
-                    rc = command(p, end, config, nameclass, lookup,
-                                 lookup_context, result,
-                                 current_index, rel_lookup_flag);
-                    if (rc < 0)
-                        goto error_return;
-                    p += rc;
-                    }
+                for (--p; p != end && *p == ':'; p += rc)
+                    rc = command(++p, end, data);
 
-                if (p == end || *p != config->enddelim)
-                    {
+                if (p == end || *p != config.enddelim)
                     throw incomplete_variable_spec();
-                    }
+
                 p++;
                 }
 
-            /* Exit gracefully. */
+            // Exit gracefully.
 
+            result += data;
             return p - begin;
-
-            /* Exit in case of an error. */
-
-          error_return:
-            result->clear();
-            return rc;
             }
         }
     }

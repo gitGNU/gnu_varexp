@@ -4,6 +4,7 @@
 #include <cstring>
 #include "../varexp.hh"
 using namespace varexp;
+using namespace std;
 
 struct variable
     {
@@ -12,55 +13,56 @@ struct variable
     const char* data;
     };
 
-static int var_lookup(void* context,
-                      const char* varname, size_t name_len, int idx,
-                      const char** data, size_t* data_len,
-                      size_t* buffer_size)
+class var_lookup : public callback_t
     {
-    const struct variable* vars = (struct variable*)context;
-    size_t i, counter, length;
-    static char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
+  public:
+    var_lookup(const variable* _vars) : vars(_vars)
+        {
+        }
+    virtual void operator()(const std::string& name, std::string& data)
+        {
+        (*this)(name, 0, data);
+        }
+    virtual void operator()(const std::string& name, int idx, std::string& data)
+        {
+        static char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
 
-    if (idx >= 0)
-        {
-        for (i = 0; vars[i].name; ++i)
+        if (idx >= 0)
             {
-            if (strncmp(varname, vars[i].name, name_len) == 0 && vars[i].idx == idx)
+            for (size_t i = 0; vars[i].name; ++i)
                 {
-                *data = vars[i].data;
-                *data_len = strlen(*data);
-                *buffer_size = 0;
-                return 1;
+                if (strncmp(name.data(), vars[i].name, name.size()) == 0 && vars[i].idx == idx)
+                    {
+                    data = vars[i].data;
+                    return;
+                    }
                 }
             }
-        }
-    else
-        {
-        for (i = 0; vars[i].name; ++i)
+        else
             {
-            if (strncmp(varname, vars[i].name, name_len) == 0)
+            for (size_t i = 0; vars[i].name; ++i)
                 {
-#ifdef DEBUG
-                printf("Found variable at index %d.\n", i);
-#endif
-                counter = 1;
-                length = strlen(vars[i].data);
-                while (   vars[i + counter].data
-                          && strncmp(varname, vars[i + counter].name, name_len) == 0)
-                    counter++;
-                if (counter == 1)
-                    sprintf(buf, "%d", length);
-                else
-                    sprintf(buf, "%d", counter);
-                *data = buf;
-                *data_len = strlen(buf);
-                *buffer_size = 0;
-                return 1;
+                if (strncmp(name.data(), vars[i].name, name.size()) == 0)
+                    {
+                    printf("Found variable at index %d.\n", i);
+                    size_t counter = 1;
+                    size_t length  = strlen(vars[i].data);
+                    while (vars[i + counter].data && strncmp(name.data(), vars[i + counter].name, name.size()) == 0)
+                        ++counter;
+                    if (counter == 1)
+                        sprintf(buf, "%d", length);
+                    else
+                        sprintf(buf, "%d", counter);
+                    data = buf;
+                    return;
+                    }
                 }
             }
+        throw undefined_variable();
         }
-    throw undefined_variable();
-    }
+  private:
+    const variable* vars;
+    };
 
 struct test_case
     {
@@ -174,35 +176,25 @@ try
         "entry0:entry1,entry3, entry2:entry1,entry3, "
         },
         };
-    char* tmp;
-    size_t tmp_len;
-    size_t i;
     char buffer[1024];
+    var_lookup lookup(vars);
 
-    for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
+    for (size_t i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {
-#ifdef DEBUG
-        printf("Test case #%02d: Original input is '%s'.\n", i,
-               tests[i].input);
-#endif
+        printf("Test case #%02d: Original input is '%s'.\n", i, tests[i].input);
         var_unescape(tests[i].input, strlen(tests[i].input), buffer, 0);
-#ifdef DEBUG
+
+        string tmp;
         printf("Test case #%02d: Unescaped input is '%s'.\n", i, buffer);
-#endif
-        var_expand(buffer, strlen(buffer), &tmp, &tmp_len,
-                   &var_lookup, (void*)vars, NULL);
-#ifdef DEBUG
-        printf("Test case #%02d: Expanded output is '%s'.\n", i, tmp);
-#endif
-        if (   tmp_len != strlen(tests[i].expected)
-               || tmp == NULL
-               || memcmp(tests[i].expected, tmp, tmp_len) != 0)
+        var_expand(buffer, strlen(buffer), tmp, lookup);
+        printf("Test case #%02d: Expanded output is '%s'.\n", i, tmp.c_str());
+
+        if (tmp.size() != strlen(tests[i].expected) ||
+            memcmp(tests[i].expected, tmp.data(), tmp.size()) != 0)
             {
-            printf("Test case #%d: Expected result '%s' but got '%s'.\n",
-                   i, tests[i].expected, tmp);
+            printf("Test case #%d: Expected result '%s' but got '%s'.\n", i, tests[i].expected, tmp.c_str());
             return 1;
             }
-        free(tmp);
         }
     return 0;
     }

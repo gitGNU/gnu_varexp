@@ -2,7 +2,8 @@
 
 libvarexp.a == %libvarexp.a.sm +gnu \
                                +cxx_flags='-pedantic -Wall -Wshadow -Wpointer-arith -Wcast-align -Winline -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-long-long' \
-                               +optimize=2 \
+                               +optimize=0 \
+                               +debug \
                                :a
 
 %libvarexp.a.sm == <<
@@ -22,6 +23,8 @@ libvarexp.a == %libvarexp.a.sm +gnu \
     transpose.cc
     variable.cc
     error.cc
+    parser.cc
+    ascii-to-uint.cc
 
 %clean ! == !<<
     rm -f libvarexp.a

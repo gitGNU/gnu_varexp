@@ -4,60 +4,26 @@ namespace varexp
     {
     namespace internal
         {
-        int lookup_wrapper(void* context,
-                                const char* name, size_t name_len, int idx,
-                                const char** data, size_t* data_len,
-                                size_t* buffer_size)
-            {
-            static char buf[1];
-            struct wrapper_context* wcon = static_cast<wrapper_context*>(context);
-            size_t rc;
-
-            try
-                {
-                rc = (*wcon->lookup)(wcon->context, name, name_len,
-                                 idx, data, data_len, buffer_size);
-                }
-            catch(const undefined_variable&)
-                {
-                (*wcon->rel_lookup_flag)--;
-                *data = buf;
-                *data_len = 0;
-                *buffer_size = 0;
-                rc = 0;
-                }
-            return rc;
-            }
-
-        size_t loop_limits(const char* begin, const char* end,
-                           const var_config_t* config,
-                           const char_class_t nameclass,
-                           var_cb_t lookup, void* lookup_context,
-                           int* start, int* step, int* stop, int* open_end)
+        size_t parser::loop_limits(const char *begin, const char *end, int& start, int& step, int& stop, bool& open_end)
             {
             const char* p = begin;
             int rc;
-            int dummy;
 
-            if (begin == end)
-                return 0;
-
-            if (*p != config->startdelim)
+            if (begin == end || *p != config.startdelim)
                 return 0;
             else
                 ++p;
 
-            /* Read start value for the loop. */
+            // Read start value for the loop.
 
             try
                 {
-                rc = num_exp(p, end, 0, start, &dummy,
-                             config, nameclass, lookup, lookup_context);
+                rc = num_exp(p, end, start);
                 p += rc;
                 }
             catch(const invalid_char_in_index_spec&)
                 {
-                *start = 0;          /* use default */
+                start = 0;          // Use default.
                 }
 
             if (*p != ',')
@@ -65,58 +31,58 @@ namespace varexp
             else
                 ++p;
 
-            /* Read step value for the loop. */
+            // Read step value for the loop.
 
             try
                 {
-                rc = num_exp(p, end, 0, step, &dummy,
-                             config, nameclass, lookup, lookup_context);
+                rc = num_exp(p, end, step);
                 p += rc;
                 }
             catch(const invalid_char_in_index_spec&)
                 {
-                *step = 1;          /* use default */
+                step = 1;           // Use default.
                 rc = 0;
                 }
 
             if (*p != ',')
                 {
-                if (*p != config->enddelim)
+                if (*p != config.enddelim)
                     throw invalid_char_in_loop_limits();
                 else
                     {
                     ++p;
-                    *stop = *step;
-                    *step = 1;
+                    stop = step;
+                    step = 1;
                     if (rc > 0)
-                        *open_end = 0;
+                        open_end = false;
                     else
-                        *open_end = 1;
+                        open_end = true;
                     return p - begin;
                     }
                 }
             else
                 ++p;
 
-            /* Read stop value for the loop. */
+            // Read stop value for the loop.
 
             try
                 {
-                rc = num_exp(p, end, 0, stop, &dummy,
-                             config, nameclass, lookup, lookup_context);
-                *open_end = 0;
+                rc = num_exp(p, end, stop);
+                open_end = false;
                 p += rc;
                 }
             catch(const invalid_char_in_index_spec& e)
                 {
-                *stop = 0;          /* use default */
-                *open_end = 1;
+                stop = 0;           // Use default.
+                open_end = true;
                 }
 
-            if (*p != config->enddelim)
+            if (*p != config.enddelim)
                 throw invalid_char_in_loop_limits();
+            else
+                ++p;
 
-            return ++p - begin;
+            return p - begin;
             }
         }
     }

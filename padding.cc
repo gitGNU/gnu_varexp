@@ -6,86 +6,80 @@ namespace varexp
     {
     namespace internal
         {
-        void padding(tokenbuf_t* data, tokenbuf_t* widthstr, tokenbuf_t* fill,
-                     char position)
+        void padding(std::string& data, unsigned int width, const std::string& fillstring, char position)
             {
-            tokenbuf_t result;
-            size_t width = widthstr->toint();
-            int i;
+            size_t i;
 
-            if (fill->begin == fill->end)
+            if (fillstring.empty())
                 throw empty_padding_fill_string();
 
             if (position == 'l')
                 {
-                i = width - (data->end - data->begin);
+                i = width - data.size();
                 if (i > 0)
                     {
-                    i = i / (fill->end - fill->begin);
+                    i = i / fillstring.size();
                     while (i > 0)
                         {
-                        data->append(fill->begin, fill->end - fill->begin);
+                        data.append(fillstring);
                         i--;
                         }
-                    i = (width - (data->end - data->begin))
-                        % (fill->end - fill->begin);
-                    data->append(fill->begin, i);
+                    i = (width - (data.size())) % (fillstring.size());
+                    data.append(fillstring, 0, i);
                     }
                 }
             else if (position == 'r')
                 {
-                i = width - (data->end - data->begin);
+                string tmp;
+                i = width - data.size();
                 if (i > 0)
                     {
-                    i = i / (fill->end - fill->begin);
+                    i = i / fillstring.size();
                     while (i > 0)
                         {
-                        result.append(fill->begin, fill->end - fill->begin);
+                        tmp.append(fillstring);
                         i--;
                         }
-                    i = (width - (data->end - data->begin))
-                        % (fill->end - fill->begin);
-                    result.append(fill->begin, i);
-                    result.append(data->begin, data->end - data->begin);
-                    data->shallow_move(&result);
+                    i = (width - (data.size())) % (fillstring.size());
+                    tmp.append(fillstring, 0, i);
+                    data.insert(0, tmp);
                     }
                 }
             else if (position == 'c')
                 {
-                i = (width - (data->end - data->begin)) / 2;
+                string tmp;
+                i = (width - (data.size())) / 2;
                 if (i > 0)
                     {
-                    /* Create the prefix. */
+                    // Create the prefix.
 
-                    i = i / (fill->end - fill->begin);
+                    i = i / (fillstring.size());
                     while (i > 0)
                         {
-                        result.append(fill->begin, fill->end - fill->begin);
+                        tmp.append(fillstring);
                         i--;
                         }
-                    i = ((width - (data->end - data->begin)) / 2)
-                        % (fill->end - fill->begin);
-                    result.append(fill->begin, i);
+                    i = (width - data.size()) / 2 % fillstring.size();
+                    tmp.append(fillstring, 0, i);
 
-                    /* Append the actual data string. */
+                    // Append the actual data string.
 
-                    result.append(data->begin, data->end - data->begin);
+                    tmp += data;
 
-                    /* Append the suffix. */
+                    // Append the suffix.
 
-                    i = width - (result.end - result.begin);
-                    i = i / (fill->end - fill->begin);
+                    i = (width - tmp.size()) / fillstring.size();
                     while (i > 0)
                         {
-                        result.append(fill->begin, fill->end - fill->begin);
+                        tmp.append(fillstring);
                         i--;
                         }
-                    i = width - (result.end - result.begin);
-                    result.append(fill->begin, i);
+                    i = width - tmp.size();
+                    tmp.append(fillstring, 0, i);
 
-                    /* Move string from temporary buffer to data buffer. */
+                    // Move string from temporary buffer to data buffer.
 
-                    data->shallow_move(&result);
+                    data = tmp;
                     }
                 }
             }

@@ -61,7 +61,6 @@ namespace varexp
     define_exception(empty_padding_fill_string,      "fill string missing in padding operation");
     define_exception(unknown_quoted_pair_in_replace, "unknown quoted pair in search and replace operation");
     define_exception(submatch_out_of_range,          "submatch referred to in replace string does not exist in search string");
-    define_exception(invalid_argument,               "invalid argument");
     define_exception(incomplete_quoted_pair,         "incomplete quoted pair");
     define_exception(array_lookups_are_unsupported,  "lookup function does not support variable arrays");
     define_exception(invalid_char_in_index_spec,     "index specification of array variable contains an invalid character");
@@ -72,20 +71,23 @@ namespace varexp
     define_exception(invalid_char_in_loop_limits,    "invalid character in loop limits");
 #undef define_exception
 
+    extern "C" {
+
     // Expand quoted pairs to their binary representation.
 
     void var_unescape(const char* src, size_t len, char* dst, int unescape_all);
 
     // Prototype for the lookup callback used in var_expand().
 
-    typedef int (*var_cb_t)(void* context,
-                            const char* varname, size_t name_len, int idx,
-                            const char* *data, size_t* data_len,
-                            size_t* buffer_size);
+    struct callback_t
+        {
+        virtual void operator()(const std::string& name, std::string& data) = 0;
+        virtual void operator()(const std::string& name, int idx, std::string& data) = 0;
+        };
 
     // Configure the var_expand() parser's tokens.
 
-    typedef struct
+    struct var_config_t
         {
         char  varinit;        // '$'
         char  startdelim;     // '{'
@@ -95,16 +97,16 @@ namespace varexp
         char  current_index;  // '#'
         char  escape;         // '\'
         char* namechars;      // 'a-zA-Z0-9_'
-        }
-    var_config_t;
+        };
     extern const var_config_t var_config_default;
 
     // Expand variable expressions in a text buffer.
 
-    void var_expand(const char* input, size_t input_len,
-                    char* *result, size_t* result_len,
-                    var_cb_t lookup, void* lookup_context,
-                    const var_config_t* config);
+    void var_expand(const char* input, const size_t input_len,
+                    std::string& result, callback_t& lookup,
+                    const var_config_t* config = 0);
+
+    }
     }
 
 #endif // !defined(LIB_VARIABLE_EXPAND_HH)

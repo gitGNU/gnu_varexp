@@ -3,9 +3,44 @@
 
 #include <stdlib.h>
 
+/* Error codes returned by the varexp library. */
+
+typedef enum
+    {
+    VAR_INCORRECT_CLASS_SPEC        = -8,
+
+    VAR_INCOMPLETE_GROUPED_HEX      = -7,
+    VAR_INCOMPLETE_OCTAL            = -6,
+    VAR_INVALID_OCTAL               = -5,
+    VAR_OCTAL_TOO_LARGE             = -4,
+    VAR_INVALID_HEX                 = -3,
+    VAR_INCOMPLETE_HEX              = -2,
+    VAR_INCOMPLETE_NAMED_CHARACTER  = -1,
+
+    VAR_OK                          = 0
+    }
+var_rc_t;
+
 /*
-  The callback will be called by variable_expand(), providing the
-  following parameterns:
+   Expand the following named characters to their binary
+   representation:
+
+       \t          tab
+       \n          newline
+       \r          return
+       \033        octal char
+       \x1B        hex char
+       \x{263a}    wide hex char
+
+  Any other character quoted by a backslash is copied verbatim.
+*/
+
+var_rc_t expand_named_characters(const char* src, size_t len, char* dst);
+
+/*
+   The callback will be called by variable_expand(), providing the
+   following parameterns:
+
         context         - passed through from variable_expand()'s
                           parameters
         varname         - pointer to the name of the variable to
@@ -20,10 +55,10 @@
                           either TRUE or FALSE, telling the framework
                           whether the buffer must be free(3)ed.
 
-  The return code is interpreted as follows:
+   The return code is interpreted as follows:
        >0               - OK
         0               - undefined variable
-       <0               - error
+       <0 - error
 */
 
 typedef int (*var_cb_t)(void* context,
@@ -31,15 +66,15 @@ typedef int (*var_cb_t)(void* context,
                         char* const* data, size_t* data_len, char* malloced_buffer);
 
 /*
-  This structure configures the parser's specials. I think, the fields
-  are pretty self-explanatory. The only one worth mentioning is
-  force_expand, which is a boolean. If set to TRUE, variable_expand()
-  will fail with an error if the lookup callback returns "undefined
-  variable". If set to FALSE, variable_expand() will copy the
-  expression that failed verbatimly to the output so that another pass
-  may expand it.
+   This structure configures the parser's specials. I think, the fields
+   are pretty self-explanatory. The only one worth mentioning is
+   force_expand, which is a boolean. If set to TRUE, variable_expand()
+   will fail with an error if the lookup callback returns "undefined
+   variable". If set to FALSE, variable_expand() will copy the
+   expression that failed verbatimly to the output so that another pass
+   may expand it.
 
-  The comments after each field show the default configuration.
+   The comments after each field show the default configuration.
 */
 
 typedef struct
@@ -55,12 +90,12 @@ var_config_t;
 extern const var_config_t var_config_default;
 
 /*
-  variable_expand() will parse the contents of input for variable
-  expressions and expand them using the provided lookup callback. The
-  pointer to the resulting buffer is stored in result, its length in
-  result_len. The buffer is always terminated by a '\0' byte, which is
-  not included in the result_len count. The buffer must be free(3)ed
-  by the caller.
+   variable_expand() will parse the contents of input for variable
+   expressions and expand them using the provided lookup callback. The
+   pointer to the resulting buffer is stored in result, its length in
+   result_len. The buffer is always terminated by a '\0' byte, which is
+   not included in the result_len count. The buffer must be free(3)ed
+   by the caller.
 */
 
 int var_expand(const char* input, size_t input_len,

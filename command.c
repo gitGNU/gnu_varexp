@@ -168,7 +168,7 @@ int command(const char* begin, const char* end, const var_config_t* config,
                 }
             break;
 
-        case '+':               /* Substitute ${parameter} if data is not empty. */
+        case '+':               /* Substitute parameter if data is not empty. */
             ++p;
             rc = exptext_or_variable(p, end, config, nameclass, lookup, lookup_context,
                                      force_expand, &tmptokbuf);
@@ -185,38 +185,8 @@ int command(const char* begin, const char* end, const var_config_t* config,
                 {
                 if (data->begin != data->end)
                     {
-                    const char* vardata;
-                    size_t len, buffer_size;
                     free_tokenbuf(data);
-                    rc = (*lookup)(lookup_context, tmptokbuf.begin, tmptokbuf.end - tmptokbuf.begin,
-                                   &vardata, &len, &buffer_size);
-                    if (rc < 0)
-                        goto error_return;
-                    else if (rc == 0)
-                        {
-                        if (force_expand)
-                            {
-                            rc = VAR_UNDEFINED_VARIABLE;
-                            goto error_return;
-                            }
-                        else
-                            {
-                            if (!assign_to_tokenbuf(data, &(config->varinit), 1) ||
-                                !append_to_tokenbuf(data, &(config->startdelim), 1) ||
-                                !append_to_tokenbuf(data, tmptokbuf.begin, tmptokbuf.end - tmptokbuf.begin) ||
-                                !append_to_tokenbuf(data, &(config->enddelim), 1))
-                                {
-                                rc = VAR_OUT_OF_MEMORY;
-                                goto error_return;
-                                }
-                            }
-                        }
-                    else
-                        {
-                        data->begin = vardata;
-                        data->end = vardata + len;
-                        data->buffer_size = buffer_size;
-                        }
+                    move_tokenbuf(&tmptokbuf, data);
                     }
                 }
             break;

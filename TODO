@@ -24,8 +24,8 @@
  - ${parameter:-word} wird normal expandiert. Wenn "parameter" leer
    ist, wird stattdessen "word" eingesetzt.
 
- - ${parameter:+word} substituiert die Expansion von "${word}" wenn
-   "parameter" nicht leer ist, sonst wird "" substituiert.
+ - ${parameter:+word} substituiert "word" wenn "parameter" nicht leer
+   ist, sonst wird "" substituiert.
 
  - ${parameter:o<start>-}, ${parameter:o<start>-<end>}
 

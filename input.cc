@@ -36,7 +36,7 @@ namespace varexp
             const char* p = begin;
             try
                 {
-                size_t rc;
+                size_t rc = 0;  // Initialize it to make the compiler happy.
 
                 while (p != end)
                     {
@@ -49,8 +49,8 @@ namespace varexp
                         int stop = 0;
                         bool open_end = true;
                         bool have_loop_limit = false;
-                        size_t loop_limit_len;
-                        size_t last_result_len;
+                        size_t loop_limit_len = 0;  // Initialize it to make the compiler happy.
+                        size_t last_result_len = 0;  // Initialize it to make the compiler happy.
                         int orig_rel_lookup_count = rel_lookup_count;
                         int orig_current_index = current_index;
                         lookup_wrapper wrapper(*lookup, rel_lookup_count);

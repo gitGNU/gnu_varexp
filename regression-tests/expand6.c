@@ -27,32 +27,40 @@ int env_lookup(void* context,
 
 int main(int argc, char** argv)
     {
-    const char* input =                                                  \
-        "\\$HOME                      = '${HOME}'\\n"                    \
-        "\\$FOO                       = '${FOO}'\\n"                     \
-        "\\$OSTYPE                    = '${${FOO:u}${BAR:u}:l}'\\n"      \
-        "\\$UNDEFINED                 = '${UNDEFINED}'\\n"               \
-        "\\${OSTYPE:#}                = '${OSTYPE:#}'\\n"                \
-        "\\${HEINZ:-test\\${FOO}test}   = '${HEINZ:-test${FOO}test}'\\n" \
+    const char* input =                                                    \
+        "\\$HOME                      = '${HOME}'\\n"                      \
+        "\\$FOO                       = '${FOO}'\\n"                       \
+        "\\$BAR                       = '${BAR}'\\n"                       \
+        "\\$OSTYPE                    = '${${FOO:u}${BAR:u}:l}'\\n"        \
+        "\\$UNDEFINED                 = '${UNDEFINED}'\\n"                 \
+        "\\${OSTYPE:#}                = '${OSTYPE:#}'\\n"                  \
+        "\\${HEINZ:-test\\${FOO}test}   = '${HEINZ:-test${FOO}test}'\\n"   \
         "\\${HEINZ:-test\\${FOO:u}test} = '${HEINZ:-test${FOO:u}test}'\\n" \
-        "\\${TERM:-test\\${FOO}test}    = '${TERM:-test${FOO}test}'\\n"  \
+        "\\${TERM:-test\\${FOO}test}    = '${TERM:-test${FOO}test}'\\n"    \
+        "\\${HEINZ:+FOO}              = '${HEINZ:+FOO}'\\n"                \
+        "\\${HOME:+test\\${FOO}test}    = '${HOME:+test${FOO}test}'\\n"    \
+        "\\${HOME:+OS\\${BAR:u}}        = '${HOME:+OS${BAR:u}}'\\n"        \
         "\\$TERM                      = '${TERM}'\\n";
     const char* output =                                                 \
         "$HOME                      = '/home/regression-tests'\n"        \
         "$FOO                       = 'os'\n"                            \
+        "$BAR                       = 'type'\n"                          \
         "$OSTYPE                    = 'regression-os'\n"                 \
         "$UNDEFINED                 = '${UNDEFINED}'\n"                  \
         "${OSTYPE:#}                = '13'\n"                            \
         "${HEINZ:-test${FOO}test}   = 'testostest'\n"                    \
         "${HEINZ:-test${FOO:u}test} = 'testOStest'\n"                    \
         "${TERM:-test${FOO}test}    = 'regression-term'\n"               \
+        "${HEINZ:+FOO}              = ''\n"                              \
+        "${HOME:+test${FOO}test}    = '${testostest}'\n"                 \
+        "${HOME:+OS${BAR:u}}        = 'regression-os'\n"                 \
         "$TERM                      = 'regression-term'\n";
     char*    tmp;
     size_t   tmp_len;
     var_rc_t rc;
 
     if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
-        setenv("OSTYPE", "REGRESSION-OS", 1) != 0 ||
+        setenv("OSTYPE", "regression-os", 1) != 0 ||
         setenv("TERM", "regression-term", 1) != 0 ||
         setenv("FOO", "os", 1) != 0 ||
         setenv("BAR", "type", 1) != 0 ||

@@ -321,7 +321,6 @@ int command(const char* begin, const char* end, const var_config_t* config,
     /*
       command         : '-' ( EXPTEXT | variable )*
       | '?' ( EXPTEXT | variable )*
-      | '+' ( EXPTEXT | variable )*
       | 'o' ( NUMBER '-' ( NUMBER )? | NUMBER ',' ( NUMBER )? )
       | '*' ( EXPTEXT | variable )*
       | 's' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )+ '/' ( 'g' | 'i' | 't' )*
@@ -369,6 +368,7 @@ int command(const char* begin, const char* end, const var_config_t* config,
                 {
                 if (data->buffer_size == 0)
                     {
+                    printf("*** We need to copy the buffer before calling toupper().\n");
                     tokenbuf tmp;
                     tmp.begin = tmp.end = NULL;
                     tmp.buffer_size = 0;
@@ -411,6 +411,61 @@ int command(const char* begin, const char* end, const var_config_t* config,
                 }
             break;
 
+        case '+':               /* Substitute ${parameter} if data is not empty. */
+            ++p;
+            rc = exptext_or_variable(p, end, config, nameclass, lookup, lookup_context,
+                                     force_expand, &tmptokbuf);
+            if (rc < 0)
+                return rc;
+            else
+                p += rc;
+            if (data->begin != NULL)
+                {
+                if (data->begin != data->end)
+                    {
+                    const char* vardata;
+                    size_t len, buffer_size;
+                    free_tokenbuf(data);
+                    printf("*** looking up contents of '%s'\n", tmptokbuf.begin);
+                    rc = (*lookup)(lookup_context, tmptokbuf.begin, tmptokbuf.end - tmptokbuf.begin,
+                                   &vardata, &len, &buffer_size);
+                    if (rc < 0)
+                        {
+                        free_tokenbuf(&tmptokbuf);
+                        return rc;
+                        }
+                    else if (rc == 0)
+                        {
+                        if (force_expand)
+                            {
+                            free_tokenbuf(&tmptokbuf);
+                            return VAR_UNDEFINED_VARIABLE;
+                            }
+                        else
+                            {
+                            if (!append_to_tokenbuf(data, &(config->varinit), 1) ||
+                                !append_to_tokenbuf(data, &(config->startdelim), 1) ||
+                                !append_to_tokenbuf(data, tmptokbuf.begin, tmptokbuf.end - tmptokbuf.begin) ||
+                                !append_to_tokenbuf(data, &(config->enddelim), 1))
+                                {
+                                free_tokenbuf(data);
+                                free_tokenbuf(&tmptokbuf);
+                                return VAR_OUT_OF_MEMORY;
+                                }
+                            }
+                        }
+                    else
+                        {
+                        printf("***  '%s' --> '%s'\n", tmptokbuf.begin, vardata);
+                        data->begin = vardata;
+                        data->end = vardata + len;
+                        data->buffer_size = buffer_size;
+                        }
+                    }
+                }
+            free_tokenbuf(&tmptokbuf);
+            break;
+
         default:
             return VAR_UNKNOWN_COMMAND_CHAR;
         }
@@ -423,20 +478,33 @@ int command(const char* begin, const char* end, const var_config_t* config,
     return p - begin;
     }
 
-int number()
+int number(const char* begin, const char* end)
     {
-    return -1;
+    const char* p;
+    for (p = begin; p != end && isdigit(*p); ++p)
+        ;
+    return p - begin;
     }
 
-int substext()
+int substext(const char* begin, const char* end, const var_config_t* config)
     {
-    return -1;
+    const char* p;
+    for (p = begin; p != end && *p != config->varinit && *p != ':'; ++p)
+        {
+        if (*p == config->escape)
+            {
+            if (p+1 == end)
+                return VAR_INCOMPLETE_QUOTED_PAIR;
+            else
+                ++p;
+            }
+        }
+    return p - begin;
     }
 
 int exptext(const char* begin, const char* end, const var_config_t* config)
     {
     const char* p;
-
     for (p = begin;
          p != end
              && *p != config->varinit
@@ -452,7 +520,6 @@ int exptext(const char* begin, const char* end, const var_config_t* config)
                 ++p;
             }
         }
-
     return p - begin;
     }
 
@@ -481,6 +548,65 @@ int exptext_or_variable(const char* begin, const char* end, const var_config_t* 
         else if (rc > 0)
             {
             printf("*** exptext found %d characters'.\n", rc);
+            if (!append_to_tokenbuf(result, p, rc))
+                {
+                free_tokenbuf(result);
+                return VAR_OUT_OF_MEMORY;
+                }
+            else
+                p += rc;
+            }
+
+        rc = variable(p, end, config, nameclass, lookup, lookup_context, force_expand, &tmp);
+        if (rc < 0)
+            {
+            free_tokenbuf(result);
+            return rc;
+            }
+        else if (rc > 0)
+            {
+            printf("*** variable expanded to '%s'.\n", tmp.begin);
+            p += rc;
+            rc = append_to_tokenbuf(result, tmp.begin, tmp.end - tmp.begin);
+            free_tokenbuf(&tmp);
+            if (!rc)
+                {
+                free_tokenbuf(result);
+                return VAR_OUT_OF_MEMORY;
+                }
+            }
+        }
+    while (rc > 0);
+
+
+    return p - begin;
+    }
+
+int substext_or_variable(const char* begin, const char* end, const var_config_t* config,
+                         const char nameclass[256], var_cb_t lookup, void* lookup_context,
+                         int force_expand, tokenbuf* result)
+    {
+    const char* p = begin;
+    tokenbuf tmp;
+    int rc;
+
+    if (begin == end)
+        return 0;
+
+    result->begin = result->end = NULL;
+    result->buffer_size = 0;
+
+    do
+        {
+        rc = substext(p, end, config);
+        if (rc < 0)
+            {
+            free_tokenbuf(result);
+            return rc;
+            }
+        else if (rc > 0)
+            {
+            printf("*** substext found %d characters'.\n", rc);
             if (!append_to_tokenbuf(result, p, rc))
                 {
                 free_tokenbuf(result);

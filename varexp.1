@@ -1,45 +1,17 @@
-##
-##  VAR - OSSP variable expression library.
-##  Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
-##  Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
-##
-##  This file is part of OSSP VAR, an extensible data serialization
-##  library which can be found at http://www.ossp.org/pkg/var/.
-##
-##  Permission to use, copy, modify, and distribute this software for
-##  any purpose with or without fee is hereby granted, provided that
-##  the above copyright notice and this permission notice appear in all
-##  copies.
-##
-##  THIS SOFTWARE IS PROVIDED `AS IS' AND ANY EXPRESSED OR IMPLIED
-##  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-##  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-##  IN NO EVENT SHALL THE AUTHORS AND COPYRIGHT HOLDERS AND THEIR
-##  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-##  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-##  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-##  USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-##  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-##  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-##  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-##  SUCH DAMAGE.
-##
-##  var.pod: Unix manual page source
-##
-
 =pod
 
 =head1 NAME
 
-var - OSSP variable expression library.
+libvarexp - a variable expression library
 
 =head1 SYNOPSIS
 
-var_rc_t var_unescape(const char *src, size_t len, char *dst, int unescape_all);
+void varexp::unescape(const std::string& input,
+                      std::string& output,
+                      bool unescape_all);
 
-var_rc_t var_expand(const char *input, size_t input_len, char **result, size_t *result_len, var_cb_t lookup, void *lookup_context, const var_config_t *config, int force_expand);
+ void varexp::expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);
 
-const char *var_strerror(var_rc_t rc);
 
 =head1 DESCRIPTION
 

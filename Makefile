@@ -71,7 +71,7 @@ dist:
 	echo Created distribution archive /tmp/libvarexp-$$V.tar.gz
 
 tag::
-	echo cvs tag -c libvarexp-`sed <VERSION -e 's#\.#-#g'`
+	cvs tag -c libvarexp-`sed <VERSION -e 's#\.#-#g'`
 
 # Dependencies
 

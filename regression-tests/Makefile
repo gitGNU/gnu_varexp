@@ -10,7 +10,7 @@ RANLIB		= ranlib
 
 OPTIMFLAGS	= -O3
 WARNFLAGS	= -Wall -pedantic
-CPPFLAGS	=
+CPPFLAGS	= -DDEBUG
 CXXFLAGS	=
 LDFLAGS		=
 

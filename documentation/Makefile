@@ -36,7 +36,7 @@ readme.html:	peti.dsl purpose.inc
 
 clean distclean:
 	@rm -f *.aux *.dvi *.log *.toc
-	@rm -f *.css *.fot *.ps *.xml
+	@rm -f *.fot *.ps *.xml
 	@rm -f *.tex
 
 realclean:	clean

@@ -108,25 +108,28 @@
   ;; Declare result as HTML 4.01 Transitional.
   "-//W3C//DTD HTML 4.01 Transitional//EN")
 
+(define %stylesheet%
+  ;; Name of the stylesheet to use
+  "peti.css")
+
+(define %css-decoration%
+  ;; Enable CSS decoration of elements
+  #f)
+
 (define nochunks
   ;; Suppress chunking of output pages
   #t)
-
 
 (define %generate-legalnotice-link%
   ;; put the legal notice in a separate file
   #t)
 
-(define %admon-graphics-path%
-  ;; use graphics in admonitions, set their
-  "../images/")
-
 (define %admon-graphics%
-  #t)
+  #f)
 
 (define %funcsynopsis-decoration%
   ;; make funcsynopsis look pretty
-  #t)
+  #f)
 
 (define %html-ext%
   ;; when producing HTML files, use this extension
@@ -166,7 +169,7 @@
 
 (define %shade-verbatim%
   ;; verbatim sections will be shaded if t(rue)
-  #t)
+  #f)
 
 (define %use-id-as-filename%
   ;; Use ID attributes as name for component HTML files?
@@ -263,56 +266,6 @@
         ""
         (node-list-first titles))))
 
-
-;; Redefinition of $verbatim-display$
-;; Origin: dbverb.dsl
-;; Different foreground and background colors for verbatim elements
-;; Author: Philippe Martin (feloy@free.fr) 2001-04-07
-
-(define ($verbatim-display$ indent line-numbers?)
-  (let ((verbatim-element (gi))
-        (content (make element gi: "PRE"
-                       attributes: (list
-                                    (list "CLASS" (gi)))
-                       (if (or indent line-numbers?)
-                           ($verbatim-line-by-line$ indent line-numbers?)
-                           (process-children)))))
-    (if %shade-verbatim%
-        (make element gi: "TABLE"
-              attributes: (shade-verbatim-attr-element verbatim-element)
-              (make element gi: "TR"
-                    (make element gi: "TD"
-                          (make element gi: "FONT"
-                                attributes: (list
-                                             (list "COLOR" (car (shade-verbatim-element-colors
-                                                                 verbatim-element))))
-                                content))))
-        content)))
-
-;;
-;; Customize this function
-;; to change the foreground and background colors
-;; of the different verbatim elements
-;; Return (list "foreground color" "background color")
-;;
-(define (shade-verbatim-element-colors element)
-  (case element
-    (("SYNOPSIS") (list "#000000" "#6495ED"))
-    ;; ...
-    ;; Add your verbatim elements here
-    ;; ...
-    (else (list "#000000" "#E0E0E0"))))
-
-(define (shade-verbatim-attr-element element)
-  (list
-   (list "BORDER"
-	(cond
-		((equal? element (normalize "SCREEN")) "1")
-		(else "0")))
-   (list "BGCOLOR" (car (cdr (shade-verbatim-element-colors element))))
-   (list "WIDTH" ($table-width$))))
-
-;; End of $verbatim-display$ redefinition
 
 </style-specification-body>
 </style-specification>

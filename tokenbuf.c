@@ -1,6 +1,7 @@
 #include "internal.h"
 #include <stdlib.h>
 #include <string.h>
+#include <dmalloc.h>
 
 #define VAR_INITIAL_BUFFER_SIZE 1
 
@@ -53,7 +54,7 @@ int append_to_tokenbuf(tokenbuf* output, const char* data, size_t len)
     /* Does the token contain text, but no buffer has been allocated
        yet? */
 
-    if (output->begin != NULL && output->buffer_size == 0)
+    if (output->buffer_size == 0)
         {
         /* Check whether data borders to output. If, we can append
            simly by increasing the end pointer. */
@@ -83,14 +84,14 @@ int append_to_tokenbuf(tokenbuf* output, const char* data, size_t len)
     /* Does the token fit into the current buffer? If not, realloc a
        larger buffer that fits. */
 
-    if ((output->buffer_size - (output->end - output->begin)) < len)
+    if ((output->buffer_size - (output->end - output->begin)) <= len)
         {
         new_size = output->buffer_size;
         do
             {
             new_size *= 2;
             }
-        while ((new_size - (output->end - output->begin)) < len);
+        while ((new_size - (output->end - output->begin)) <= len);
         new_buffer = realloc((char*)output->begin, new_size);
         if (new_buffer == NULL)
             return 0;

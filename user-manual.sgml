@@ -13,6 +13,41 @@
     <refpurpose>A library for expansion of variable-expressions
   </refnamediv>
 
+  <refsynopsisdiv>
+    <classsynopsis>
+      <ooclass>
+        <classname>callback_t</classname>
+      </ooclass>
+
+      <methodsynopsis>
+        <type>void</type>
+        <methodname>operator()</methodname>
+        <methodparam>
+          <parameter>const std::string& name</parameter>
+        </methodparam>
+        <methodparam>
+          <parameter>std::string& data</parameter>
+        </methodparam>
+      </methodsynopsis>
+
+      <methodsynopsis>
+        <type>void</type>
+        <methodname>operator()</methodname>
+        <methodparam>
+          <parameter>const std::string& name</parameter>
+        </methodparam>
+        <methodparam>
+          <parameter>int idx</parameter>
+        </methodparam>
+        <methodparam>
+          <parameter>std::string& data</parameter>
+        </methodparam>
+      </methodsynopsis>
+
+
+    </classsynopsis>
+  </refsynopsisdiv>
+
   <refsect1>
     <title>Description</title>
 

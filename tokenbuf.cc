@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 /* Routines for manipulation of token buffers. */
 

@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 int expression(const char* begin, const char* end,
                const var_config_t* config,

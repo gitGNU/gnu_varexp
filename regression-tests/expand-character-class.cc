@@ -1,4 +1,4 @@
-#include "../internal.h"
+#include "../internal.hh"
 
 static void class2string(char char_class[256], char* buf)
     {

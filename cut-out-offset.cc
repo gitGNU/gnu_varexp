@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 int cut_out_offset(tokenbuf_t* data, tokenbuf_t* number1,
                           tokenbuf_t* number2, int isrange)

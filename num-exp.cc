@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 static int num_exp_read_int(const char** begin, const char* end)
     {

@@ -1,6 +1,6 @@
 #include <sys/types.h>
 #include <regex.h>
-#include "internal.h"
+#include "internal.hh"
 
 static int expand_regex_replace(const char* data, tokenbuf_t* orig,
                                 regmatch_t* pmatch, tokenbuf_t* expanded)

@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 var_rc_t input(const char* begin, const char* end,
                const var_config_t* config,

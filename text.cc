@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 int text(const char* begin, const char* end, char varinit,
          char startindex, char endindex, char escape)

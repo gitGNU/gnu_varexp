@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 static void expand_range(char a, char b, char_class_t char_class)
     {

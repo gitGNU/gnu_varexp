@@ -1,4 +1,4 @@
-#include "../internal.h"
+#include "../internal.hh"
 
 var_rc_t dummy(void* context,
           const char* varname, size_t name_len, int index,

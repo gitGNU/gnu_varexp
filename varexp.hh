@@ -1,7 +1,7 @@
 #ifndef LIB_VARIABLE_EXPAND_H
 #define LIB_VARIABLE_EXPAND_H
 
-#include <stdlib.h>
+#include <cstdlib>
 
 /* Error codes returned by the varexp library. */
 

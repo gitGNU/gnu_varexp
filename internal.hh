@@ -1,12 +1,12 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 
-#include <assert.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include "varexp.h"
+#include <cassert>
+#include <cctype>
+#include <string>
+#include <cstdio>
+#include <cerrno>
+#include "varexp.hh"
 
 /* Turn character class descriptions into a lookup-array. */
 

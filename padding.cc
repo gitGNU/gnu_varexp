@@ -1,6 +1,6 @@
 #include <sys/types.h>
 #include <regex.h>
-#include "internal.h"
+#include "internal.hh"
 
 int padding(tokenbuf_t* data, tokenbuf_t* widthstr, tokenbuf_t* fill,
             char position)

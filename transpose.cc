@@ -1,6 +1,6 @@
 #include <sys/types.h>
 #include <regex.h>
-#include "internal.h"
+#include "internal.hh"
 
 static int expand_class_description(tokenbuf_t* src, tokenbuf_t* dst)
     {

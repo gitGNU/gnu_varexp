@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 var_rc_t lookup_wrapper(void* context,
                         const char* name, size_t name_len, int idx,

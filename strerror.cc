@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 /* The var_strerror() routine will map a var_rc_t into a text message. */
 

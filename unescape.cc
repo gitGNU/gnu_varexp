@@ -1,4 +1,4 @@
-#include "internal.h"
+#include "internal.hh"
 
 static int isoct(char c)
     {

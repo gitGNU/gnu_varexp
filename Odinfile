@@ -7,10 +7,12 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -ansi -pedantic' \
 %libvarexp.a.sm == <<
     expand-named-characters.c
     expand-character-class.c
-    parser.c
+    command.c
     expression.c
     variable.c
+    text.c
     expand.c
+    input.c
     tokenbuf.c
     search-and-replace.c
 

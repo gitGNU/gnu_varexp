@@ -36,8 +36,6 @@ int expression(const char* begin, const char* end, const var_config_t* config,
 
     do
         {
-        printf("expression(): Name of the variable to expand is '%s'\n", name.begin);
-
         rc = varname(p, end, nameclass);
         if (rc < 0)
             goto error_return;

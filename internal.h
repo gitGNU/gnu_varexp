@@ -21,9 +21,11 @@ typedef struct
     }
 tokenbuf;
 
-int append_to_tokenbuf(tokenbuf* output, const char* begin, int rc);
+int append_to_tokenbuf(tokenbuf* output, const char* begin, size_t rc);
 void free_tokenbuf(tokenbuf* buf);
 void init_tokenbuf(tokenbuf* buf);
+int assign_to_tokenbuf(tokenbuf* buf, const char* data, size_t len);
+void move_tokenbuf(tokenbuf* src, tokenbuf* dst);
 
 var_rc_t input(const char* begin, const char* end, const var_config_t* config,
                const char nameclass[256], var_cb_t lookup, void* lookup_context,
@@ -58,5 +60,7 @@ int varname(const char* begin, const char* end, const char nameclass[256]);
 int expression(const char* begin, const char* end, const var_config_t* config,
                const char nameclass[256], var_cb_t lookup, void* lookup_context,
                int force_expand, tokenbuf* result);
+
+int text(const char* begin, const char* end, char varinit, char escape);
 
 #endif /* !defined(INTERNAL_H) */

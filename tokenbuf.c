@@ -10,7 +10,31 @@ void init_tokenbuf(tokenbuf* buf)
     buf->buffer_size = 0;
     }
 
-int append_to_tokenbuf(tokenbuf* output, const char* data, int len)
+void move_tokenbuf(tokenbuf* src, tokenbuf* dst)
+    {
+    dst->begin = src->begin;
+    dst->end = src->end;
+    dst->buffer_size = src->buffer_size;
+    init_tokenbuf(src);
+    }
+
+int assign_to_tokenbuf(tokenbuf* buf, const char* data, size_t len)
+    {
+    char* p = malloc(len+1);
+    if (p)
+        {
+        memcpy(p, data, len);
+        buf->begin       = p;
+        buf->end         = p + len;
+        buf->buffer_size = len + 1;
+        *((char*)(buf->end)) = '\0';
+        return 1;
+        }
+    else
+        return 0;
+    }
+
+int append_to_tokenbuf(tokenbuf* output, const char* data, size_t len)
     {
     char*  new_buffer;
     size_t new_size;

@@ -9,8 +9,6 @@
 #include "varexp.hh"
 using namespace std;
 
-extern "C" {
-
 namespace varexp
     {
     namespace internal
@@ -19,27 +17,7 @@ namespace varexp
 
         typedef char char_class_t[256]; /* 256 == 2 ^ sizeof(unsigned char)*8 */
 
-        // The tokenbuf_t class.
-
-        class tokenbuf_t
-            {
-          public:
-            const char *begin;
-            const char *end;
-            size_t buffer_size;
-
-            tokenbuf_t();
-            ~tokenbuf_t();
-            void clear();
-            void force_copy();
-            void assign(const char* data, size_t len);
-            void append(const char* data, size_t len);
-            void shallow_move(tokenbuf_t* src);
-            unsigned int toint();
-
-          private:
-            static const size_t INITIAL_BUFSIZE;
-            };
+        // The parser.
 
         class parser
             {
@@ -73,20 +51,15 @@ namespace varexp
             int              rel_lookup_count;
             };
 
+        // Helper routines used by the parser.
+
         void cut_out_offset(std::string& data, unsigned int num1, unsigned int num2, bool is_range);
-
         void padding(std::string& data, unsigned int width, const std::string& fillstring, char position);
-
-        void search_and_replace(std::string& data, const std::string& search,
-                                const std::string& replace, const std::string& flags);
-
+        void search_and_replace(std::string& data, const std::string& search, const std::string& replace, const std::string& flags);
         void transpose(std::string& data, const std::string& srcclass, const std::string& dstclass);
-
         void expand_character_class(const char *desc, char_class_t char_class);
-
         size_t ascii_to_uint(const char* begin, const char* end, unsigned int& result);
         }
     }
 
-}
 #endif /* !defined(LIB_VARIABLE_EXPAND_INTERNAL_HH) */

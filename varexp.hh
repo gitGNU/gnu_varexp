@@ -69,8 +69,6 @@ namespace varexp
     define_exception(invalid_char_in_loop_limits,    "invalid character in loop limits");
 #undef define_exception
 
-    extern "C" {
-
     // Expand quoted pairs to their binary representation.
 
     void unescape(const char* src, size_t len, char* dst, int unescape_all);
@@ -102,7 +100,6 @@ namespace varexp
 
     void expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);
 
-    }
     }
 
 #endif // !defined(LIB_VARIABLE_EXPAND_HH)

@@ -24,10 +24,6 @@
  - ${parameter:-word} wird normal expandiert. Wenn "parameter" leer
    ist, wird stattdessen "word" eingesetzt.
 
- - ${parameter:?word} wird normal expandiert. Wenn "parameter" leer
-   ist, bricht die Verarbeitung mit Fehler ab und "word" wird als
-   Begründung zurückgegeben.
-
  - ${parameter:+word} substituiert die Expansion von "${word}" wenn
    "parameter" nicht leer ist, sonst wird "" substituiert.
 
@@ -81,9 +77,8 @@
     name            : ( VARNAME | SPECIAL1 | SPECIAL2 )+
 
     command         : '-' ( EXPTEXT | variable )*
-                    | '?' ( EXPTEXT | variable )*
                     | '+' ( EXPTEXT | variable )*
-                    | 'o' ( NUMBER '-' ( NUMBER )? | NUMBER ',' ( NUMBER )? )
+                    | 'o' ( NUMBER ('-' | ',') ( NUMBER )? )
                     | '#'
                     | '*' ( EXPTEXT | variable )*
                     | 's' '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/' ( 'g' | 'i' | 't' )*

@@ -31,7 +31,6 @@ int main(int argc, char** argv)
 
     rc = var_expand(input, strlen(input),
                     &tmp, &tmp_len,
-                    NULL,
                     &dummy, NULL,
                     NULL, 0);
     if (rc != VAR_OK)

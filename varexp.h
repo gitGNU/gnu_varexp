@@ -17,7 +17,6 @@ typedef enum
     VAR_INVALID_REGEX_IN_REPLACE     = -18,
     VAR_UNKNOWN_REPLACE_FLAG         = -17,
     VAR_MALFORMATTED_REPLACE         = -16,
-    VAR_USER_ABORT                   = -15,
     VAR_UNKNOWN_COMMAND_CHAR         = -14,
     VAR_INPUT_ISNT_TEXT_NOR_VARIABLE = -13,
     VAR_UNDEFINED_VARIABLE           = -12,
@@ -115,7 +114,6 @@ extern const var_config_t var_config_default;
 
 var_rc_t var_expand(const char* input, size_t input_len,
                     char** result, size_t* result_len,
-                    const char** error_msg,
                     var_cb_t lookup, void* lookup_context,
                     const var_config_t* config, int force_expand);
 

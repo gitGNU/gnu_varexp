@@ -92,7 +92,7 @@ int main(int argc, char** argv)
     for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {
         rc = var_expand(tests[i].input, strlen(tests[i].input),
-                        &tmp, &tmp_len, NULL,
+                        &tmp, &tmp_len,
                         &env_lookup, NULL,
                         NULL, 0);
         if (rc != VAR_OK)

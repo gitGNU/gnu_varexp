@@ -139,30 +139,6 @@ int command(const char* begin, const char* end, const var_config_t* config,
                 }
             break;
 
-        case '?':               /* Return parameter as error string if data is empty. */
-            ++p;
-            rc = exptext_or_variable(p, end, config, nameclass, lookup, lookup_context,
-                                     force_expand, &tmptokbuf);
-            if (rc < 0)
-                goto error_return;
-            else if (rc == 0)
-                {
-                rc = VAR_MISSING_PARAMETER_IN_COMMAND;
-                goto error_return;
-                }
-            else
-                p += rc;
-            if (data->begin != NULL)
-                {
-                if (data->begin == data->end)
-                    {
-                    printf("We are returning error string '%s'.\n", tmptokbuf.begin);
-                    rc = VAR_USER_ABORT;
-                    goto error_return;
-                    }
-                }
-            break;
-
         case '*':               /* Return "" if data is not empty, parameter otherwise. */
             ++p;
             rc = exptext_or_variable(p, end, config, nameclass, lookup, lookup_context,

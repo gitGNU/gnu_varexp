@@ -47,7 +47,6 @@ int main(int argc, char** argv)
     unsetenv("UNDEFINED");
     rc = var_expand(input, strlen(input),
                     &tmp, &tmp_len,
-                    NULL,
                     &env_lookup, NULL,
                     NULL, 0);
     if (rc != VAR_OK)

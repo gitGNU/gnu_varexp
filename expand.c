@@ -11,7 +11,6 @@ const var_config_t var_config_default =
 
 var_rc_t var_expand(const char* input_buf, size_t input_len,
                     char** result, size_t* result_len,
-                    const char** error_msg,
                     var_cb_t lookup, void* lookup_context,
                     const var_config_t* config, int force_expand)
     {
@@ -56,8 +55,6 @@ var_rc_t var_expand(const char* input_buf, size_t input_len,
         }
     *result     = (char*)output.begin;
     *result_len = output.end - output.begin;
-    if (error_msg)
-        *error_msg  = NULL;
 
     return VAR_OK;
     }

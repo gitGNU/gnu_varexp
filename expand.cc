@@ -6,17 +6,7 @@ namespace varexp
 
     // The default configuration for the parser.
 
-    const config_t config_default =
-        {
-        '$',                        // varinit
-        '{',                        // startdelim
-        '}',                        // enddelim
-        '[',                        // startindex
-        ']',                        // endindex
-        '#',                        // current_index
-        '\\',                       // escape
-        "a-zA-Z0-9_"                // namechars
-        };
+    const config_t config_default;
 
     void expand(const string& buffer, string& result, callback_t& lookup, const config_t* config)
         {

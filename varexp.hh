@@ -24,14 +24,20 @@ namespace varexp
 
     struct config_t
         {
-        char  varinit;        // '$'
-        char  startdelim;     // '{'
-        char  enddelim;       // '}'
-        char  startindex;     // '['
-        char  endindex;       // ']'
-        char  current_index;  // '#'
-        char  escape;         // '\'
-        char* namechars;      // 'a-zA-Z0-9_'
+        config_t()
+                : varinit('$'), startdelim('{'), enddelim('}'),
+                  startindex('['), endindex(']'), current_index('#'),
+                  escape('\\'), namechars("a-zA-Z0-9_")
+            {
+            }
+        char  varinit;
+        char  startdelim;
+        char  enddelim;
+        char  startindex;
+        char  endindex;
+        char  current_index;
+        char  escape;
+        char* namechars;
         };
     extern const config_t config_default;
 

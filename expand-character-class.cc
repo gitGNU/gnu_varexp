@@ -4,7 +4,7 @@ namespace varexp
     {
     namespace internal
         {
-        static void expand_range(char a, char b, char_class_t char_class)
+        inline void expand_range(char a, char b, char_class_t char_class)
             {
             do
                 {

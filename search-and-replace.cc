@@ -6,7 +6,7 @@ namespace varexp
     {
     namespace internal
         {
-        static void expand_regex_replace(const char* data, const string& orig,
+        inline void expand_regex_replace(const char* data, const string& orig,
                                          regmatch_t* pmatch, string& expanded)
             {
             const char* p = orig.c_str();

@@ -4,20 +4,6 @@ namespace varexp
     {
     namespace internal
         {
-        static int num_exp_read_int(const char** begin, const char* end)
-            {
-            int num = 0;
-
-            do
-                {
-                num *= 10;
-                num += **begin - '0';
-                ++(*begin);
-                }
-            while (isdigit(**begin) && *begin != end);
-            return num;
-            }
-
         size_t parser::num_exp_read_operand(const char* begin, const char* end, int& result)
             {
             const char* p = begin;
@@ -51,14 +37,16 @@ namespace varexp
                 }
             else if (isdigit(*p))
                 {
-                result = num_exp_read_int(&p, end);
+                rc = number(p, end, static_cast<unsigned int>(result));
+                p += rc;
                 }
             else if (*p == '+')
                 {
                 if (end - p > 1 && isdigit(p[1]))
                     {
                     p++;
-                    result = num_exp_read_int(&p, end);
+                    rc = number(p, end, static_cast<unsigned int>(result));
+                    p += rc;
                     }
                 else
                     throw invalid_char_in_index_spec();
@@ -68,7 +56,8 @@ namespace varexp
                 if (end - p > 1 && isdigit(p[1]))
                     {
                     p++;
-                    result = num_exp_read_int(&p, end);
+                    rc = number(p, end, static_cast<unsigned int>(result));
+                    p += rc;
                     result = 0 - result;
                     }
                 else

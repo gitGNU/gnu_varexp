@@ -6,7 +6,7 @@ namespace varexp
     {
     namespace internal
         {
-        static void expand_class_description(const string& src, string& dst)
+        inline void expand_class_description(const string& src, string& dst)
             {
             for (string::const_iterator p = src.begin(); p != src.end(); )
                 {

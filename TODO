@@ -125,3 +125,37 @@
        ${!prefix*}
        ${parameter##word}
        ${parameter%%word}
+
+
+text		: TEXT | variable
+
+variable	: DOLLAR varspec
+
+varspec		: OPENBRACKET CROSS? ( variable | expression ) CLOSEBRACKET
+		| VARNAME
+
+expression	| VARNAME ( COLON command )+
+		| VARNAME SLASH replaceexp
+		| VARNAME
+
+command		:
+
+replaceexp	:
+
+TEXT		: [^\$]+
+
+VARNAME		: [a-z0-9_]+
+
+REPLACETEXT	: [^/]*
+
+DOLLAR		: '$'
+
+OPENBRACKET	: '{'
+
+CLOSEBRACKET	: '}'
+
+COLON		: ':'
+
+CROSS		: '#'
+
+SLASH		: '/'

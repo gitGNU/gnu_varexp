@@ -52,17 +52,20 @@ changelog::
 	cat ChangeLog.new ChangeLog.old >ChangeLog
 	rm ChangeLog.old ChangeLog.new
 
-# dist:		mapson documentation/man-page.txt documentation/mapson.html \
-# 		documentation/mapson.pdf VERSION README
-# 	@V=`cat VERSION`; \
-# 	cp -ra . /tmp/mapson-$$V; \
-# 	$(MAKE) >/dev/null -C /tmp/mapson-$$V distclean; \
-# 	find /tmp/mapson-$$V -name 'Odinfile' -exec rm -f {} \; ; \
-# 	find /tmp/mapson-$$V -name 'CVS' -print | xargs rm -rf \; ; \
-# 	find /tmp/mapson-$$V -name '.cvsignore' -exec rm -f {} \; ; \
-# 	(cd /tmp; tar cfz mapson-$$V.tar.gz mapson-$$V); \
-# 	rm -rf /tmp/mapson-$$V; \
-# 	echo Created distribution archive /tmp/mapson-$$V.tar.gz
+dist:
+	(cd documentation && $(MAKE) all clean)
+	(cd regression-tests && $(MAKE) distclean)
+	$(MAKE) distclean
+	cp documentation/readme.txt README
+	@V=`cat VERSION`; \
+	cp -ra . /tmp/libvarexp-$$V; \
+	$(MAKE) >/dev/null -C /tmp/libvarexp-$$V distclean; \
+	find /tmp/libvarexp-$$V -name 'Odinfile' -exec rm -f {} \; ; \
+	find /tmp/libvarexp-$$V -name 'CVS' -print | xargs rm -rf \; ; \
+	find /tmp/libvarexp-$$V -name '.cvsignore' -exec rm -f {} \; ; \
+	(cd /tmp; tar cfz libvarexp-$$V.tar.gz libvarexp-$$V); \
+	rm -rf /tmp/libvarexp-$$V; \
+	echo Created distribution archive /tmp/libvarexp-$$V.tar.gz
 
 # Dependencies
 

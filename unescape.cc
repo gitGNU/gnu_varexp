@@ -107,7 +107,7 @@ namespace varexp
             if (*src == '\\')
                 {
                 if (++src == end)
-                    throw incomplete_named_character();
+                    throw incomplete_quoted_pair();
                 switch (*src)
                     {
                     case '\\':

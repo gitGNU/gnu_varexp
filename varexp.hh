@@ -64,7 +64,7 @@ namespace varexp
         ~name() throw() { }         \
         }
 
-    define_exception(incomplete_named_character,     "incomplete named character");
+    define_exception(incomplete_quoted_pair,         "incomplete quoted pair");
     define_exception(incomplete_hex,                 "incomplete hex");
     define_exception(invalid_hex,                    "invalid hex");
     define_exception(octal_too_large,                "octal too large");
@@ -97,7 +97,6 @@ namespace varexp
     define_exception(empty_padding_fill_string,      "fill string missing in padding operation");
     define_exception(unknown_quoted_pair_in_replace, "unknown quoted pair in search and replace operation");
     define_exception(submatch_out_of_range,          "submatch referred to in replace string does not exist in search string");
-    define_exception(incomplete_quoted_pair,         "incomplete quoted pair");
     define_exception(array_lookups_are_unsupported,  "lookup function does not support variable arrays");
     define_exception(invalid_char_in_index_spec,     "index specification of array variable contains an invalid character");
     define_exception(incomplete_index_spec,          "index specification of array variable is incomplete");

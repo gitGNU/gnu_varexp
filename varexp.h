@@ -1,6 +1,8 @@
 #ifndef LIB_VARIABLE_EXPAND_H
 #define LIB_VARIABLE_EXPAND_H
 
+#include <stdlib.h>
+
 /*
   The callback will be called by variable_expand(), providing the
   following parameterns:
@@ -24,9 +26,9 @@
        <0               - error
 */
 
-int (*var_cb_t)(void* context,
-		const char* varname, size_t name_len,
-		char* const* data, size_t* data_len, char* malloced_buffer);
+typedef int (*var_cb_t)(void* context,
+                        const char* varname, size_t name_len,
+                        char* const* data, size_t* data_len, char* malloced_buffer);
 
 /*
   This structure configures the parser's specials. I think, the fields
@@ -40,7 +42,7 @@ int (*var_cb_t)(void* context,
   The comments after each field show the default configuration.
 */
 
-typdef struct
+typedef struct
     {
     char  varinit;               /* '$' */
     char  startdelim;            /* '{' */
@@ -64,7 +66,7 @@ extern const var_config_t var_config_default;
 int var_expand(const char* input, size_t input_len,
 	       char** result, size_t* result_len,
 	       const char** error_msg,
-	       varexp_lookup_cb lookup, void* lookup_context,
-	       struct varexp_configuration* config);
+	       var_cb_t lookup, void* lookup_context,
+	       var_config_t* config);
 
 #endif /* !defined(LIB_VARIABLE_EXPAND_H) */

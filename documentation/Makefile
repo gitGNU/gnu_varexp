@@ -38,8 +38,6 @@ index.html: ../VERSION peti.dsl operations-on-variables.inc
 index.html: arrays-of-variables.inc ebnf.inc looping.inc
 index.html: purpose.inc quoted-pairs.inc variable-expressions.inc
 
-
-
 clean distclean:
 	@rm -f *.aux *.dvi *.log *.toc
 	@rm -f *.fot *.ps *.xml

@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     {
     const char* input =                            \
         "\\$HOME      = '${HOME}'\\n"              \
-        "\\$OSTYPE    = '${$FOO${BAR}}'\\n"            \
+        "\\$OSTYPE    = '${$FOO${BAR}}'\\n"        \
         "\\$UNDEFINED = '${UNDEFINED}'\\n"         \
         "\\$TERM      = '${TERM}'\\n";
     const char* output =                           \

@@ -112,7 +112,9 @@ namespace varexp
                             if (!have_loop_limit)
                                 {
                                 have_loop_limit = true;
+                                int tmp = rel_lookup_count;
                                 size_t rc2 = loop_limits(p + rc + 1, end, start, step, stop, open_end);
+                                rel_lookup_count = tmp;
                                 if (rc2 == 0)
                                     loop_limit_len = 0;
                                 else

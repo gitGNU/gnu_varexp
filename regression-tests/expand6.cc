@@ -155,6 +155,7 @@ try
         { "[${ARRAY[#+1]}-]",             "entry1-entry2-entry3-"                          },
         { "-[${ARRAY[#]}:]{1,$NUMBER}-",  "-entry1:entry2:-"                               },
         { "-[${ARRAY[#]}:]{1,3,5}-",      "-entry1::-"                                     },
+        { "[${ARRAY[#+#-#]}]",            "entry0entry1entry2entry3"                       },
         {
         "[${ARRAY}:${ARRAY[#]}-]",
         "entry0:entry0-entry0:entry1-entry0:entry2-entry0:entry3-"

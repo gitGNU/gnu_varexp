@@ -54,6 +54,8 @@ namespace varexp
 
             if (config.startindex && *p == config.startindex)
                 {
+                int tmp = rel_lookup_count;
+
                 rc = num_exp(++p, end, idx);
                 if (rc == 0)
                     throw incomplete_index_spec();
@@ -66,6 +68,11 @@ namespace varexp
                     throw invalid_char_in_index_spec();
                 else
                     p++;
+
+                // Normalize rel_lookup_count.
+
+                if (rel_lookup_count > tmp)
+                    rel_lookup_count = tmp + 1;
                 }
             else
                 have_index = false;

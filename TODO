@@ -83,20 +83,19 @@
     command         : '-' ( EXPTEXT | variable )*
                     | '?' ( EXPTEXT | variable )*
                     | '+' ( EXPTEXT | variable )*
-                    | 'o' NUMBER ( '-' NUMBER )?
+                    | 'o' ( NUMBER '-' ( NUMBER )? | NUMBER ',' ( NUMBER )? )
                     | '#'
-                    | 's' '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/' ( 'g' | 'i' | 't' )*
-                    | 'Q'
-                    | 'L'
-                    | 'U'
                     | '*' ( EXPTEXT | variable )*
+                    | 's' '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/' ( 'g' | 'i' | 't' )*
                     | 'y' '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/'
+                    | 'l'
+                    | 'u'
 
     START-DELIM     : '{'
 
     END-DELIM       : '}'
 
-    VARNAME         : '[a-z0-9_]+'
+    VARNAME         : '[a-zA-Z0-9_]+'
 
     SPECIAL1        : '['
 

@@ -1,0 +1,132 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+<!ENTITY arrays SYSTEM "arrays-of-variables.inc">
+<!ENTITY looping SYSTEM "looping.inc">
+<!ENTITY operations SYSTEM "operations-on-variables.inc">
+<!ENTITY purpose SYSTEM "purpose.inc">
+<!ENTITY quoted-pairs SYSTEM "quoted-pairs.inc">
+<!ENTITY expressions SYSTEM "variable-expressions.inc">
+<!ENTITY version SYSTEM "../VERSION">
+<!ENTITY varexp "<application>libvarexp</application>">
+]>
+
+<article lang="en">
+  <articleinfo>
+    <title>Variable Expression Library &version;</title>
+    <author>
+      <firstname>Peter</firstname>
+      <surname>Simons</surname>
+      <affiliation>
+        <address><email>simons@computer.org</email></address>
+      </affiliation>
+    </author>
+  </articleinfo>
+
+  <sect1>
+    <title>Purpose of this Library</title>
+    &purpose;
+  </sect1>
+
+  <sect1>
+    <title>Expressions Supported by the Library</title>
+
+    <sect2>
+      <title>Variable Expressions</title>
+      &expressions;
+    </sect2>
+
+    <sect2>
+      <title>Operations on Variables</title>
+      &operations;
+    </sect2>
+
+    <sect2 id="quoted-pairs">
+      <title>Quoted Pairs</title>
+      &quoted-pairs;
+    </sect2>
+
+    <sect2>
+      <title>Arrays of Variables</title>
+      &arrays;
+    </sect2>
+
+    <sect2 id="looping">
+      <title>Looping</title>
+      &looping;
+    </sect2>
+
+  </sect1>
+
+  <sect1>
+    <title>Obtaining the latest Version</title>
+
+    <para>The latest release of the library can be <ulink
+url="libvarexp-&version;.tar.gz">downloaded from this web server</ulink>.</para>
+  </sect1>
+
+  <sect1>
+    <title>Obtaining the original C Version</title>
+
+    <para>This effort is based on the original <application>var</application>
+library, which I wrote under contract from Cable &amp; Wireless Deutschland.
+This <quote>original</quote> version is written in plain ISO C -- rather than
+C++ like this version. It provides almost exactly the same set of features plus
+a few new things that were added by the project team there at Cable &amp;
+Wireless, so if you're interested in their work, take a look at the library's
+page at the <ulink url="http://www.ossp.org/pkg/lib/var/">OSSP project web
+server</ulink>.</para>
+  </sect1>
+
+  <sect1>
+    <title>System Requirements</title>
+
+    <para>&varexp; has been written for the UNIX operating system and will
+(hopefully) compile on any POSIX-compliant system. It has been tested on Linux,
+FreeBSD, Solaris, and MacOS X 10 and built out-of-the-box just fine. Since it
+has been written in ISO-C++, it will require a fairly recent compiler, though,
+because many older C++ compilers are not ISO C++ compliant. If you're using the
+excellent <ulink url="http://gcc.gnu.org/">GNU C Compiler</ulink>, you should
+not have any problem. If you do, please <ulink
+url="mailto:simons@computer.org">send me an e-mail</ulink> and I'll see what I
+can do.</para>
+  </sect1>
+
+  <sect1>
+    <title>License</title>
+
+    <para>This library is based on the OSSP var library, which I developed for
+Cable &amp; Wireless Deutschland. I hereby grant permission to use all files
+included in this distribution under the same terms as the original
+version:</para>
+
+    <literallayout>libvarexp - Variable Expression Library.
+Copyright (c) 2002 Peter Simons &lt;simons@computer.org&gt;
+Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
+Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
+
+Permission to use, copy, modify, and distribute this software for
+any purpose with or without fee is hereby granted, provided that
+the above copyright notice and this permission notice appear in all
+copies.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHORS AND COPYRIGHT HOLDERS AND THEIR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.</literallayout>
+  </sect1>
+
+</article>
+
+<!--
+Local Variables:
+mode: sgml
+fill-column:80
+End:
+-->

@@ -32,7 +32,13 @@ user-manual.html user-manual.tex: ../VERSION peti.dsl operations-on-variables.in
 user-manual.html user-manual.tex: arrays-of-variables.inc ebnf.inc looping.inc
 user-manual.html user-manual.tex: purpose.inc quoted-pairs.inc variable-expressions.inc
 
-readme.html:	peti.dsl purpose.inc
+readme.html:	peti.dsl purpose.inc ../VERSION
+
+index.html: ../VERSION peti.dsl operations-on-variables.inc
+index.html: arrays-of-variables.inc ebnf.inc looping.inc
+index.html: purpose.inc quoted-pairs.inc variable-expressions.inc
+
+
 
 clean distclean:
 	@rm -f *.aux *.dvi *.log *.toc

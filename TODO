@@ -94,7 +94,7 @@
                     | '*' ( EXPTEXT | variable )+
                     | 's' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/' ( 'g' | 'i' | 't' )*
                     | 'y' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/'
-                    | 'p' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/' ( 'r' | 'l' | 'c' )
+                    | 'p' '/' NUMBER '/' ( variable | SUBSTTEXT )* '/' ( 'r' | 'l' | 'c' )
                     | 'l'
                     | 'u'
 

@@ -2,7 +2,7 @@
 
 libvarexp.a == %libvarexp.a.sm +gnu \
                                +cxx_flags='-pedantic -Wall -Wshadow -Wpointer-arith -Wcast-align -Winline -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-long-long' \
-                               +optimize=0 \
+                               +optimize=3 \
                                +debug \
                                :a
 

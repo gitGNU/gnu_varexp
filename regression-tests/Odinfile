@@ -31,6 +31,7 @@ offset-failure.exe == offset-failure.cc +(%test.flags) :exe
     +cxx_flags='-pedantic -Wall -Wshadow -Wpointer-arith -Wcast-align -Winline -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-long-long'
     +debug
     +define=DEBUG
+    +optimize=3
 
 %run-tests == <<[eof]
     if [ $# -lt 1 ]; then

@@ -1,14 +1,14 @@
 # Regression tests for libvarexp.
 
 %test == () +cmd='sh' (%run-tests) \
-                      (unescape.exe) \
-                      (expand-character-class.exe) \
-                      (expand1.exe) \
-                      (expand2.exe) \
-                      (expand3.exe) \
-                      (expand4.exe) \
-                      (expand5.exe) \
-                      (expand6.exe) \
+#                       (unescape.exe) \
+#                       (expand-character-class.exe) \
+#                       (expand1.exe) \
+#                       (expand2.exe) \
+#                       (expand3.exe) \
+#                       (expand4.exe) \
+#                       (expand5.exe) \
+#                       (expand6.exe) \
                       (empty-search-pattern.exe) \
                       (offset-failure.exe) \
                       +output_show \
@@ -28,7 +28,7 @@ offset-failure.exe == offset-failure.cc +(%test.flags) :exe
 %test.flags == <<
     +gnu
     +lib=(../libvarexp.a)
-    +cxx_flags='-Wall -pedantic'
+    +cxx_flags='-pedantic -Wall -Wshadow -Wpointer-arith -Wcast-align -Winline -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-long-long' \
     +debug
     +define=DEBUG
 

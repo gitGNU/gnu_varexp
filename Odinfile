@@ -1,8 +1,8 @@
 # Build variable-expression library.
 
 libvarexp.a == %libvarexp.a.sm +gnu \
-                               +cxx_flags='-Wall -pedantic' \
-                               +debug \
+                               +cxx_flags='-pedantic -Wall -Wshadow -Wpointer-arith -Wcast-align -Winline -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-long-long' \
+                               +optimize=2 \
                                :a
 
 %libvarexp.a.sm == <<
@@ -17,7 +17,6 @@ libvarexp.a == %libvarexp.a.sm +gnu \
     num-exp.cc
     padding.cc
     search-and-replace.cc
-    strerror.cc
     text.cc
     tokenbuf.cc
     transpose.cc

@@ -43,4 +43,13 @@ int exptext_or_variable(const char* begin, const char* end, const var_config_t* 
                         const char nameclass[256], var_cb_t lookup, void* lookup_context,
                         int force_expand, tokenbuf* result);
 
+
+int substext_or_variable(const char* begin, const char* end, const var_config_t* config,
+                         const char nameclass[256], var_cb_t lookup, void* lookup_context,
+                         int force_expand, tokenbuf* result);
+
+int substext(const char* begin, const char* end, const var_config_t* config);
+
+int search_and_replace(tokenbuf* data, tokenbuf* search, tokenbuf* replace, tokenbuf* flags);
+
 #endif /* !defined(INTERNAL_H) */

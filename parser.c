@@ -320,9 +320,7 @@ int command(const char* begin, const char* end, const var_config_t* config,
     {
     /*
       command         : '-' ( EXPTEXT | variable )*
-      | '?' ( EXPTEXT | variable )*
       | 'o' ( NUMBER '-' ( NUMBER )? | NUMBER ',' ( NUMBER )? )
-      | '*' ( EXPTEXT | variable )*
       | 's' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )+ '/' ( 'g' | 'i' | 't' )*
       | 'y' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )+ '/'
     */
@@ -331,6 +329,7 @@ int command(const char* begin, const char* end, const var_config_t* config,
     char* tmpptr;
     char  tmpbuf[1024];
     tokenbuf tmptokbuf;
+    tokenbuf search, replace, flags;
     int rc;
 
     printf("Entering command(); data is '");
@@ -368,7 +367,6 @@ int command(const char* begin, const char* end, const var_config_t* config,
                 {
                 if (data->buffer_size == 0)
                     {
-                    printf("*** We need to copy the buffer before calling toupper().\n");
                     tokenbuf tmp;
                     tmp.begin = tmp.end = NULL;
                     tmp.buffer_size = 0;
@@ -516,6 +514,67 @@ int command(const char* begin, const char* end, const var_config_t* config,
             free_tokenbuf(&tmptokbuf);
             break;
 
+        case 's':               /* Search and replace. */
+            ++p;
+
+            if (*p != '/')
+                return VAR_MALFORMATTED_REPLACE;
+            else
+                ++p;
+
+            rc = substext_or_variable(p, end, config, nameclass, lookup, lookup_context,
+                                      force_expand, &search);
+            if (rc < 0)
+                return rc;
+            else
+                p += rc;
+
+            if (*p != '/')
+                {
+                free_tokenbuf(&search);
+                return VAR_MALFORMATTED_REPLACE;
+                }
+            else
+                ++p;
+
+            rc = substext_or_variable(p, end, config, nameclass, lookup, lookup_context,
+                                      force_expand, &replace);
+            if (rc < 0)
+                return rc;
+            else
+                p += rc;
+
+            if (*p != '/')
+                {
+                free_tokenbuf(&search);
+                free_tokenbuf(&replace);
+                return VAR_MALFORMATTED_REPLACE;
+                }
+            else
+                ++p;
+
+            rc = exptext(p, end, config);
+            if (rc < 0)
+                {
+                free_tokenbuf(&search);
+                free_tokenbuf(&replace);
+                return rc;
+                }
+            else
+                {
+                flags.begin = p;
+                flags.end = p + rc;
+                flags.buffer_size = 0;
+                p += rc;
+                }
+
+            rc = search_and_replace(data, &search, &replace, &flags);
+            free_tokenbuf(&search);
+            free_tokenbuf(&replace);
+            if (rc < 0)
+                return rc;
+            break;
+
         default:
             return VAR_UNKNOWN_COMMAND_CHAR;
         }
@@ -539,7 +598,7 @@ int number(const char* begin, const char* end)
 int substext(const char* begin, const char* end, const var_config_t* config)
     {
     const char* p;
-    for (p = begin; p != end && *p != config->varinit && *p != ':'; ++p)
+    for (p = begin; p != end && *p != config->varinit && *p != '/'; ++p)
         {
         if (*p == config->escape)
             {

@@ -10,6 +10,7 @@
                       (expand4.exe) \
                       (expand5.exe) \
                       (expand6.exe) \
+                      (expand7.exe) \
                       (user-abort.exe) \
                       +output_show \
                       :stdout
@@ -23,6 +24,7 @@ expand3.exe == expand3.c +(%test.flags) :exe
 expand4.exe == expand4.c +(%test.flags) :exe
 expand5.exe == expand5.c +(%test.flags) :exe
 expand6.exe == expand6.c +(%test.flags) :exe
+expand7.exe == expand7.c +(%test.flags) :exe
 user-abort.exe == user-abort.c +(%test.flags) :exe
 
 %test.flags == <<

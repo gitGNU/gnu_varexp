@@ -11,6 +11,7 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -ansi -pedantic' \
     expand.c
     append-to-tokenbuf.c
     free-tokenbuf.c
+    search-and-replace.c
 
 %clean ! == !<<
     rm -f libvarexp.a

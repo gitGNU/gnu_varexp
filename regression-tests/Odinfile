@@ -28,7 +28,7 @@ offset-failure.exe == offset-failure.cc +(%test.flags) :exe
 %test.flags == <<
     +gnu
     +lib=(../libvarexp.a)
-    +cxx_flags='-pedantic -Wall -Wshadow -Wpointer-arith -Wcast-align -Winline -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-long-long' \
+    +cxx_flags='-pedantic -Wall -Wshadow -Wpointer-arith -Wcast-align -Winline -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-long-long'
     +debug
     +define=DEBUG
 

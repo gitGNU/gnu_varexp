@@ -1,6 +1,8 @@
 #include "internal.h"
 #include <assert.h>
 
+/* Internal parsing code for octal. */
+
 static int isoct(char c)
     {
     if (c >= '0' && c <= '7')
@@ -44,6 +46,8 @@ static int ishex(char c)
     else
         return 0;
     }
+
+/* Internal parsing code for hex. */
 
 static var_rc_t expand_simple_hex(char** read_pos, char** write_pos, const char* end_pos)
     {

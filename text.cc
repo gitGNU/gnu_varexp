@@ -34,7 +34,16 @@ namespace varexp
 
         size_t parser::number(const char *begin, const char *end, unsigned int& num)
             {
-            return ascii_to_uint(begin, end, num);
+            const char* p = begin;
+            num = 0;
+
+            while (isdigit(*p) && p != end)
+                {
+                num *= 10;
+                num += *p - '0';
+                ++p;
+                }
+            return p - begin;
             }
 
         size_t parser::substext(const char* begin, const char* end)

@@ -23,7 +23,6 @@ libvarexp.a == %libvarexp.a.sm +gnu \
     variable.cc
     error.cc
     parser.cc
-    ascii-to-uint.cc
 
 %clean ! == !<<
     rm -f libvarexp.a

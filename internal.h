@@ -71,7 +71,7 @@ var_rc_t loop_limits(const char *begin, const char *end,
                      int* start, int* step, int* stop, int* open_end);
 
 int num_exp(const char *begin, const char *end, int current_index,
-            int *result, int *failed, int *rel_lookup_flag,
+            int *result, int *rel_lookup_flag,
             const var_config_t *config,
             const char_class_t nameclass,
             var_cb_t lookup, void *lookup_context);

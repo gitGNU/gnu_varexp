@@ -30,7 +30,6 @@ var_rc_t loop_limits(const char *begin, const char *end,
     {
     const char* p = begin;
     int rc;
-    int failed;
     int dummy;
 
     if (begin == end)
@@ -43,8 +42,7 @@ var_rc_t loop_limits(const char *begin, const char *end,
 
     /* Read start value for the loop. */
 
-    failed = 0;
-    rc = num_exp(p, end, 0, start, &failed, &dummy,
+    rc = num_exp(p, end, 0, start, &dummy,
                  config, nameclass, lookup, lookup_context);
     if (rc == VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC)
         *start = 0;          /* use default */
@@ -52,8 +50,6 @@ var_rc_t loop_limits(const char *begin, const char *end,
         return rc;
     else
         p += rc;
-    if (failed)
-        return VAR_ERR_UNDEFINED_VARIABLE;
 
     if (*p != ',')
         return VAR_ERR_INVALID_CHAR_IN_LOOP_LIMITS;
@@ -62,8 +58,7 @@ var_rc_t loop_limits(const char *begin, const char *end,
 
     /* Read step value for the loop. */
 
-    failed = 0;
-    rc = num_exp(p, end, 0, step, &failed, &dummy,
+    rc = num_exp(p, end, 0, step, &dummy,
                  config, nameclass, lookup, lookup_context);
     if (rc == VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC)
         *step = 1;          /* use default */
@@ -71,8 +66,6 @@ var_rc_t loop_limits(const char *begin, const char *end,
         return rc;
     else
         p += rc;
-    if (failed)
-        return VAR_ERR_UNDEFINED_VARIABLE;
 
     if (*p != ',')
         {
@@ -95,8 +88,7 @@ var_rc_t loop_limits(const char *begin, const char *end,
 
     /* Read stop value for the loop. */
 
-    failed = 0;
-    rc = num_exp(p, end, 0, stop, &failed, &dummy,
+    rc = num_exp(p, end, 0, stop, &dummy,
                  config, nameclass, lookup, lookup_context);
     if (rc == VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC)
         {
@@ -110,8 +102,6 @@ var_rc_t loop_limits(const char *begin, const char *end,
         *open_end = 0;
         p += rc;
         }
-    if (failed)
-        return VAR_ERR_UNDEFINED_VARIABLE;
 
     if (*p != config->enddelim)
         return VAR_ERR_INVALID_CHAR_IN_LOOP_LIMITS;

@@ -1,34 +1,17 @@
-                              libvarexp
+                              libvar.a
+
+ - Prefix ist "var_", beziehungsweise "VAR_".
 
  - Eine Variable kann im Text in der Form $name oder ${name} angegeben
    werden, wobei die Wahl der Klammern '{' '}' und des '$'
    parametriesiert werden können.
 
- - Gültige Zeichen für einem Variablennamen sind: [a-z0-9_] und '['
-   sowie ']' selber.
+ - Gültige Zeichen für einen Variablennamen sind konfigurierbar.
+   Garbage in -- garbage out.
 
  - Ein echtes '$'-Zeichen im Text kann durch Voranstellung eines
    wählbaren Escapezeichen dargestellt werden. Default ist der
    Backslash ('\').
-
- - Der tatsächliche Lookup des Inhaltes der Variable geschieht über
-   eine Callback-Funktion:
-
-    enum
-        {
-        VAR_OK,
-        VAR_NOTFOUND,
-        VAR_ERR_XXX,
-        VAR_ERR_XXX,
-           :
-        }
-    var_rc_t;
-
-    var_rc_t (*var_lookup_cb)(void *ctx,
-                              const char *varbegin,
-                              const char* varend,
-                              char *bufptr, size_t bufmax, size_t *buflen
-                              );
 
  - Der Aufrufer der Funktion soll steuern können, wie sich die Library
    verhält, wenn eine Variable nicht existiert. Denkbar sind:
@@ -48,9 +31,9 @@
  - ${parameter:+word} substituiert die Expansion von "${word}" wenn
    "parameter" nicht leer ist, sonst wird "" substituiert.
 
- - ${parameter:o<offset>} und ${parameter:o<offset>-<length>}
-   substituiert den Inhalt von "parameter" ab Zeichen "offset" bis zum
-   Ende oder -- in der zweiten Form -- die nächsten "length" Zeichen.
+ - ${parameter:o<start>-}, ${parameter:o<start>-<end>}
+
+ - ${parameter:o<start>,}, ${parameter:o<start>,<length>}
 
  - ${parameter:#} expandiert zur Länge des Inhaltes von "parameter".
 
@@ -62,46 +45,30 @@
    regulären Ausdrücken gewünscht ist. Das 'i'-Flag besagt, daß die
    Suche nach "pattern" case-insensitiv durchgeführt wird.
 
- - ${parameter:Q} escaped vor der Expansion alle Shell-Meta-Zeichen.
-
- - ${parameter:L} wandelt den Inhalt von "parameter" in
-   Kleinbuchstaben, bevor es die Variable expandiert.
-
- - ${parameter:U} wandelt den Inhalt von "parameter" in
-   Großbuchstaben, bevor es die Variable expandiert.
-
- - ${parameter:*word} expandiert zum leeren Wort, wenn "parameter"
-   nicht leer ist, sonst zu "word".
-
  - ${parameter:y/ochars/nchars/} expandiert den Inhalt von "parameter"
    und transformiert dabei nach dem Prinzip von tr(1) die "ochars" im
    Text zu "nchars".
 
+ - ${parameter:l} wandelt den Inhalt von "parameter" in
+   Kleinbuchstaben, bevor es die Variable expandiert. Dies geschieht
+   über toupper(3).
+
+ - ${parameter:u} wandelt den Inhalt von "parameter" in
+   Großbuchstaben, bevor es die Variable expandiert. Dies geschieht
+   über tolower(3).
+
+ - ${parameter:*word} expandiert zum leeren Wort, wenn "parameter"
+   nicht leer ist, sonst zu "word".
+
  - Jedes Vorkommen eines der folgenden Konstrukte im Text wird durch
    das zugehörige Sonderzeichen ersetzt.
 
-       \t          tab                   (HT, TAB)
-       \n          newline               (LF, NL)
-       \r          return                (CR)
-       \f          form feed             (FF)
-       \a          alarm (bell)          (BEL)
-       \e          escape (think troff)  (ESC)
+       \t          tab
+       \n          newline
+       \r          return
        \033        octal char
        \x1B        hex char
-       \x{263a}    wide hex char         (Unicode SMILEY)
-
- - Interne Strukturen:
-
-    struct configuration
-        {
-        char varinit = '$';
-        char startdelim = '{';
-        char enddelim = '}';
-        char escape = '\\';
-        char force_expand = TRUE;
-        char special1 = '[';
-        char special2 = ']';
-        };
+       \x{263a}    wide hex char
 
  - Syntax:
 
@@ -118,12 +85,12 @@
                     | '+' ( EXPTEXT | variable )*
                     | 'o' NUMBER ( '-' NUMBER )?
                     | '#'
-                    | 's'  '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/' ( 'g' | 'i' | 't' )*
+                    | 's' '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/' ( 'g' | 'i' | 't' )*
                     | 'Q'
                     | 'L'
                     | 'U'
                     | '*' ( EXPTEXT | variable )*
-                    | 'y'   '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/'
+                    | 'y' '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/'
 
     START-DELIM     : '{'
 
@@ -142,3 +109,10 @@
     EXPTEXT         : '[^$}:]+'
 
     TEXT            : '[^$]+'
+
+ - Doku sollte ein Beispiel für Quoting von Shell- und
+   Regexp-Ausdrücken enthalten.
+
+ - Wir unterstützen PCRE-, POSIX-Regex- oder keine regulären
+   Ausdrücke. Dies kann über autoconf zur Compilezeit angegeben
+   werden.

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "../internal.h"
+#include <dmalloc.h>
 
 int env_lookup(void* context,
           const char* varname, size_t name_len,

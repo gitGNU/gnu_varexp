@@ -32,6 +32,7 @@ offset-failure.exe == offset-failure.c +(%test.flags) :exe
 %test.flags == <<
     +lib=(../libvarexp.a)
     +cc='gcc -Wall -pedantic'
+    +lib='-ldmalloc'
     +debug
 
 %run-tests == <<[eof]

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../internal.h"
+#include <dmalloc.h>
 
 static void class2string(char class[256], char* buf)
     {

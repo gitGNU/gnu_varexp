@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../internal.h"
+#include <dmalloc.h>
 
 int dummy(void* context,
           const char* varname, size_t name_len,
@@ -41,6 +42,8 @@ int main(int argc, char** argv)
         printf("The buffer returned by var_expand() is not what we expected.\n");
         return 1;
         }
+
+    free(tmp);
 
     return 0;
     }

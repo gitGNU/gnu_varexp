@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../internal.h"
+#include <dmalloc.h>
 
 int dummy(void* context,
           const char* varname, size_t name_len,

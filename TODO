@@ -56,6 +56,17 @@
  - ${parameter:*word} expandiert zum leeren Wort, wenn "parameter"
    nicht leer ist, sonst zu "word".
 
+ - Padding: ${parameter:p/<width>/<string>/<align>} expandiert
+   "parameter" in einen String der Mindestbreite <width>, wobei abhaengig
+   von <align> ("r" = right, "l" = left, "c" = center) noch fehlende
+   Zeichen mit <string> aufgefuellt werden. Diest ist gedacht, um in
+   Templates saubere Tabellen erzeugen zu koennen.
+   Beispiele (foo="bar"):
+       "${foo:p/6/./r}" -> "bar..."
+       "${foo:p/6/./l}" -> "...bar"
+       "${foo:p/6/./c}" -> ".bar.." (oder "..bar.", egal)
+       "${foo:p/20/-=/c}" -> "-=-=-=-=-bar-=-=-=-="
+
  - Jedes Vorkommen eines der folgenden Konstrukte im Text wird durch
    das zugehörige Sonderzeichen ersetzt.
 
@@ -83,6 +94,7 @@
                     | '*' ( EXPTEXT | variable )+
                     | 's' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/' ( 'g' | 'i' | 't' )*
                     | 'y' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/'
+                    | 'p' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/' ( 'r' | 'l' | 'c' )
                     | 'l'
                     | 'u'
 

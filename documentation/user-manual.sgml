@@ -6,6 +6,10 @@
 <!ENTITY sh "<citerefentry><refentrytitle>sh</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
 <!ENTITY make "<citerefentry><refentrytitle>make</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
 <!ENTITY perl "<citerefentry><refentrytitle>perl</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
+<!ENTITY tr "<citerefentry><refentrytitle>tr</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
+<!ENTITY sed "<citerefentry><refentrytitle>sed</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
+<!ENTITY tolower "<citerefentry><refentrytitle>tolower</refentrytitle><manvolnum>3</manvolnum></citerefentry>">
+<!ENTITY toupper "<citerefentry><refentrytitle>toupper</refentrytitle><manvolnum>3</manvolnum></citerefentry>">
 ]>
 
 <article lang="en">
@@ -53,9 +57,9 @@ HTML:</para>
     &lt;h1&gt;Financial report&lt;/h1&gt;
 
     &lt;p&gt;This month, our glorious company reached a
-total turnover of $(TOTAL) Euros, totalling $(PROFIT)
+total turnover of ${TOTAL} Euros, totalling ${PROFIT}
 Euros before taxes. That means we have increased our
-profit by $(INCREASE) percent compared to last
+profit by ${INCREASE} percent compared to last
 month.&lt;/p&gt;
 
   &lt;/body&gt;
@@ -70,10 +74,10 @@ Subject: This month's financial report
 
 Dear Colleagues,
 
-we have earned a total of $(PROFIT) Euros this month!
-This means that we have increased profits by $(PROFIT)
+we have earned a total of ${PROFIT} Euros this month!
+This means that we have increased profits by ${PROFIT}
 percent compared to last month, totalling a turnover
-of $(TURNOVER) of Euros.
+of ${TURNOVER} of Euros.
 
 Sincerely yours,
     The Statistics Program</screen>
@@ -89,8 +93,8 @@ Subject: Ajahaha Mzoodeutschmark
 
 Nuwarskvu,
 
-Quhu&szlig;aour Maou Ahosetuh Cravullitstziki Nakaou $(PROFIT)
-Akqiss&auml;e&uuml;&szlig; Blaga: $(TURNOVER) Stauhr $(INCREASE)!!!!</screen>
+Quhu&szlig;aour Maou Ahosetuh Cravullitstziki Nakaou ${PROFIT}
+Akqiss&auml;e&uuml;&szlig; Blaga: ${TURNOVER} Stauhr ${INCREASE}!!!!</screen>
     </informalexample>
 
     <para>This version is -- as you can probably easily recognize -- in
@@ -123,13 +127,252 @@ the callback.</para>
     <sect2>
       <title>Variable Expressions</title>
 
-      <para></para>
+      <para>&varexp; distinguishes variables into simple and complex
+expressions. A simple expression has the form <quote>$NAME</quote> and will
+basically only replace the variable in the text buffer with its contents.
+Complex expressions have the form
+<quote>${NAME:operation1:operation2:&hellip;}</quote> and may perform various
+operations on the variable's contents before inserting it into the text
+buffer.</para>
+
+      <para>Please note that due to the way simple expressions are parsed, it
+may not always be possible to use the simple-expression form even though you do
+not want to perform any operations. If your input text was <quote>This is a
+$FOObar</quote>, but the last <quote>bar</quote> part is meant to be a literal
+string, you'd have use <quote>This is a ${FOO}bar</quote>, because the parser
+will interpret any valid variable-name character following the dollar as part of
+the variable name; it will not recognize that <quote>$FOO</quote> would exist
+while <quote>$FOObar</quote> would not.</para>
+
+      <para>Also, &varexp; does not distinguish case in any way. For the
+library, <quote>$FoObAr</quote> and <quote>$fOoBaR</quote> are just strings --
+whether they refer to the same variable or not is entirely up to the application
+that provides the callback used to resolve variables to their contents.</para>
+
+      <para>If you want to enter a text like <quote>$foo</quote> literally,
+you'll have to escape the <quote>$</quote> sign by prefacing it with a
+backslash: <quote>\$foo</quote>. Then &varexp; won't interpret this expression
+as a variable.</para>
+    </sect2>
+
+    <sect2>
+      <title>Operations on Variables</title>
+
+      <para>In addition to just inserting the variable's contents into the
+buffer, you can use various operations to modify its contents before the
+expression is expanded. Such operations are used by appending a colon plus the
+apropriate command character to the variable name in complex expression, for
+example: <quote>${FOOBAR:l}</quote>. Furthermore, you can chain any number of
+operations simply by appending another command to the last one:
+<quote>${FOOBAR:l:u:l:u:&hellip;}</quote>.</para>
+
+      <para>The supported operations are:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><literal>${NAME:#}</literal></term>
+          <listitem>
+            <para>This operation will expand the expression to the length of the
+contents of <literal>$NAME</literal>. If, for example, <literal>$FOO</literal>
+is <quote>foobar</quote>, then <literal>${FOO:#}</literal> will result in
+<quote>6</quote>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:l}</literal></term>
+          <listitem>
+            <para>This operation will turn the contents of
+<literal>$NAME</literal> to all lower-case, using the system routine
+&tolower;.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:u}</literal></term>
+          <listitem>
+            <para>This operation will turn the contents of
+<literal>$NAME</literal> to all upper-case, using the system routine
+&toupper;.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:*<replaceable>word</replaceable>}</literal></term>
+          <listitem>
+            <para>This operation will expand to <replaceable>word</replaceable>
+if <literal>$NAME</literal> is empty. If <literal>$NAME</literal> is not empty,
+it will expand to an empty string.</para>
+
+            <para><replaceable>word</replaceable> can be an arbitrary text. In
+particular, it may contain other variables or even complex variable expressions,
+for example: <quote>${FOO:*${BAR:u}}</quote>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:-<replaceable>word</replaceable>}</literal></term>
+          <listitem>
+            <para>This operation will expand to <replaceable>word</replaceable>
+if <literal>$NAME</literal> is empty. If <literal>$NAME</literal> is not empty,
+it will evaluate to the <literal>$NAME</literal>'s contents.</para>
+
+            <para><replaceable>word</replaceable> can be an arbitrary text. In
+particular, it may contain other variables or even complex variable expressions,
+for example: <quote>${FOO:-${BAR:u}}</quote>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:+<replaceable>word</replaceable>}</literal></term>
+          <listitem>
+            <para>This operation will expand to <replaceable>word</replaceable>
+if <literal>$NAME</literal> is not empty. If <literal>$NAME</literal> is empty,
+it will expand to an empty string.</para>
+
+            <para><replaceable>word</replaceable> can be an arbitrary text. In
+particular, it may contain other variables or even complex variable expressions,
+for example: <quote>${FOO:+${BAR:u}}</quote>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</literal></term>
+          <listitem>
+            <para>This operation will expand to a part of
+<literal>$NAME</literal>'s contents, which starts at
+<replaceable>start</replaceable> and ends at <replaceable>end</replaceable>.
+Both parameters <replaceable>start</replaceable> and
+<replaceable>end</replaceable> are unsigned numbers.</para>
+
+            <para>Please note that the character at position
+<replaceable>end</replaceable> is <emphasis>included</emphasis> in the result;
+<quote>${FOOBAR:o3,4}</quote>, for instance, will return a two-character string.
+Also, please note that start positions begin at zero (0)!</para>
+
+            <para>If the <replaceable>end</replaceable> parameter is not
+specified, as in <quote>${FOOBAR:o3,}</quote>, the operation will return the
+string starting from position 3 to the end of the string.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:o<replaceable>start</replaceable>-<replaceable>length</replaceable>}</literal></term>
+          <listitem>
+            <para>This operation will expand to a part of
+<literal>$NAME</literal>'s contents, which starts at
+<replaceable>start</replaceable> and ends at
+<quote><replaceable>start</replaceable>+<replaceable>length</replaceable></quote>.
+Both parameters <replaceable>start</replaceable> and
+<replaceable>end</replaceable> are unsigned numbers.</para>
+
+            <para><quote>${FOOBAR:o3-4}</quote>, for example, means to return
+the next 4 charaters starting at position 3 in the string. Please note that
+start positions begin at zero (0)!</para>
+
+            <para>If the <replaceable>end</replaceable> parameter is left out,
+as in <quote>${FOOBAR:o3-}</quote>, the operation will return the string from
+position 3 to the end.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:s/<replaceable>pattern</replaceable>/<replaceable>string</replaceable>/<replaceable>gti</replaceable>}</literal></term>
+          <listitem>
+            <para>This operation will perform a search-and-replace operation on
+the contents of <literal>$NAME</literal> and return the result. The behavior of
+the search-and-replace may be modified by the following flags: If a
+<literal>t</literal> flag has been provided, a plain text search-and-replace is
+performed, otherwise, the default is to do a regular expression
+search-and-replace as in the system utility &sed;. If the <literal>g</literal>
+flag has been provided, the search-and-replace will replace
+<emphasis>all</emphasis> instances of <replaceable>pattern</replaceable> by
+<replaceable>replace</replaceable>, instead of replacing only the first instance
+(the default). If the <literal>i</literal> flag has been provided, the
+search-and-replace will take place case-insensitively, otherwise, the default is
+to search case-sensitively.</para>
+
+            <para>The parameters <replaceable>pattern</replaceable> and
+<replaceable>replace</replaceable> can be an arbitrary text. In particular, they
+may contain other variables or even complex variable expressions, for example:
+<quote>${FOO:s/${BAR:u}/$FOO/ti}</quote>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:y/<replaceable>ochars</replaceable>/<replaceable>nchars</replaceable>/}</literal></term>
+          <listitem>
+            <para>This operation will translate all characters in the contents
+of <literal>$NAME</literal> that are found in the
+<replaceable>ochars</replaceable> class to the corresponding character in the
+<replaceable>nchars</replaceable> class -- just like the system utility &tr;
+does. Both <replaceable>ochars</replaceable> and
+<replaceable>nchars</replaceable> may contain character range specifications,
+for example <quote>a-z0-9</quote>. A hyphon as the first or last character of
+the class specification is interpreted literally. Both the
+<replaceable>ochars</replaceable> and the <replaceable>nchars</replaceable>
+class must contain the same number of characters after all ranges are expanded,
+or an error is returned.
+
+          <para>If, for example, <quote>$FOO</quote> contains
+<quote>foobar</quote>, then <quote>${FOO:y/a-z/A-Z/}</quote> would yield
+<quote>FOOBAR</quote>. Another goodie is to use that operation to ROT13-encrypt
+or decrypt a string with the expression
+<quote>${FOO:y/a-z/n-za-m/}</quote>.</para>
+
+            <para>The parameters <replaceable>ochars</replaceable> and
+<replaceable>nchars</replaceable> can be an arbitrary text. In particular, they
+may contain other variables or even complex variable expressions, for example:
+<quote>${FOO:y/${BAR:u}/$TEST/}</quote>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>${NAME:p/<replaceable>width</replaceable>/<replaceable>string</replaceable>/<replaceable>align</replaceable>}</literal></term>
+          <listitem>
+            <para>This operation will pad the contents of
+<literal>$NAME</literal> with <replaceable>string</replaceable> according to the
+<replaceable>align</replaceable> parameter, so that the result is at least
+<replaceable>width</replaceable> characters long. Valid parameters for align are
+<literal>l</literal> (left), <literal>r</literal> (right), or
+<literal>c</literal> (center). The <replaceable>string</replaceable> parameter
+may contain multiple characters, if you see any use for that.</para>
+
+            <para>If, for example, <quote>$FOO</quote> is <quote>foobar</quote>,
+then <quote>${FOO:p/20/./c}</quote> would yield
+<quote>.......foobar.......</quote>; <quote>${FOO:p/20/./l}</quote> would yield
+<quote>foobar..............</quote>; and <quote>${FOO:p/20/./r}</quote> would
+yield <quote>..............foobar</quote>;</para>
+
+            <para>The parameter <replaceable>string</replaceable> can be an
+arbitrary text. In particular, it may contain other variables or even complex
+variable expressions, for example: <quote>${FOO:p/20/${BAR}/r/}</quote>.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
     </sect2>
 
     <sect2>
       <title>Quoted Pairs</title>
 
-      <para>The &unescape; function knows the following quoted pairs:</para>
+      <para>In addition to the variable expressions discussed in the previous
+sections, &varexp; can also be used to expand so called <quote>quoted
+pairs</quote> in the text. Quoted pairs are well-known from programming
+languages like C, for example. A quoted pair consists of the backslash followed
+by another character, for example: <quote>\n</quote>.</para>
+
+      <para><emphasis>Any</emphasis> character can be quoted by a backslash; the
+terms <quote>\=</quote> or <quote>\@</quote>, for instance, are valid quoted
+pairs. But these quoted pairs don't have any special meaning to the library and
+will be expanded to the quoted character itself. There is a number of quoted
+pairs, though, that does have a special meaning and expands to some other value.
+The complete list is shown below. Please note that the name <quote>quoted
+pair</quote> is actually a bit inaccurate, because &varexp; supports some
+expressions that are no <quote>pairs</quote> in the sense that they consist of
+more than one quoted character. But the name <quote>quoted pair</quote> is very
+common for them anyway, so I stuck with it.</para>
+
+      <para>The quoted pairs supported by &varexp; are:</para>
 
       <variablelist>
         <varlistentry>
@@ -137,58 +380,259 @@ the callback.</para>
           <term><symbol>\r</symbol></term>
           <term><symbol>\n</symbol></term>
           <listitem>
-            <para>These expressions are replaced by the appropriate binary
-representation of a tab, a carrige return and a newline respectively.</para>
+            <para>These expressions are replaced by a <keysym>tab</keysym>, a
+<keysym>carrige return</keysym> and a <keysym>newline</keysym>
+respectively.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>\<replaceable>abc</replaceable></term>
+          <term>\<replaceable>abb</replaceable></term>
           <listitem>
             <para>This expression is replaced by the value of the octal number
-<replaceable>abc</replaceable>. Valid digits of <replaceable>a</replaceable> are
-in the range of 0' to 3, for digits <replaceable>b</replaceable> and
-<replaceable>c</replaceable> in the range of 0 to 7. Please note that an octal
-expression is recognized only if the backslash is followed by
-<emphasis>three</emphasis> digits! The expression <literal>\1a7</literal>, for
-example, is interpreted as the quoted pair <literal>\1</literal> followed by the
-verbatim text <literal>a7</literal>.</para>
+<replaceable>abb</replaceable>. Valid digits for <replaceable>a</replaceable>
+are in the range from 0 to 3; either position <replaceable>b</replaceable> may
+be in the range from 0 to 7. Please note that an octal expression is recognized
+only if the backslash is followed by <emphasis>three</emphasis> valid digits!
+The expression <quote>\1a7</quote>, for example, is interpreted as the
+quoted pair <quote>\1</quote> followed by the verbatim text
+<quote>a7</quote>, because <quote>a</quote> is not valid for octal
+numbers.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term><symbol>\x<replaceable>ab</replaceable></symbol></term>
+          <term><symbol>\x<replaceable>aa</replaceable></symbol></term>
           <listitem>
             <para>This expression is replaced by the value of the hexadecimal
-number $<replaceable>ab</replaceable>. Both characters
-<replaceable>a</replaceable> and <replaceable>b</replaceable> must be in the
-range of 0 to 9, a to f, or A to F.</para>
+number $<replaceable>aa</replaceable>. Both positions
+<replaceable>a</replaceable> must be in the range from 0 to 9 or from
+<quote>a</quote> to <quote>f</quote>. For the letters, either case is
+recognized, so <quote>\xBB</quote> and <quote>\xbb</quote> will yield the same
+result.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
           <term><symbol>\x{&hellip;}</symbol></term>
           <listitem>
-            <para>This expression denotes a set of grouped hexadecimal
-numbers. The <replaceable>&hellip;</replaceable> part may consist of an
-arbitrary number of hexadecimal pairs, such as in <literal>\x{}</literal>,
-<literal>\x{ff}</literal>, or <literal>\x{55ffab04}</literal>. The empty
-expression <literal>\x{}</literal> is a no-op; it will not produce any
-output.</para>
+            <para>This expression denotes a set of grouped hexadecimal numbers.
+The <replaceable>&hellip;</replaceable> part may consist of an arbitrary number
+of hexadecimal pairs, such as in <quote>\x{}</quote>, <quote>\x{ff}</quote>, or
+<quote>\x{55ffab04}</quote>. The empty expression <quote>\x{}</quote> is a
+no-op; it will not produce any output.</para>
 
             <para>This construct may be useful to specify multi-byte characters
-(as in Unicode). Even though <literal>\x{0102}</literal> is effectively
-equivalent to <literal>\x01\x02</literal>, the grouping of values may be useful
-in other contexts, even though <function>unescape()</function> or
-<function>expand()</function> make no direct use of it.</para>
+(as in Unicode). <quote>\x{0102}</quote> is effectively equivalent to
+<quote>\x01\x02</quote>, but the grouping of values may be useful in other
+contexts, even though for &varexp; it makes no difference.</para>
           </listitem>
         </varlistentry>
       </variablelist>
     </sect2>
 
     <sect2>
+      <title>Arrays of Variables</title>
+
+      <para>In addition to normal variables, &varexp; also supports arrays of
+variables. An array may only be accessed in a complex expression --
+<quote>$NAME[1]</quote> is not correct syntax. Use <quote>${NAME[1]}</quote>
+instead. The reason for this limitation is that the brackets used to specify the
+index (<quote>[</quote> and <quote>]</quote>) have a different meaning in
+ordinary text; see <xref linkend="looping"> for further discussion.</para>
+
+      <para>Which variable is an index and which is not is entirely up to the
+application developer. In some applications, every array may be accessed as an
+array, too. In other applications, normal variables and arrays are different
+things. &varexp; does not dictate this. There exists the convention that
+accessing an array with a negative index, such as <quote>${ARRAY[-1]}</quote>
+should return the number of elements the array contains. But again, this is not
+a behavior required by &varexp;; different applications may behave differently
+here.</para>
+
+      <para>When specifying the index of the array's element you wish to access,
+you can use complete arithmetic expressions to calculate the entry. &varexp;
+supports the operands <quote>+</quote> (addition), <quote>-</quote>
+(subtractin), <quote>*</quote> (multiplication), <quote>/</quote> (division),
+and <quote>+</quote> (modulo).</para>
+
+      <para>These operations may be used on any signed integer. A valid
+expression is, for example: <quote>${ARRAY[-12/4+5]}</quote>. Please note that
+&varexp; follows the usual operator precedence. To group expressions
+explicitely, put brackets around them:
+<quote>${ARRAY[-12/(2+4)]}</quote>.</para>
+
+      <para>In any place you can write a number in such an expression, you can
+also use a simple or complex variable expression. If <quote>$TWO</quote> is
+<quote>2</quote>, the following expression would access the 5th entry in the
+<quote>$FOO</quote> array: <quote>${FOO[10/$TWO}</quote>.</para>
+    </sect2>
+
+    <sect2 id="looping">
+      <title>Looping</title>
+
+      <para>Obviously, arithmetic in array indices would be quite pointless
+without a looping construct. &varexp; offers such a costruct, which can model
+both a <quote>for</quote> and a <quote>while</quote> loop. Let's start with the
+second version, which is slightly simpler.</para>
+
+      <para>If the index delimiters <quote>[</quote> and <quote>[</quote> are
+found in the text, the start a looping construct. An example would be
+<quote>This is a test: [ $FOO ]</quote>. What happens now is that all text
+between the loop-delimiters is repeated again and again until all variables
+found in the body of the loop say they're undefined for the current index. The
+current index starts counting at zero (0) and is increased with every interation
+of the loop. In the index-specifier of the variable, it is available as
+<quote>#</quote>.</para>
+
+      <para>Hence, if we assume that the variable <quote>ARRAY[]</quote> had
+three entries: <quote>entry1</quote>, <quote>entry2</quote>, and
+<quote>entry3</quote>, then the loop <quote>[${ARRAY[i]}]</quote> would expand
+to <quote>entry1entry2entry3</quote>. Once the conter reached index 4,
+<quote>all</quote> arrays in the loop's body are undefined.</para>
+
+      <para>That raises the question what the first example we presented,
+<quote>This is a test: [ $FOO ]</quote>, would expand to? The answer is: To the
+empty string! The loop would start expanding the body with index 0 and right at
+the very first iteration, all arrays in the body were empty -- that is, no array
+would have been expanded, because there weren't any arrays.</para>
+
+      <para>Thus, this form of looping only makes sense if you
+<emphasis>do</emphasis> specify arrays in the loop's body. If you do, though,
+you can do some weird things, like <quote>[${ARRAY[#%2]}]</quote>, what expands
+to <quote>${ARRAY[0]}</quote> for even numbers and to <quote>${ARRAY[1]}</quote>
+for odd numbers. But the expression has another property: It will never
+terminate, because the array-loopup will never fail, assuming that indices 0 and
+1 are defined!</para>
+
+      <para>That is unfortunate but can't be helped, I'm afraid. Users of
+&varexp; may choose to disable looping for the users of their application to
+prevent the end-user from shooting himself in the foot with infinite loops,
+though. But if you want to use loops, you must know what you're doing. There
+ain't no such thing as a free lunch, right?</para>
+
+      <para>There is another form of the looping construct available, that
+resembles a <quote>for</quote> loop more closely. In this form, the start value,
+the step value and the stop value of the loop can be specified explicitely like
+this:
+<quote>[$FOO]{<replaceable>start</replaceable>,<replaceable>step</replaceable>,<replaceable>stop</replaceable>}</quote>.
+This loop will start to expand the body using index
+<replaceable>start</replaceable>, it will increase the current index in each
+iteration by <replaceable>step</replaceable>, and it will terminate when the
+current index is greater than <replaceable>stop</replaceable>. (Please note that
+<quote>greater than</quote> is concept that needs much thought if you use
+negative values here! There may be some infinite loops coming. You have been
+warned.)</para>
+
+      <para>If any of the first two values are omitted, the following defaults
+will be assumed: <replaceable>start</replaceable> = 0 and
+<replaceable>step</replaceable> = 1. If <replaceable>stop</replaceable> is
+omitted, the loop will terminate if none of the arrays in the loop's body is
+defined for the current index. Consequently, using the loop-limits
+<quote>{,,}</quote> is equivalent to not specifying any limits at all.</para>
+
+      <para>Since most users will not need the <replaceable>step</replaceable>
+parameter frequently, a shorter form
+<quote>{<replaceable>start</replaceable>,<replaceable>stop</replaceable>}</quote>
+is allowed, too.</para>
+
+      <para>By the way: Loops may be nested. :-)</para>
+
+      <para>To confuse the valued reader completely, let's look at this final
+example. Assume that the arrays <quote>${FOO[]}</quote> and
+<quote>${BAR[]}</quote> have the following values:</para>
+
+      <informalexample>
+        <literallayout>    FOO[0] = "foo0"
+    FOO[1] = "foo1"
+    FOO[2] = "foo2"
+    FOO[3] = "foo3"
+
+and
+
+    BAR[0] = "bar0"
+    BAR[1] = "bar1"</literallayout>
+      </informalexample>
+
+      <para>Then the expression:</para>
+
+      <informalexample>
+        <literallayout>    [${BAR[#]}: [${FOO[#]}${FOO[#+1]:+, }]${BAR[#+1]:+; }]</literallayout>
+      </informalexample>
+
+      <para>would expand to:</para>
+
+      <informalexample>
+        <literallayout>    bar0: foo0, foo1, foo2, foo3; bar1: foo0, foo1, foo2, foo3</literallayout>
+      </informalexample>
+
+      <para>Have fun!</para>
+    </sect2>
+
+    <sect2>
       <title>The Complete EBNF Grammar</title>
-      <para></para>
+
+    <informalexample>
+      <screen>
+input      : ( TEXT
+              | variable
+              | START-INDEX input END-INDEX ( loop-limits )?
+              )*
+
+loop-limits: START-DELIM
+                (numexp)? ',' (numexp)? ( ',' (numexp)? )?
+             END-DELIM
+
+
+variable   : '$' (name|expression)
+
+expression : START-DELIM (name|variable)+
+             (START-INDEX num-exp END-INDEX)?
+             (':' command)* END-DELIM
+
+name       : (VARNAME)+
+
+command    : '-' (EXPTEXT|variable)+
+           | '+' (EXPTEXT|variable)+
+           | 'o' (NUMBER ('-'|',') (NUMBER)?)
+           | '#'
+           | '*' (EXPTEXT|variable)+
+           | 's' '/' (variable|SUBSTTEXT)+ '/' (variable|SUBSTTEXT)* '/'
+             ('g'|'i'|'t')*
+           | 'y' '/' (variable|SUBSTTEXT)+ '/' (variable|SUBSTTEXT)* '/'
+           | 'p' '/' NUMBER '/' (variable|SUBSTTEXT)* '/' ('r'|'l'|'c')
+           | 'l'
+           | 'u'
+
+num-exp    : operand
+           | operand ('+'|'-'|'*'|'/'|'%') num-exp
+
+operand    : ('+'|'-')? NUMBER
+           | CURR-INDEX
+           | '(' num-exp ')'
+           | variable
+
+START-DELIM: '{'
+
+END-DELIM  : '}'
+
+START-INDEX: '['
+
+END-INDEX  : ']'
+
+CURR-INDEX : '#'
+
+VARNAME    : '[a-zA-Z0-9_]+'
+
+NUMBER     : '[0-9]+'
+
+SUBSTTEXT  : '[^$/]'
+
+EXPTEXT    : '[^$}:]+'
+
+TEXT       : '[^$[\\]]+'
+</screen>
+      </informalexample>
     </sect2>
 
   </sect1>
@@ -204,8 +648,431 @@ in other contexts, even though <function>unescape()</function> or
   </sect1>
 
   <sect1>
+    <title>Exceptions Thrown by &varexp;</title>
+
+    <variablelist>
+      <varlistentry>
+        <term><exceptionname>incomplete_hex</exceptionname></term>
+        <listitem>
+          <para>The input buffer ended before a hexadecimal
+<quote>\x<replaceable>aa</replaceable></quote> quoted pair was complete.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>invalid_hex</exceptionname></term>
+        <listitem>
+          <para>Any of the <replaceable>a</replaceable> characters in an
+<quote>\x<replaceable>aa</replaceable></quote> quoted pair was not a valid
+hexadecimal character.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>octal_too_large</exceptionname></term>
+        <listitem>
+          <para>The first digit of an octal
+<quote>\<replaceable>abb</replaceable></quote> quoted pair was not in the range
+from 0 to 3.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>invalid_octal</exceptionname></term>
+        <listitem>
+          <para>A digit of an octal
+<quote>\<replaceable>abb</replaceable></quote> expression was not in the range
+from 0 to 7.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>incomplete_octal</exceptionname></term>
+        <listitem>
+          <para>The input buffer ended in the before an octal
+<quote>\<replaceable>abb</replaceable></quote> quoted pair was complete.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>incomplete_grouped_hex</exceptionname></term>
+        <listitem>
+          <para>A hexadecimal
+<quote>\x{<replaceable>&hellip;</replaceable>}</quote> expression contained an
+odd number of characters in the <replaceable>&hellip;</replaceable>
+parameter.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>incorrect_class_spec</exceptionname></term>
+        <listitem>
+          <para>In a character range specification
+<quote><replaceable>a</replaceable>-<replaceable>b</replaceable></quote>, the
+start of the range <replaceable>a</replaceable> was <quote>bigger</quote> (in
+terms of the ASCII code) than the end of the range
+<replaceable>b</replaceable>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>invalid_configuration</exceptionname></term>
+        <listitem>
+          <para>&expand;'s configuration is inconsistent.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>incomplete_variable_spec</exceptionname></term>
+        <listitem>
+          <para>Either, the input buffer ended right after a variable
+initializer token (<quote>$</quote>) was found, or a complex variable expression
+was not correctly terminated, meaning, that the closing <quote>}</quote> bracket
+was missing.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>undefined_variable</exceptionname></term>
+        <listitem>
+          <para>This exception is supposed to be thrown by the user-provided
+callback when an unknown variable is requested.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>input_isnt_text_nor_variable</exceptionname></term>
+        <listitem>
+          <para>This exception is throw in the rather unlikely case that the
+parser could not process the complete buffer, yet no error occured. When this
+should happen? Well, not at all. But since the error is theoretically possible,
+I defined it.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>unknown_command_char</exceptionname></term>
+        <listitem>
+          <para>In an <quote>${NAME:<replaceable>c</replaceable>}</quote>
+expression, <replaceable>c</replaceable> was none of the supported
+operations.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>malformatted_replace</exceptionname></term>
+        <listitem>
+          <para>In an <quote>${NAME:s&hellip;}</quote> expression, one of the
+required parameters is missing.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>unknown_replace_flag</exceptionname></term>
+        <listitem>
+          <para>An unsupported flag was provided in an
+<quote>${NAME:s&hellip;}</quote> expression.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>invalid_regex_in_replace</exceptionname></term>
+        <listitem>
+          <para>The regular expression given as pattern in an
+<quote>${NAME:s&hellip;}</quote> expression failed to compile.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>missing_parameter_in_command</exceptionname></term>
+        <listitem>
+          <para>The required <replaceable>word</replaceable> parameter was
+missing in an <quote>${NAME:-<replaceable>word</replaceable>}</quote>,
+<quote>${NAME:+<replaceable>word</replaceable>}</quote>, or
+<quote>${NAME:*<replaceable>word</replaceable>}</quote> expression.
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>empty_search_string</exceptionname></term>
+        <listitem>
+          <para>In an <quote>${NAME:s&hellip;} expression, the
+<replaceable>search</replaceable> parameter was empty.</quote>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>missing_start_offset</exceptionname></term>
+        <listitem>
+          <para>The <replaceable>start</replaceable> parameter was missing in an
+<quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
+expression.</para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term><exceptionname>invalid_offset_delimiter</exceptionname></term>
+        <listitem>
+          <para>In an
+<quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
+or
+<quote>${NAME:o<replaceable>start</replaceable>-<replaceable>end</replaceable>}</quote>
+expression, the delimiter between <replaceable>start</replaceable> and
+<replaceable>end</replaceable> was neither a <quote>,</quote> nor a
+<quote>-</quote>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>range_out_of_bounds</exceptionname></term>
+        <listitem>
+          <para>The <replaceable>stop</replaceable> parameter in an
+<quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
+or
+<quote>${NAME:o<replaceable>start</replaceable>-<replaceable>end</replaceable>}</quote>
+expression exceeded the actual length of the string.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>offset_out_of_bounds</exceptionname></term>
+        <listitem>
+          <para>The <replaceable>start</replaceable> parameter in an
+<quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
+or
+<quote>${NAME:o<replaceable>start</replaceable>-<replaceable>end</replaceable>}</quote>
+expression exceeded the actual length of the string.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>offset_logic</exceptionname></term>
+        <listitem>
+          <para>In an
+<quote>${NAME:o<replaceable>start</replaceable>,<replaceable>end</replaceable>}</quote>
+expression, <replaceable>start</replaceable> was larger than
+<replaceable>stop</replaceable>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>malformatted_transpose</exceptionname></term>
+        <listitem>
+          <para>In an <quote>${NAME:y&hellip;}</quote> expression, one of the
+required parameters is missing.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>transpose_classes_mismatch</exceptionname></term>
+        <listitem>
+          <para>The <replaceable>ochars</replaceable> range has not the same
+number of characters as the <replaceable>nchars</replaceable> range in an
+<quote>${NAME:y&hellip;}</quote> expression.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>empty_transpose_class</exceptionname></term>
+        <listitem>
+          <para>In an <quote>${NAME:y&hellip;}</quote> expression, either the
+<replaceable>ochars</replaceable> or the <replaceable>nchars</replaceable> range
+was empty.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>incorrect_transpose_class_spec</exceptionname></term>
+        <listitem>
+          <para>In a character range given in an
+<quote>${NAME:y&hellip;}</quote> expression, the start of the range was larger
+(in terms of the ASCII code) than the end character.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>malformatted_padding</exceptionname></term>
+        <listitem>
+          <para>In an <quote>${NAME:p&hellip;}</quote> expression, one of the
+required parameters is missing.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>missing_padding_width</exceptionname></term>
+        <listitem>
+          <para>The <replaceable>width</replaceable> parameter in an
+<quote>${NAME:p&hellip;}</quote> expression was empty.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>empty_padding_fill_string</exceptionname></term>
+        <listitem>
+          <para>The <replaceable>fill</replaceable> parameter in an
+<quote>${NAME:p&hellip;}</quote> expression was empty.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>unknown_quoted_pair_in_replace</exceptionname></term>
+        <listitem>
+          <para>In the <replaceable>replace</replaceable> parameter of an
+<quote>${NAME:s&hellip;}</quote> expression, an invalid quoted pair was
+specified. Valid are only quoted pairs of the form
+<quote>\<replaceable>digit</replaceable></quote>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>submatch_out_of_range</exceptionname></term>
+        <listitem>
+          <para>In the <replaceable>replace</replaceable> parameter an
+<quote>${NAME:s&hellip;}</quote> expression, a submatch with a number greater
+than the number of submatches defined in the <replaceable>search</replaceable>
+parameter was accessed.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>incomplete_quoted_pair</exceptionname></term>
+        <listitem>
+          <para>The input buffer ended right after a backslash character.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>array_lookups_are_unsupported</exceptionname></term>
+        <listitem>
+          <para>This exception is supposed to be thrown by the user-supplied
+callback when the array lookup function is called even though arrays should not
+occur. If you don't intend to support arrays, though, you should disable them
+via the parser's configuration instead.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>invalid_char_in_index_spec</exceptionname></term>
+        <listitem>
+          <para>The index specification of array variable contains an invalid
+character, a character that is not part of a <literal>num-exp</literal> that
+is.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>incomplete_index_spec</exceptionname></term>
+        <listitem>
+          <para>The input buffer ended in an open variable index specification;
+meaning that the terminating <quote>]</quote> delimiter was missing.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>unclosed_bracket_in_index</exceptionname></term>
+        <listitem>
+          <para>An arithmetic group in an index specification was closed
+properly with a <quote>)</quote> bracket.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>division_by_zero_in_index</exceptionname></term>
+        <listitem>
+          <para>Division by zero error in index specification.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>unterminated_loop_construct</exceptionname></term>
+        <listitem>
+          <para>The buffer ended in the midst of on open looping
+construct.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><exceptionname>invalid_char_in_loop_limits</exceptionname></term>
+        <listitem>
+          <para>The looping limits specification of contained invalid
+characters.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </sect1>
+
+  <sect1>
     <title>Example Program</title>
-    <para></para>
+
+    <para>The following source code may be found in
+<filename>regression-test/expand5.cc</filename>. You might want to check the
+other test programs there for more complex examples. Especially
+<filename>expand6.cc</filename>, which also makes use of arrays and
+loops!</para>
+
+    <programlisting>#include &lt;cstdio&gt;
+#include &lt;cstdlib&gt;
+#include &lt;cerrno&gt;
+#include &lt;cstring&gt;
+#include "../varexp.hh"
+using namespace varexp;
+using namespace std;
+
+struct env_lookup : public callback_t
+    {
+    virtual void operator()(const string&amp; name, string&amp; data)
+        {
+        const char* p = getenv(name.c_str());
+        if (p == NULL)
+            throw undefined_variable();
+        else
+            data = p;
+        }
+    virtual void operator()(const string&amp; name, int idx, string&amp; data)
+        {
+        throw runtime_error("Not implemented.");
+        }
+    };
+
+int main(int argc, char** argv)
+    {
+    const char* input =                            \
+        "\\$HOME      = '${HOME}'\\n"              \
+        "\\$OSTYPE    = '${$FOO${BAR}}'\\n"        \
+        "\\$TERM      = '${TERM}'\\n";
+    const char* output =                           \
+        "$HOME      = '/home/regression-tests'\n"  \
+        "$OSTYPE    = 'regression-os'\n"           \
+        "$TERM      = 'regression-term'\n";
+    string tmp;
+    env_lookup lookup;
+
+    if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
+        setenv("OSTYPE", "regression-os", 1) != 0 ||
+        setenv("TERM", "regression-term", 1) != 0 ||
+        setenv("FOO", "OS", 1) != 0 ||
+        setenv("BAR", "TYPE", 1) != 0)
+        {
+        printf("Failed to set the environment: %s.\n",
+               strerror(errno));
+        return 1;
+        }
+    unsetenv("UNDEFINED");
+
+    expand(input, tmp, lookup);
+    unescape(tmp, tmp, true);
+
+    if (tmp != output)
+        {
+        printf("The buffer returned by var_expand() " \
+               "is not what we expected.\n");
+        return 1;
+        }
+
+    return 0;
+    }</programlisting>
+
   </sect1>
 
   <sect1>
@@ -239,459 +1106,7 @@ version:</para>
     SUCH DAMAGE.</literallayout>
   </sect1>
 
-<!--
-  <refsect1>
-    <title>Supported Variable Expressions</title>
-
-    <para>In addition to the ordinary variable expansion of
-<literal>$name</literal> or <literal>${name}</literal>,
-<function>expand()</function> supports a number of operations that can be
-performed on the contents of <literal>name</literal> before it is copied to the
-output buffer. Such operations are always denoted by appending the a colon and a
-command character to the variable name, for expample:
-<literal>${name:l}</literal> or <literal>${name:s/foo/bar/}</literal>. You can
-specify multiple operations, which are executed from the left to the right, for
-expample: <literal>${name:l:s/foo/bar/:u}</literal>.</para>
-
-    <para>Also, you can nest variable expansion and command execution pretty
-much anywhere in the construct, for example: ${name:s/$foo/$bar/g}. In that
-context is probably useful to have a look at the formal expression grammar
-provided in section <citetitle pubwork="section">EBNF Grammar of Supported
-Expressions</citetitle>.</para>
-
-    <para>Generally, all operations described below do not modify the contents
-of any variable - - <function>expand()</function> generally can't set variables,
-it will only read them. If the description says that an operation
-<quote>replaces the contents of variable <literal>$foo</literal></quote>, it is
-meant that rather than expanding the expression the the contents of
-<literal>$foo</literal>, it will expand to the modified string instead. The
-contents of <literal>$foo</literal> is left untouched in any case.</para>
-
-    <variablelist>
-      <varlistentry>
-        <term><literal>${name:#}</literal></term>
-        <listitem>
-          <para>This operation will expand to the length of the contents of
-<literal>$name</literal>. If, for example, <literal>$FOO</literal> is
-<literal>foobar</literal>, then <literal>${FOO:#}</literal> will result in
-<literal>6</literal>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:l}</literal></term>
-        <listitem>
-          <para>This operation will turn the contents of
-<literal>$name</literal> to all lower-case, using the system routine
-<citerefentry> <refentrytitle>tolower</refentrytitle> <manvolnum>3</manvolnum>
-</citerefentry>, thereby possibly using the system's localization
-settings.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:u}</literal></term>
-        <listitem>
-          <para>This operation will turn the contents of
-<literal>$name</literal> to all upper-case, using the system routine
-<citerefentry> <refentrytitle>toupper</refentrytitle> <manvolnum>3</manvolnum>
-</citerefentry>, thereby possibly using the system's localization
-settings.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:*&lt;word&gt;}</literal></term>
-        <listitem>
-          <para>This operation will replace the contents of
-<literal>$name</literal> with the empty string (<literal>""</literal>) if
-<literal>$name</literal> is not empty. Otherwise, it will replace it by
-<literal>word</literal>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:-&lt;word&gt;}</literal></term>
-        <listitem>
-          <para>This operation will replace the contents of
-<literal>$name</literal> with <literal>word</literal> if
-<literal>$name</literal> is empty. Otherwise, it will expand to the contents of
-<literal>$name</literal>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:+&lt;word&gt;}</literal></term>
-        <listitem>
-          <para>This operation will replace the contents of
-<literal>$name</literal> with <literal>word</literal> if
-<literal>$name</literal> is not empty. Otherwise, it will expand to the contents
-of <literal>$name</literal>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:o&lt;start&gt;,&lt;end&gt;}</literal></term>
-        <listitem>
-          <para>This operation will cut the string starting at position "start"
-            to ending position "end" out of the contents of
-            <literal>$name</literal> and return that. Please note that the
-            character at position "end" is included in the result; ${name:o3,4}
-            for instance, will return a two-character string. Also, please note
-            that start positions begin at zero (0)! If the "end" parameter is
-            left out, as in ${name:o3,}, the operation will return the string
-            starting at position 3 until the end.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:o&lt;start&gt;-&lt;length&gt;}</literal></term>
-        <listitem>
-          <para>This operation will cut the range of "start" to "end" out of the
-            contents of <literal>$name</literal> and return that. ${name:o3-4}
-            means, for instance, to return the next 4 charaters starting at
-            position 3 in the string. Please note that start positions begin at
-            zero (0)! If the "end" range is left out, as in ${name:o3-}, the
-            operation will return the string starting at position 3 until the
-            end.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:s/&lt;pattern&gt;/&lt;string&gt;/[gti]}</literal></term>
-        <listitem>
-          <para>This operation will perform a search-and-replace operation on
-            the contents of <literal>$name</literal> and return the result. The
-            behavior of the search-and-replace is modified by the following
-            flags parameter: If a 't' flag has been provided, a plain text
-            search-and-replace is performed, otherwise, the default is to a
-            regular expression search-and-replace as in the system utility
-            sed(1). If the 'g' flag has been provided, the search-and-replace
-            will replace all instances of "pattern" by "replace", otherwise, the
-            default is to replace only the first instance. If the 'i' flag has
-            been provided, the search-and-replace will take place
-            case-insensitively, otherwise, the default is to distinguish
-            character case.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:y/&lt;ochars&gt;/&lt;nchars&gt;/}</literal></term>
-        <listitem>
-          <para>This operation will translate all characters in the contents of
-            <literal>$name</literal> that are found in the "ochars" class to the
-            corresponding character in the "nchars" class, just like the system
-            utility tr(1) does. Both "ochars" and "nchars" may contain character
-            range specifications, for example "a-z0-9". A hyphon as the first or
-            last character of the class specification is interpreted literally.
-            Both the "ochars" and the "nchars" class must contain the same
-            number of characters after all ranges are expanded, or <function>expand()</function> will
-            abort with an error.</para>
-
-          <para> If, for example, <literal>$FOO</literal> would contain
-            "foobar", then <literal>${FOO:y/a-z/A-Z/}</literal> would yield
-            "FOOBAR". Another goodie is to use that operation to ROT13-encrypt
-            or decrypt a string with the expression
-            "${FOO:y/a-z/n-za-m/}".</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>${name:p/&lt;width&gt;/&lt;string&gt;/&lt;align&gt;}</literal></term>
-        <listitem>
-          <para>This operation will pad the contents of <literal>$name</literal>
-            with "string" according to the "align" parameter, so that the result
-            is at least "width" characters long. Valid parameters for align are
-            'l' (left), 'r' (right), or 'c' (center). The "string" parameter may
-            contain multiple characters, if you see any use for that.</para>
-
-          <para>If, for example, "$FOO" is "foobar", then "${FOO:p/20/./c}"
-            would yield ".......foobar......."; "${FOO:p/20/./l}" would yield
-            "foobar.............."; and "${FOO:p/20/./r}" would yield
-            "..............foobar";</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-  </refsect1>
-
-  <refsect1>
-    <title>EBNF Grammar of Supported Expressions</title>
-
-    <informalexample>
-      <screen>
- input      : ( TEXT | variable | START-INDEX input END-INDEX ( loop-limits )? )*
-
- loop-limits: START-DELIM (numexp)? ',' (numexp)? ( ',' (numexp)? )? END-DELIM
-
- variable   : '$' (name|expression)
-
- expression : START-DELIM (name|variable)+ (START-INDEX num-exp END-INDEX)? (':' command)* END-DELIM
-
- name       : (VARNAME)+
-
- command    : '-' (EXPTEXT|variable)+
-            | '+' (EXPTEXT|variable)+
-            | 'o' (NUMBER ('-'|',') (NUMBER)?)
-            | '#'
-            | '*' (EXPTEXT|variable)+
-            | 's' '/' (variable|SUBSTTEXT)+ '/' (variable|SUBSTTEXT)* '/' ('g'|'i'|'t')*
-            | 'y' '/' (variable|SUBSTTEXT)+ '/' (variable|SUBSTTEXT)* '/'
-            | 'p' '/' NUMBER '/' (variable|SUBSTTEXT)* '/' ('r'|'l'|'c')
-            | 'l'
-            | 'u'
-
- num-exp    : operand
-            | operand ('+'|'-'|'*'|'/'|'%') num-exp
-
- operand    : ('+'|'-')? NUMBER
-            | CURR-INDEX
-            | '(' num-exp ')'
-            | variable
-
- START-DELIM: '{'
-
- END-DELIM  : '}'
-
- START-INDEX: '['
-
- END-INDEX  : ']'
-
- CURR-INDEX : '#'
-
- VARNAME    : '[a-zA-Z0-9_]+'
-
- NUMBER     : '[0-9]+'
-
- SUBSTTEXT  : '[^$/]'
-
- EXPTEXT    : '[^$}:]+'
-
- TEXT       : '[^$[\\]]+'
-      </screen>
-    </informalexample>
-
-    <para>Please note that the descriptions of START-DELIM, END-DELIM, VARNAME,
-      SUBSTEXT, and EXPTEXT shown here assume that <function>expand()</function> has been called in
-      the default configuration. In thruth, the contents of VARNAME corresponds
-      directly to the setting of "namechars" in the config_t structure.
-      Similarly, the dollar ('$') corresponds directly to the setting of
-      "varinit", and the '{' and '}' characters to "startdelim" and "enddelim"
-      respectively.</para>
-  </refsect1>
-
-  <refsect1>
-    <title>Codes Returned by the Library</title>
-
-    <para>Generally, all routines part of that library follow the convention
-      that a return code of zero or greater denotes success and a return code of
-      less than zero denotes failure. (This is slightly different for the
-      callbacks, please see section "THE LOOKUP CALLBACK" for further details.)
-      In order to distinguish the various causes of failure, the following set
-      of defines is provided in <filename>var.h</filename>:</para>
-
-=over 4
-
-=item OK
-
-No errors; everything went fine.
-
-=item ERR_INCOMPLETE_QUOTED_PAIR
-
-The configured escape character as the last character in the input
-buffer.
-
-=item ERR_INVALID_ARGUMENT
-
-Any of the provided arguments is invalid, for expample: the pointer to
-the input buffer is NULL.
-
-=item ERR_SUBMATCH_OUT_OF_RANGE
-
-During execution of a ${name:s/pattern/replace/flags} operation, a
-submatch has been referenced in the "replace" part, which's number is
-greater than the number of submatches encountered in the "pattern"
-part, for expample: ${name:s/foo(bar)/\\2/}.
-
-=item ERR_UNKNOWN_QUOTED_PAIR_IN_REPLACE
-
-During execution of a ${name:s/pattern/replace/flags} operation, the
-parser encountered an unknown quoted pair in the "replace" part. Valid
-quoted pairs are "\\\\", "\\0", "\\1", ... , "\\9" only.
-
-=item ERR_EMPTY_PADDING_FILL_STRING
-
-The "fill" part in an ${name:p/width/fill/pos/} expression was found
-to be empty.
-
-=item ERR_MISSING_PADDING_WIDTH
-
-The "width" part in an ${name:p/width/fill/pos/} expression was found
-to be empty.
-
-=item ERR_MALFORMATTED_PADDING
-
-Any of the "/" delimiters was missing while parsing a
-${name:p/width/fill/pos/} expression.
-
-=item ERR_INCORRECT_TRANSPOSE_CLASS_SPEC
-
-While parsing a ${name:y/old-class/new-class/} expression, any of the
-character class specifications had a start-of-range character that was
-greater (in terms of ASCII encoding) than the end-of-range character,
-for expample: "[z-a]".
-
-=item ERR_EMPTY_TRANSPOSE_CLASS
-
-While parsing a ${name:y/old-class/new-class/} expression, any of the
-character class specifications was found to be empty.
-
-=item ERR_TRANSPOSE_CLASSES_MISMATCH
-
-While parsing a ${name:y/old-class/new-class/} expression, the number
-of characters found in the expanded "old-class" was different than the
-number of characters in new-class".
-
-=item ERR_MALFORMATTED_TRANSPOSE
-
-Any of the "/" delimiters was missing while parsing a
-${name:y/old-class/new-class/} expression.
-
-=item ERR_OFFSET_LOGIC
-
-The "end" offset in a ${name:o&lt;start&gt;,&lt;end&gt;} expression is smaller
-than the "start" offset.
-
-=item ERR_OFFSET_OUT_OF_BOUNDS
-
-The "start" offset in a ${name:o&lt;start&gt;,&lt;end&gt;} expression is greater
-than the number of characters found in <literal>$name</literal>.
-
-=item ERR_RANGE_OUT_OF_BOUNDS
-
-The end-of-range in a ${name:o&lt;start&gt;,&lt;end&gt;} or ${name:o&lt;start&gt;-&lt;end&gt;}
-expression would be greater than the number of characters found in
-<literal>$name</literal>.
-
-=item ERR_INVALID_OFFSET_DELIMITER
-
-The two numbers in an offset operation are delimited by a character
-different from "," or "-".
-
-=item ERR_MISSING_START_OFFSET
-
-The "start" offset in a ${name:o&lt;start&gt;,&lt;end&gt;} or
-${name:o&lt;start&gt;-&lt;end&gt;} expression was found to be empty.
-
-=item ERR_EMPTY_SEARCH_STRING
-
-The "pattern" part of a ${name:s/pattern/replace/flags} expression was
-found to be empty.
-
-=item ERR_MISSING_PARAMETER_IN_COMMAND
-
-In a ${name:+word}, ${name:-word}, or ${name:*word} expression, the
-<literal>word</literal> part was missing - that means empty.
-
-=item ERR_INVALID_REGEX_IN_REPLACE
-
-While compiling the "pattern" part of a
-${name:s/pattern/replace/flags} expression, regcomp(3) failed with an
-error.
-
-=item ERR_UNKNOWN_REPLACE_FLAG
-
-In a ${name:s/pattern/replace/flags} expression, a flag other that
-"t", "i", or "g" was found.
-
-=item ERR_MALFORMATTED_REPLACE
-
-Any of the "/" delimiters was missing while parsing a
-${name:s/pattern/replace/flags} expression.
-
-=item ERR_UNKNOWN_COMMAND_CHAR
-
-In a ${name:<char>} expression, "char" did not specify any of the
-supported operations.
-
-=item ERR_INPUT_ISNT_TEXT_NOR_VARIABLE
-
-At one point during parsing of the input buffer, an expression was
-found that was neither verbatim text nor a variable expression. This
-usually is the result of a inconsistent configuration of <function>expand()</function>
-via the config_t paramater.
-
-=item ERR_UNDEFINED_VARIABLE
-
-Looking up a variable's contents failed and <function>expand()</function> was running
-in "force expand" mode.
-
-=item ERR_INCOMPLETE_VARIABLE_SPEC
-
-The input buffer ended in the middle of a ${name} expression, or the
-configured variable initializer character was found to be the last
-character of the input buffer.
-
-=item ERR_OUT_OF_MEMORY
-
-<function>expand()</function> failed while malloc(3)ing internally needed buffers.
-
-=item ERR_INVALID_CONFIGURATION
-
-Any of the characters configured in the config_t structure as a
-special ("varinit", "startdelim", "enddelim", and "escape") was found
-to be a member of the "namechars" class.
-
-=item ERR_INCORRECT_CLASS_SPEC
-
-The character class specification "namechars" of the config_t
-structure provided to expand was syntactically incorrect, that is,
-the start-of-range was greater than end-of-range. (See also
-ERR_INCORRECT_TRANSPOSE_CLASS_SPEC.)
-
-=item ERR_INCOMPLETE_GROUPED_HEX
-
-<function>unescape()</function> encountered the end of the input buffer in the middle
-of a grouped-hex "\\x{...}" expression.
-
-=item ERR_INCOMPLETE_OCTAL
-
-<function>unescape()</function> encountered the end of the input buffer in the middle
-of an octal "\\000" expression.
-
-=item ERR_INVALID_OCTAL
-
-The second of third digit of an octal "\\000" expression was found not
-be in the range of '0' to '7'.
-
-=item ERR_OCTAL_TOO_LARGE
-
-The value specified via an octal "\\000" expression was larger than
-0377.
-
-=item ERR_INVALID_HEX
-
-Any of the digits of a hex "\\x00" expression was found not be in the
-range of '0' to '9' or 'a' to 'b'.
-
-=item ERR_INCOMPLETE_HEX
-
-<function>unescape()</function> encountered the end of the input buffer in the middle
-of a hex "\\x00" expression.
-
-=item ERR_INCOMPLETE_NAMED_CHARACTER
-
-<function>unescape()</function> encountered the backslash ('\\') as the last character
-of the input buffer.
-
-=item ERR_ARRAY_LOOKUPS_ARE_UNSUPPORTED
-
-=back
-
-.SH "SEE ALSO"
-.BR regex (7)
- -->
-
-  </article>
+</article>
 
 <!--
 Local Variables:

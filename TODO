@@ -110,3 +110,54 @@
  - Wir unterstützen PCRE-, POSIX-Regex- oder keine regulären
    Ausdrücke. Dies kann über autoconf zur Compilezeit angegeben
    werden.
+
+ - Das Escaping-Problem:
+
+Unsere Library macht zwei Dinge:
+
+ (1) Sie expandiert Variablen-Ausdrücke mit Unterstützung von
+     Operationen wie Suchen/Ersetzen, und
+
+ (2) sie expandiert sogenannte "quoted pairs", wie zum Beispiel \n.
+
+Das Problem ist nun, daß sie dies in zwei Pässen tun will -- und muß.
+Die Frage ist jedoch, in welcher Reihenfolge tut sie es und welche
+Ergebnisse werden in den Ausgabetext ausgegeben? Betrachtet man
+folgendes Beispiel, wird das Problem klarer:
+
+    Variablen: TEST = foo
+    Eingabe..: Der Betrag auf Konto $TEST ist \$50.
+
+Soll die korrekte Ausgabe an dieser Stelle nun
+
+    Der Betrag auf Konto foo ist \$50.
+
+oder
+
+    Der Betrag auf Konto foo ist $50.
+
+sein? Die erste Form ist die, die man intuitiv erwartet, die zweite
+Form ist jedoch die, die man braucht, wenn man den Text durch mehrere
+Pässe jagen will -- was wir ausdrücklich vorgesehen haben.
+
+Schlimmer noch: Wie soll die Library die Eingabe
+
+    Der Betrag auf Konto ${TEST:s/(.*)/\1bar/} ist \$50.
+
+interpretieren? Würde unser Parser das Token "\1" interpretieren,
+würde nur eine "1" zurückbleiben, der Benutzer müßte also "\\1"
+schreiben, um das Ergebnis zu erhalten, was er erwartet.
+Interpretierte unser Parser die "quoted pairs" nicht, könnte man den
+Ausdruck
+
+    ${TEST:s/\n/ /g}
+
+nicht verwenden, weil die Regular-Expression-Funktionen ein '\n' nicht
+kennen.
+
+Nehmen wir also an, wir interpretieren "quoted pairs" und leben damit,
+daß der Benutzer dann doppelt escapen muß ... Wie verhält sich das
+dann mit mehreren Pässen? Läuft die Library zweimal über die Eingabe,
+bräuchte man bereits
+
+    Der Betrag auf Konto ${TEST:s/(.*)/\\1bar/} ist \$50.

@@ -4,6 +4,12 @@
 
 #define VAR_INITIAL_BUFFER_SIZE 1
 
+void init_tokenbuf(tokenbuf* buf)
+    {
+    buf->begin = buf->end = NULL;
+    buf->buffer_size = 0;
+    }
+
 int append_to_tokenbuf(tokenbuf* output, const char* data, int len)
     {
     char*  new_buffer;
@@ -12,9 +18,7 @@ int append_to_tokenbuf(tokenbuf* output, const char* data, int len)
     /* Is the tokenbuffer initialized at all? If not, allocate a
        standard-sized buffer to begin with. */
 
-    if (output->begin == NULL ||
-        output->end == NULL ||
-        output->buffer_size == 0)
+    if (output->begin == NULL)
         {
         if ((output->begin = output->end = malloc(VAR_INITIAL_BUFFER_SIZE)) == NULL)
             return 0;
@@ -79,3 +83,11 @@ int append_to_tokenbuf(tokenbuf* output, const char* data, int len)
     return 1;
     }
 
+
+void free_tokenbuf(tokenbuf* buf)
+    {
+    if (buf->begin != NULL && buf->buffer_size > 0)
+        free((char*)buf->begin);
+    buf->begin = buf->end = NULL;
+    buf->buffer_size = 0;
+    }

@@ -23,6 +23,7 @@ tokenbuf;
 
 int append_to_tokenbuf(tokenbuf* output, const char* begin, int rc);
 void free_tokenbuf(tokenbuf* buf);
+void init_tokenbuf(tokenbuf* buf);
 
 var_rc_t input(const char* begin, const char* end, const var_config_t* config,
                const char nameclass[256], var_cb_t lookup, void* lookup_context,
@@ -51,5 +52,11 @@ int substext_or_variable(const char* begin, const char* end, const var_config_t*
 int substext(const char* begin, const char* end, const var_config_t* config);
 
 int search_and_replace(tokenbuf* data, tokenbuf* search, tokenbuf* replace, tokenbuf* flags);
+
+int varname(const char* begin, const char* end, const char nameclass[256]);
+
+int expression(const char* begin, const char* end, const var_config_t* config,
+               const char nameclass[256], var_cb_t lookup, void* lookup_context,
+               int force_expand, tokenbuf* result);
 
 #endif /* !defined(INTERNAL_H) */

@@ -8,9 +8,10 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -ansi -pedantic' \
     expand-named-characters.c
     expand-character-class.c
     parser.c
+    expression.c
+    variable.c
     expand.c
-    append-to-tokenbuf.c
-    free-tokenbuf.c
+    tokenbuf.c
     search-and-replace.c
 
 %clean ! == !<<

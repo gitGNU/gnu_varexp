@@ -8,7 +8,7 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -pedantic' \
     command.c
     cut-out-offset.c
     expand-character-class.c
-    expand-named-characters.c
+    unescape.c
     expand.c
     expression.c
     input.c

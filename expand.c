@@ -63,7 +63,5 @@ var_rc_t var_expand(const char* input_buf, size_t input_len,
     if (error_msg)
         *error_msg  = NULL;
 
-    printf("The expanded version is:\n%s\n", output.begin);
-
     return VAR_OK;
     }

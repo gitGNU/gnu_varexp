@@ -1,4 +1,5 @@
 #include "internal.hh"
+#include <cstdio>
 
 namespace varexp
     {

@@ -21,12 +21,12 @@
   The return code is interpreted as follows:
        >0               - OK
         0               - undefined variable
-       <0               - error; more detail in errno
+       <0               - error
 */
 
-int (*varexp_lookup_cb)(void* context,
-                        const char* varname, size_t name_len,
-                        char** data, size_t* data_len, char* malloced_buffer);
+int (*var_cb_t)(void* context,
+		const char* varname, size_t name_len,
+		char* const* data, size_t* data_len, char* malloced_buffer);
 
 /*
   This structure configures the parser's specials. I think, the fields
@@ -40,17 +40,17 @@ int (*varexp_lookup_cb)(void* context,
   The comments after each field show the default configuration.
 */
 
-struct varexp_configuration
+typdef struct
     {
-    char varinit;               /* '$' */
-    char startdelim;            /* '{' */
-    char enddelim;              /* '}' */
-    char escape;                /* '\\' */
-    char special1;              /* '[' */
-    char special2;              /* ']' */
-    char force_expand;          /* TRUE */
-    };
-extern const struct varexp_configuration default_configuration;
+    char  varinit;               /* '$' */
+    char  startdelim;            /* '{' */
+    char  enddelim;              /* '}' */
+    char  escape;                /* '\' */
+    char* namechars;             /* 'a-zA-Z0-9_' */
+    char  force_expand;          /* TRUE */
+    }
+var_config_t;
+extern const var_config_t var_config_default;
 
 /*
   variable_expand() will parse the contents of input for variable
@@ -61,9 +61,10 @@ extern const struct varexp_configuration default_configuration;
   by the caller.
 */
 
-int variable_expand(const char* input, size_t input_len,
-                    char** result, size_t result_len,
-                    varexp_lookup_cb lookup, void* lookup_context,
-                    struct varexp_configuration* config);
+int var_expand(const char* input, size_t input_len,
+	       char** result, size_t* result_len,
+	       const char** error_msg,
+	       varexp_lookup_cb lookup, void* lookup_context,
+	       struct varexp_configuration* config);
 
 #endif /* !defined(LIB_VARIABLE_EXPAND_H) */

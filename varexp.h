@@ -7,6 +7,8 @@
 
 typedef enum
     {
+    VAR_INVALID_CONFIGURATION       = -9,
+
     VAR_INCORRECT_CLASS_SPEC        = -8,
 
     VAR_INCOMPLETE_GROUPED_HEX      = -7,
@@ -84,7 +86,6 @@ typedef struct
     char  enddelim;              /* '}' */
     char  escape;                /* '\' */
     char* namechars;             /* 'a-zA-Z0-9_' */
-    char  force_expand;          /* TRUE */
     }
 var_config_t;
 extern const var_config_t var_config_default;
@@ -98,10 +99,10 @@ extern const var_config_t var_config_default;
    by the caller.
 */
 
-int var_expand(const char* input, size_t input_len,
-	       char** result, size_t* result_len,
-	       const char** error_msg,
-	       var_cb_t lookup, void* lookup_context,
-	       var_config_t* config);
+var_rc_t var_expand(const char* input, size_t input_len,
+                    char** result, size_t* result_len,
+                    const char** error_msg,
+                    var_cb_t lookup, void* lookup_context,
+                    const var_config_t* config, int force_expand);
 
 #endif /* !defined(LIB_VARIABLE_EXPAND_H) */

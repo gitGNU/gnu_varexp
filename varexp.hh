@@ -7,6 +7,38 @@
 
 namespace varexp
     {
+    // Expand quoted pairs to their binary representation.
+
+    void unescape(const std::string& input, std::string& output, bool unescape_all);
+
+    // Prototype for the lookup callback used in expand().
+
+    struct callback_t
+        {
+        virtual void operator()(const std::string& name, std::string& data) = 0;
+        virtual void operator()(const std::string& name, int idx, std::string& data) = 0;
+        };
+
+    // Configure the expand() parser's tokens. The respective default
+    // setting is shown in the comments.
+
+    struct config_t
+        {
+        char  varinit;        // '$'
+        char  startdelim;     // '{'
+        char  enddelim;       // '}'
+        char  startindex;     // '['
+        char  endindex;       // ']'
+        char  current_index;  // '#'
+        char  escape;         // '\'
+        char* namechars;      // 'a-zA-Z0-9_'
+        };
+    extern const config_t config_default;
+
+    // Expand variable expressions in a text buffer.
+
+    void expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);
+
     // Exceptions thrown by the varexp library.
 
     struct error : public std::runtime_error
@@ -68,38 +100,6 @@ namespace varexp
     define_exception(unterminated_loop_construct,    "unterminated loop construct");
     define_exception(invalid_char_in_loop_limits,    "invalid character in loop limits");
 #undef define_exception
-
-    // Expand quoted pairs to their binary representation.
-
-    void unescape(const std::string& input, std::string& output, bool unescape_all);
-
-    // Prototype for the lookup callback used in expand().
-
-    struct callback_t
-        {
-        virtual void operator()(const std::string& name, std::string& data) = 0;
-        virtual void operator()(const std::string& name, int idx, std::string& data) = 0;
-        };
-
-    // Configure the expand() parser's tokens.
-
-    struct config_t
-        {
-        char  varinit;        // '$'
-        char  startdelim;     // '{'
-        char  enddelim;       // '}'
-        char  startindex;     // '['
-        char  endindex;       // ']'
-        char  current_index;  // '#'
-        char  escape;         // '\'
-        char* namechars;      // 'a-zA-Z0-9_'
-        };
-    extern const config_t config_default;
-
-    // Expand variable expressions in a text buffer.
-
-    void expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);
-
     }
 
 #endif // !defined(LIB_VARIABLE_EXPAND_HH)

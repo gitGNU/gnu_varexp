@@ -1,7 +1,6 @@
 # Build variable-expression library.
 
 libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -pedantic' \
-                               +define='DMALLOC' \
                                +debug \
                                :a
 

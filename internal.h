@@ -77,4 +77,6 @@ int number(const char* begin, const char* end);
 
 int cut_out_offset(tokenbuf* data, tokenbuf* number1, tokenbuf* number2, int isrange);
 
+int transpose(tokenbuf* data, tokenbuf* search, tokenbuf* replace);
+
 #endif /* !defined(INTERNAL_H) */

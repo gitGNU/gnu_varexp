@@ -99,9 +99,12 @@ int command(const char* begin, const char* end, const var_config_t* config,
             number2.end   = p + rc;
             number2.buffer_size = 0;
             p += rc;
-            rc = cut_out_offset(data, &number1, &number2, isrange);
-            if (rc < 0)
-                goto error_return;
+            if (data->begin)
+                {
+                rc = cut_out_offset(data, &number1, &number2, isrange);
+                if (rc < 0)
+                    goto error_return;
+                }
             break;
 
         case '#':               /* Substitute length of the string. */
@@ -240,10 +243,60 @@ int command(const char* begin, const char* end, const var_config_t* config,
                 p += rc;
                 }
 
-            rc = search_and_replace(data, &search, &replace, &flags);
+            if (data->begin)
+                {
+                rc = search_and_replace(data, &search, &replace, &flags);
+                if (rc < 0)
+                    goto error_return;
+                }
+            break;
+
+        case 'y':               /* Transpose characters from class A to class B. */
+            ++p;
+
+            if (*p != '/')
+                return VAR_MALFORMATTED_TRANSPOSE;
+            else
+                ++p;
+
+            rc = substext_or_variable(p, end, config, nameclass, lookup, lookup_context,
+                                      force_expand, &search);
             if (rc < 0)
                 goto error_return;
+            else
+                p += rc;
+
+            if (*p != '/')
+                {
+                rc = VAR_MALFORMATTED_TRANSPOSE;
+                goto error_return;
+                }
+            else
+                ++p;
+
+            rc = substext_or_variable(p, end, config, nameclass, lookup, lookup_context,
+                                      force_expand, &replace);
+            if (rc < 0)
+                goto error_return;
+            else
+                p += rc;
+
+            if (*p != '/')
+                {
+                rc = VAR_MALFORMATTED_TRANSPOSE;
+                goto error_return;
+                }
+            else
+                ++p;
+
+            if (data->begin)
+                {
+                rc = transpose(data, &search, &replace);
+                if (rc < 0)
+                    goto error_return;
+                }
             break;
+
 
         default:
             return VAR_UNKNOWN_COMMAND_CHAR;

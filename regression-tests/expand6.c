@@ -66,7 +66,9 @@ int main(int argc, char** argv)
         { "${HOME:o1,5}",               "home"                            },
         { "${HOME:o5,}",                "/regression-tests"               },
         { "${HOME:o5-}",                "/regression-tests"               },
-        { "${HOME:o7,13}",              "egress"                          }
+        { "${HOME:o7,13}",              "egress"                          },
+        { "${HOME:y/a-z/A-YZ/}",        "/HOME/REGRESSION-TESTS"          },
+        { "${HOME:y/e-g/a-c/}",         "/homa/racrassion-tasts"          }
         };
     /*
         { "${HOME:s/g(res)s/x\\\\1x/g}","/homE/rEgrEssion-tEsts"          }

@@ -130,7 +130,7 @@ var_rc_t input(const char* begin, const char* end,
         goto error_return;
         }
 
-    return begin - p;
+    return var_rc_t(begin - p);
 
   error_return:
     tokenbuf_free(output);
@@ -138,5 +138,5 @@ var_rc_t input(const char* begin, const char* end,
     output->begin = p;
     output->end = begin;
     output->buffer_size = 0;
-    return rc;
+    return var_rc_t(rc);
     }

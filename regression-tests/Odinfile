@@ -14,20 +14,21 @@
                       +output_show \
                       :stdout
 
-unescape.exe == unescape.c +(%test.flags) :exe
-expand-character-class.exe == expand-character-class.c +(%test.flags) :exe
-expand1.exe == expand1.c +(%test.flags) :exe
-expand2.exe == expand2.c +(%test.flags) :exe
-expand3.exe == expand3.c +(%test.flags) :exe
-expand4.exe == expand4.c +(%test.flags) :exe
-expand5.exe == expand5.c +(%test.flags) :exe
-expand6.exe == expand6.c +(%test.flags) :exe
-empty-search-pattern.exe == empty-search-pattern.c +(%test.flags) :exe
-offset-failure.exe == offset-failure.c +(%test.flags) :exe
+unescape.exe == unescape.cc +(%test.flags) :exe
+expand-character-class.exe == expand-character-class.cc +(%test.flags) :exe
+expand1.exe == expand1.cc +(%test.flags) :exe
+expand2.exe == expand2.cc +(%test.flags) :exe
+expand3.exe == expand3.cc +(%test.flags) :exe
+expand4.exe == expand4.cc +(%test.flags) :exe
+expand5.exe == expand5.cc +(%test.flags) :exe
+expand6.exe == expand6.cc +(%test.flags) :exe
+empty-search-pattern.exe == empty-search-pattern.cc +(%test.flags) :exe
+offset-failure.exe == offset-failure.cc +(%test.flags) :exe
 
 %test.flags == <<
+    +gnu
     +lib=(../libvarexp.a)
-    +cc='gcc -Wall -pedantic'
+    +cxx_flags='-Wall -pedantic'
     +debug
     +define=DEBUG
 

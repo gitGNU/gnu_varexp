@@ -25,7 +25,7 @@ int tokenbuf_assign(tokenbuf_t* buf, const char* data, size_t len)
     {
     char* p;
 
-    if ((p = malloc(len + 1)) == NULL)
+    if ((p = (char*)malloc(len + 1)) == NULL)
         return 0;
     memcpy(p, data, len);
     buf->begin = p;
@@ -45,7 +45,7 @@ int tokenbuf_append(tokenbuf_t* output, const char* data, size_t len)
        standard-sized buffer to begin with. */
     if (output->begin == NULL)
         {
-        if ((output->begin = output->end = malloc(TOKENBUF_INITIAL_BUFSIZE)) == NULL)
+        if ((output->begin = output->end = (char*)malloc(TOKENBUF_INITIAL_BUFSIZE)) == NULL)
             return 0;
         output->buffer_size = TOKENBUF_INITIAL_BUFSIZE;
         }
@@ -62,7 +62,7 @@ int tokenbuf_append(tokenbuf_t* output, const char* data, size_t len)
             }
         /* OK, so copy the contents of output into an allocated buffer
            so that we can append that way. */
-        if ((tmp = malloc(output->end - output->begin + len + 1)) == NULL)
+        if ((tmp = (char*)malloc(output->end - output->begin + len + 1)) == NULL)
             return 0;
         memcpy(tmp, output->begin, output->end - output->begin);
         output->buffer_size = output->end - output->begin;
@@ -81,8 +81,8 @@ int tokenbuf_append(tokenbuf_t* output, const char* data, size_t len)
             new_size *= 2;
             }
         while ((new_size - (output->end - output->begin)) <= len);
-        if ((new_buffer = realloc((char*)output->begin, new_size)) == NULL)
-            return 0;
+        if ((new_buffer = (char*)realloc((char*)output->begin, new_size)) == NULL)
+            return var_rc_t(0);
         output->end = new_buffer + (output->end - output->begin);
         output->begin = new_buffer;
         output->buffer_size = new_size;

@@ -97,7 +97,7 @@ int num_exp(const char* begin, const char* end, int current_index,
                    var_cb_t lookup, void* lookup_context)
     {
     const char* p = begin;
-    char operator;
+    char oper;
     int right;
     int rc;
 
@@ -115,30 +115,30 @@ int num_exp(const char* begin, const char* end, int current_index,
         {
         if (*p == '+' || *p == '-')
             {
-            operator = *p++;
+            oper = *p++;
             rc = num_exp(p, end, current_index, &right,
                          rel_lookup_flag, config, nameclass, lookup, lookup_context);
             if (rc < 0)
                 return rc;
             p += rc;
-            if (operator == '+')
+            if (oper == '+')
                 *result = *result + right;
             else
                 *result = *result - right;
             }
         else if (*p == '*' || *p == '/' || *p == '%')
             {
-            operator = *p++;
+            oper = *p++;
             rc = num_exp_read_operand(p, end, current_index, &right,
                                       rel_lookup_flag, config, nameclass, lookup, lookup_context);
             if (rc < 0)
                 return rc;
             p += rc;
-            if (operator == '*')
+            if (oper == '*')
                 {
                 *result = *result * right;
                 }
-            else if (operator == '/')
+            else if (oper == '/')
                 {
                 if (right == 0)
                     {
@@ -147,7 +147,7 @@ int num_exp(const char* begin, const char* end, int current_index,
                 else
                     *result = *result / right;
                 }
-            else if (operator == '%')
+            else if (oper == '%')
                 {
                 if (right == 0)
                     {

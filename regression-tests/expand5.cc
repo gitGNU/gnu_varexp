@@ -1,6 +1,6 @@
 #include "../internal.h"
 
-int env_lookup(void* context,
+var_rc_t env_lookup(void* context,
                const char* varname, size_t name_len, int index,
                const char** data, size_t* data_len, size_t* buffer_size)
     {
@@ -18,7 +18,7 @@ int env_lookup(void* context,
         return VAR_ERR_UNDEFINED_VARIABLE;
     *data_len = strlen(*data);
     *buffer_size = 0;
-    return 1;
+    return var_rc_t(1);
     }
 
 int main(int argc, char** argv)

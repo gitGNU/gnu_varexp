@@ -13,7 +13,7 @@ int cut_out_offset(tokenbuf_t* data, tokenbuf_t* number1,
 
     /* Determine begin of result string. */
 
-    if ((data->end - data->begin) < num1)
+    if ((size_t)(data->end - data->begin) < num1)
         return VAR_ERR_OFFSET_OUT_OF_BOUNDS;
     else
         p = data->begin + num1;

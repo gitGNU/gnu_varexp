@@ -2,9 +2,9 @@
 
 struct variable
     {
-    const char*        name;
-    const unsigned int idx;
-    const char*        data;
+    const char* name;
+    const int   idx;
+    const char* data;
     };
 
 static var_rc_t var_lookup(void* context,
@@ -12,7 +12,7 @@ static var_rc_t var_lookup(void* context,
                            const char** data, size_t* data_len,
                            size_t* buffer_size)
     {
-    const struct variable* vars = context;
+    const struct variable* vars = (struct variable*)context;
     size_t i, counter, length;
     static char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
 
@@ -184,7 +184,7 @@ int main(int argc, char* *argv)
         if (rc != VAR_OK)
             {
             printf ("Test case #%d: First var_unescape() failed with return code %d ('%s').\n",
-                    i, rc, var_strerror(rc));
+                    i, rc, var_strerror((int)rc));
             return 1;
             }
 #ifdef DEBUG
@@ -195,7 +195,7 @@ int main(int argc, char* *argv)
         if (rc != VAR_OK)
             {
             printf ("Test case #%d: var_expand() failed with return code %d ('%s').\n",
-                    i, rc, var_strerror(rc));
+                    i, rc, var_strerror((int)rc));
             return 1;
             }
 #ifdef DEBUG

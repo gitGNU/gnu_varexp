@@ -1,6 +1,6 @@
 #include "../internal.h"
 
-int env_lookup(void* context,
+var_rc_t env_lookup(void* context,
                const char* varname, size_t name_len, int index,
                const char** data, size_t* data_len, size_t* buffer_size)
     {
@@ -18,15 +18,15 @@ int env_lookup(void* context,
         return VAR_ERR_UNDEFINED_VARIABLE;
     *data_len = strlen(*data);
     *buffer_size = 0;
-    return 1;
+    return var_rc_t(1);
     }
 
 int main(int argc, char** argv)
     {
     const char* input =                            \
-        "\\$HOME      = '$HOME'\\n"                \
-        "\\$OSTYPE    = '$OSTYPE'\\n"              \
-        "\\$TERM      = '$TERM'\\n";
+        "\\$HOME      = '${HOME}'\\n"              \
+        "\\$OSTYPE    = '${OSTYPE}'\\n"            \
+        "\\$TERM      = '${TERM}'\\n";
     const char* output =                           \
         "$HOME      = '/home/regression-tests'\n"  \
         "$OSTYPE    = 'regression-os'\n"           \
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     rc = var_unescape(tmp, tmp_len, tmp, 1);
     if (rc != VAR_OK)
         {
-        printf("var_unescape() failed with error %d.\n", rc);
+        printf("expand_named_characters() failed with error %d.\n", rc);
         return 1;
         }
     else

@@ -2,7 +2,7 @@
 
 /* The var_strerror() routine will map a var_rc_t into a text message. */
 
-const char* var_strerror(var_rc_t rc)
+const char* var_strerror(int rc)
     {
     static char* var_errors[] =
         {
@@ -53,7 +53,7 @@ const char* var_strerror(var_rc_t rc)
         };
 
     rc = 0 - rc;
-    if (rc < 0 || rc >= sizeof(var_errors) / sizeof(char*))
+    if (rc < 0 || rc >= (int)(sizeof(var_errors) / sizeof(char*)))
         return "unknown error";
 
     return var_errors[rc];

@@ -1,6 +1,6 @@
 #include "../internal.h"
 
-int dummy(void* context,
+var_rc_t dummy(void* context,
           const char* varname, size_t name_len, int index,
           const char** data, size_t* data_len, size_t* buffer_size)
     {
@@ -18,7 +18,7 @@ int dummy(void* context,
     *data_len    = sizeof("foobar")-1;
     *buffer_size = 0;
 
-    return 1;
+    return var_rc_t(1);
     }
 
 int main(int argc, char** argv)
@@ -31,8 +31,8 @@ int main(int argc, char** argv)
 
     rc = var_expand(input, strlen(input),
                     &tmp, &tmp_len,
-                    &dummy, NULL,
-                    NULL);
+                    &dummy, 0,
+                    0);
     if (rc != VAR_OK)
         {
         printf("var_expand() failed with error %d.\n", rc);

@@ -70,7 +70,7 @@ int transpose(tokenbuf_t* data, tokenbuf_t* search,
 
     for (p = data->begin; p != data->end; ++p)
         {
-        for (i = 0; i <= (srcclass.end - srcclass.begin); ++i)
+        for (i = 0; i <= (size_t)(srcclass.end - srcclass.begin); ++i)
             {
             if (*p == srcclass.begin[i])
                 {

@@ -1,24 +1,24 @@
 #include "internal.h"
 
-static void expand_range(char a, char b, char_class_t class)
+static void expand_range(char a, char b, char_class_t char_class)
     {
     do
         {
-        class[(int)a] = 1;
+        char_class[(int)a] = 1;
         }
     while (++a <= b);
     }
 
-var_rc_t expand_character_class(const char* desc, char_class_t class)
+var_rc_t expand_character_class(const char* desc, char_class_t char_class)
     {
     size_t i;
 
-    /* Clear the class array. */
+    /* Clear the char_class array. */
 
     for (i = 0; i < 256; ++i)
-        class[i] = 0;
+        char_class[i] = 0;
 
-    /* Walk through the class description and set the appropriate
+    /* Walk through the char_class description and set the appropriate
        entries in the array. */
 
     while (*desc != '\0')
@@ -27,12 +27,12 @@ var_rc_t expand_character_class(const char* desc, char_class_t class)
             {
             if (desc[0] > desc[2])
                 return VAR_ERR_INCORRECT_CLASS_SPEC;
-            expand_range(desc[0], desc[2], class);
+            expand_range(desc[0], desc[2], char_class);
             desc += 3;
             }
         else
             {
-            class[(int) *desc] = 1;
+            char_class[(int) *desc] = 1;
             ++desc;
             }
         }

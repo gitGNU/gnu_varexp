@@ -89,6 +89,6 @@ var_rc_t var_expand(const char *input, size_t input_len,
 
 /* Map an error code to a text message. */
 
-const char* var_strerror(var_rc_t rc);
+const char* var_strerror(int rc);
 
 #endif /* !defined(LIB_VARIABLE_EXPAND_H) */

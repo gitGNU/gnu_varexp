@@ -1,26 +1,27 @@
 # Build variable-expression library.
 
-libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -pedantic' \
+libvarexp.a == %libvarexp.a.sm +gnu \
+                               +cxx_flags='-Wall -pedantic' \
                                +debug \
                                :a
 
 %libvarexp.a.sm == <<
-    command.c
-    cut-out-offset.c
-    expand-character-class.c
-    unescape.c
-    expand.c
-    expression.c
-    input.c
-    loop.c
-    num-exp.c
-    padding.c
-    search-and-replace.c
-    strerror.c
-    text.c
-    tokenbuf.c
-    transpose.c
-    variable.c
+    command.cc
+    cut-out-offset.cc
+    expand-character-class.cc
+    unescape.cc
+    expand.cc
+    expression.cc
+    input.cc
+    loop.cc
+    num-exp.cc
+    padding.cc
+    search-and-replace.cc
+    strerror.cc
+    text.cc
+    tokenbuf.cc
+    transpose.cc
+    variable.cc
 
 %clean ! == !<<
     rm -f libvarexp.a

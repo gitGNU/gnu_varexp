@@ -1,13 +1,13 @@
 #include "internal.h"
 
-int lookup_wrapper(void* context,
-                   const char* name, size_t name_len, int idx,
-                   const char** data, size_t* data_len,
-                   size_t* buffer_size)
+var_rc_t lookup_wrapper(void* context,
+                        const char* name, size_t name_len, int idx,
+                        const char** data, size_t* data_len,
+                        size_t* buffer_size)
     {
     static char buf[1];
-    struct wrapper_context* wcon = context;
-    int rc;
+    struct wrapper_context* wcon = static_cast<wrapper_context*>(context);
+    var_rc_t rc;
 
     rc = (*wcon->lookup)(wcon->context, name, name_len,
                          idx, data, data_len, buffer_size);
@@ -33,10 +33,10 @@ var_rc_t loop_limits(const char* begin, const char* end,
     int dummy;
 
     if (begin == end)
-        return 0;
+        return VAR_OK;
 
     if (*p != config->startdelim)
-        return 0;
+        return VAR_OK;
     else
         ++p;
 
@@ -47,7 +47,7 @@ var_rc_t loop_limits(const char* begin, const char* end,
     if (rc == VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC)
         *start = 0;          /* use default */
     else if (rc < 0)
-        return rc;
+        return var_rc_t(rc);
     else
         p += rc;
 
@@ -63,7 +63,7 @@ var_rc_t loop_limits(const char* begin, const char* end,
     if (rc == VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC)
         *step = 1;          /* use default */
     else if (rc < 0)
-        return rc;
+        return var_rc_t(rc);
     else
         p += rc;
 
@@ -80,7 +80,7 @@ var_rc_t loop_limits(const char* begin, const char* end,
                 *open_end = 0;
             else
                 *open_end = 1;
-            return p - begin;
+            return var_rc_t(p - begin);
             }
         }
     else
@@ -96,7 +96,7 @@ var_rc_t loop_limits(const char* begin, const char* end,
         *open_end = 1;
         }
     else if (rc < 0)
-        return rc;
+        return var_rc_t(rc);
     else
         {
         *open_end = 0;
@@ -106,5 +106,5 @@ var_rc_t loop_limits(const char* begin, const char* end,
     if (*p != config->enddelim)
         return VAR_ERR_INVALID_CHAR_IN_LOOP_LIMITS;
 
-    return ++p - begin;
+    return var_rc_t(++p - begin);
     }

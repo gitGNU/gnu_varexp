@@ -106,7 +106,7 @@ int substext_or_variable(const char *begin, const char *end,
 int transpose(tokenbuf_t *data, tokenbuf_t *search,
               tokenbuf_t *replace);
 
-var_rc_t expand_character_class(const char *desc, char_class_t class);
+var_rc_t expand_character_class(const char *desc, char_class_t char_class);
 
 int variable(const char *begin, const char *end,
              const var_config_t *config, const char_class_t nameclass,
@@ -124,10 +124,10 @@ struct wrapper_context
     int     *rel_lookup_flag;
     };
 
-int lookup_wrapper(void *context,
-                   const char *name, size_t name_len, int idx,
-                   const char **data, size_t *data_len,
-                   size_t *buffer_size);
+var_rc_t lookup_wrapper(void* context,
+                        const char* name, size_t name_len, int idx,
+                        const char** data, size_t* data_len,
+                        size_t* buffer_size);
 
 int text(const char *begin, const char *end, char varinit,
          char startindex, char endindex, char escape);

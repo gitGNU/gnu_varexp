@@ -16,7 +16,58 @@
     </author>
   </articleinfo>
 
+  <section>
+    <title>Purpose of &varexp;</title>
     &purpose;
+  </section>
+
+  <section>
+    <title>Building &varexp;</title>
+
+    <para>The distribution contains <filename>Makefile</filename>s suited for
+compilation with the GNU C++ compiler. Be adviced, though, that you will need a
+fairly recent version in order to compile &varexp;, because the library makes
+use of many features of the ISO C++ standard that are not supported by older
+versions of <application>g++</application>.</para>
+
+    <para>Nonetheless, it should be possible to translate &varexp; with other
+ISO C++ compilers, too; the library does not use any system specific functions
+with the exception of POSIX regular expressions, but these should be widely
+available -- at least on Unix platforms. So just take a look at the
+<filename>Makefile</filename>s: With only a few modifications you should get
+along.</para>
+
+    <para>The directory <filename>regression-tests</filename> contains various
+test programs, which verify that the library works as expected. You may run the
+test suite calling <command>make check</command> in either the top-level
+directory or in <filename>regression-tests</filename>.</para>
+  </section>
+
+  <section>
+    <title>Documentation</title>
+
+    <para>The directory <filename>documentation</filename> contains a complete
+user's manual for &varexp; -- most notably the files
+<filename>user-manual.html</filename> and <filename>user-manual.pdf</filename>.
+You should really take a look at them if you plan to use this code. :-)</para>
+  </section>
+
+  <section>
+    <title>Getting the latest version</title>
+
+    <para>The latest version of &varexp; is available from
+<literal>http://cryp.to/libvarexp/</literal>.</para>
+  </section>
+
+  <section>
+    <title>Copyright</title>
+
+    <para>&varexp; is copyrighted by <literal>Peter Simons
+&lt;simons@computer.org&gt;</literal>. Permission is granted to use this code
+under the terms described in the <filename>LICENSE</filename> file.</para>
+
+  </section>
+
 </article>
 
 <!--

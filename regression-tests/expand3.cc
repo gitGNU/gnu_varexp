@@ -20,7 +20,7 @@ var_rc_t env_lookup(void* context,
     tmp[name_len] = '\0';
     *data = getenv(tmp);
     if (*data == NULL)
-        return VAR_ERR_UNDEFINED_VARIABLE;
+        throw undefined_variable();
     *data_len = strlen(*data);
     *buffer_size = 0;
     return var_rc_t(1);
@@ -38,7 +38,6 @@ int main(int argc, char** argv)
         "$TERM      = 'regression-term'\n";
     char*    tmp;
     size_t   tmp_len;
-    var_rc_t rc;
 
     if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
         setenv("OSTYPE", "regression-os", 1) != 0 ||
@@ -48,24 +47,12 @@ int main(int argc, char** argv)
         return 1;
         }
     unsetenv("UNDEFINED");
-    rc = var_expand(input, strlen(input),
-                    &tmp, &tmp_len,
-                    &env_lookup, 0,
-                    0);
-    if (rc != VAR_OK)
-        {
-        printf("var_expand() failed with error %d.\n", rc);
-        return 1;
-        }
-
-    rc = var_unescape(tmp, tmp_len, tmp, 1);
-    if (rc != VAR_OK)
-        {
-        printf("var_unescape() failed with error %d.\n", rc);
-        return 1;
-        }
-    else
-        tmp_len = strlen(tmp);
+    var_expand(input, strlen(input),
+               &tmp, &tmp_len,
+               &env_lookup, 0,
+               0);
+    var_unescape(tmp, tmp_len, tmp, 1);
+    tmp_len = strlen(tmp);
 
     if (tmp_len != strlen(output))
         {

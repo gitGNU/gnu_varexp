@@ -13,7 +13,7 @@ namespace varexp
             while (++a <= b);
             }
 
-        var_rc_t expand_character_class(const char* desc, char_class_t char_class)
+        void expand_character_class(const char* desc, char_class_t char_class)
             {
             size_t i;
 
@@ -30,7 +30,7 @@ namespace varexp
                 if (desc[1] == '-' && desc[2] != '\0')
                     {
                     if (desc[0] > desc[2])
-                        return VAR_ERR_INCORRECT_CLASS_SPEC;
+                        throw incorrect_class_spec();
                     expand_range(desc[0], desc[2], char_class);
                     desc += 3;
                     }
@@ -40,8 +40,6 @@ namespace varexp
                     ++desc;
                     }
                 }
-
-            return VAR_OK;
             }
         }
     }

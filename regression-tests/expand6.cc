@@ -30,7 +30,7 @@ static var_rc_t var_lookup(void* context,
                 *data = vars[i].data;
                 *data_len = strlen(*data);
                 *buffer_size = 0;
-                return VAR_OK;
+                return 1;
                 }
             }
         }
@@ -55,11 +55,11 @@ static var_rc_t var_lookup(void* context,
                 *data = buf;
                 *data_len = strlen(buf);
                 *buffer_size = 0;
-                return VAR_OK;
+                return 1;
                 }
             }
         }
-    return VAR_ERR_UNDEFINED_VARIABLE;
+    throw undefined_variable();
     }
 
 struct test_case
@@ -69,6 +69,7 @@ struct test_case
     };
 
 int main(int argc, char* *argv)
+try
     {
     const struct variable vars[] =
         {
@@ -175,7 +176,6 @@ int main(int argc, char* *argv)
         };
     char* tmp;
     size_t tmp_len;
-    var_rc_t rc;
     size_t i;
     char buffer[1024];
 
@@ -185,24 +185,12 @@ int main(int argc, char* *argv)
         printf("Test case #%02d: Original input is '%s'.\n", i,
                tests[i].input);
 #endif
-        rc = var_unescape(tests[i].input, strlen(tests[i].input), buffer, 0);
-        if (rc != VAR_OK)
-            {
-            printf ("Test case #%d: First var_unescape() failed with return code %d ('%s').\n",
-                    i, rc, var_strerror((int)rc));
-            return 1;
-            }
+        var_unescape(tests[i].input, strlen(tests[i].input), buffer, 0);
 #ifdef DEBUG
         printf("Test case #%02d: Unescaped input is '%s'.\n", i, buffer);
 #endif
-        rc = var_expand(buffer, strlen(buffer), &tmp, &tmp_len,
-                        &var_lookup, (void*)vars, NULL);
-        if (rc != VAR_OK)
-            {
-            printf ("Test case #%d: var_expand() failed with return code %d ('%s').\n",
-                    i, rc, var_strerror((int)rc));
-            return 1;
-            }
+        var_expand(buffer, strlen(buffer), &tmp, &tmp_len,
+                   &var_lookup, (void*)vars, NULL);
 #ifdef DEBUG
         printf("Test case #%02d: Expanded output is '%s'.\n", i, tmp);
 #endif
@@ -217,4 +205,14 @@ int main(int argc, char* *argv)
         free(tmp);
         }
     return 0;
+    }
+catch(const std::exception& e)
+    {
+    printf("Caught exception: %s\n", e.what());
+    return 1;
+    }
+catch(...)
+    {
+    printf("Caught unknown exception.");
+    return 1;
     }

@@ -22,6 +22,7 @@ libvarexp.a == %libvarexp.a.sm +gnu \
     tokenbuf.cc
     transpose.cc
     variable.cc
+    error.cc
 
 %clean ! == !<<
     rm -f libvarexp.a

@@ -26,7 +26,7 @@ namespace varexp
                 return 0;
 
             if (++p == end)
-                return VAR_ERR_INCOMPLETE_VARIABLE_SPEC;
+                throw incomplete_variable_spec();
 
             /* Try to read the variable name. If that fails, we're parsing a
                complex expression. */

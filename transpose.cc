@@ -6,7 +6,7 @@ namespace varexp
     {
     namespace internal
         {
-        static int expand_class_description(tokenbuf_t* src, tokenbuf_t* dst)
+        static void expand_class_description(tokenbuf_t* src, tokenbuf_t* dst)
             {
             unsigned char c, d;
             const char* p = src->begin;
@@ -16,7 +16,7 @@ namespace varexp
                 if ((src->end - p) >= 3 && p[1] == '-')
                     {
                     if (*p > p[2])
-                        return VAR_ERR_INCORRECT_TRANSPOSE_CLASS_SPEC;
+                        throw incorrect_transpose_class_spec();
                     for (c = *p, d = p[2]; c <= d; ++c)
                         {
                         dst->append((char*)&c, 1);
@@ -29,31 +29,25 @@ namespace varexp
                     ++p;
                     }
                 }
-            return VAR_OK;
             }
 
-        int transpose(tokenbuf_t* data, tokenbuf_t* search,
+        void transpose(tokenbuf_t* data, tokenbuf_t* search,
                       tokenbuf_t* replace)
             {
             tokenbuf_t srcclass, dstclass;
             const char* p;
-            int rc;
             size_t i;
 
-            if ((rc = expand_class_description(search, &srcclass)) != VAR_OK)
-                goto error_return;
-            if ((rc = expand_class_description(replace, &dstclass)) != VAR_OK)
-                goto error_return;
+            expand_class_description(search, &srcclass);
+            expand_class_description(replace, &dstclass);
 
             if (srcclass.begin == srcclass.end)
                 {
-                rc = VAR_ERR_EMPTY_TRANSPOSE_CLASS;
-                goto error_return;
+                throw empty_transpose_class();
                 }
             if ((srcclass.end - srcclass.begin) != (dstclass.end - dstclass.begin))
                 {
-                rc = VAR_ERR_TRANSPOSE_CLASSES_MISMATCH;
-                goto error_return;
+                throw transpose_classes_mismatch();
                 }
 
             data->force_copy();
@@ -69,13 +63,6 @@ namespace varexp
                         }
                     }
                 }
-
-            return VAR_OK;
-
-          error_return:
-            search->clear();
-            replace->clear();
-            return rc;
             }
         }
     }

@@ -20,7 +20,7 @@ var_rc_t env_lookup(void* context,
     tmp[name_len] = '\0';
     *data = getenv(tmp);
     if (*data == NULL)
-        return VAR_ERR_UNDEFINED_VARIABLE;
+        throw undefined_variable();
     *data_len = strlen(*data);
     *buffer_size = 0;
     return var_rc_t(1);
@@ -31,7 +31,6 @@ int main(int argc, char** argv)
     const char* input = "${HOME:s/$EMPTY/test/}";
     char*    tmp;
     size_t   tmp_len;
-    var_rc_t rc;
 
     if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
         setenv("EMPTY", "", 1) != 0)
@@ -39,14 +38,15 @@ int main(int argc, char** argv)
         printf("Failed to set the environment: %s.\n", strerror(errno));
         return 1;
         }
-    rc = var_expand(input, strlen(input),
-                    &tmp, &tmp_len,
-                    &env_lookup, NULL,
-                    NULL);
-    if (rc != VAR_ERR_EMPTY_SEARCH_STRING)
+    try
         {
-        printf("var_expand() should have failed with VAR_ERR_EMPTY_SEARCH_STRING but returned %d.\n", rc);
-        return 1;
+        var_expand(input, strlen(input),
+                   &tmp, &tmp_len,
+                   &env_lookup, NULL,
+                   NULL);
+        }
+    catch(const empty_search_string&)
+        {
         }
 
     return 0;

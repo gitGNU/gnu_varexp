@@ -29,7 +29,7 @@ namespace varexp
             int rc;
 
             if (begin == end)
-                return VAR_ERR_INCOMPLETE_INDEX_SPEC;
+                throw incomplete_index_spec();
 
             if (*p == '(')
                 {
@@ -39,9 +39,9 @@ namespace varexp
                     return rc;
                 p += rc;
                 if (p == end)
-                    return VAR_ERR_INCOMPLETE_INDEX_SPEC;
+                    throw incomplete_index_spec();
                 if (*p != ')')
-                    return VAR_ERR_UNCLOSED_BRACKET_IN_INDEX;
+                    throw unclosed_bracket_in_index();
                 ++p;
                 }
             else if (*p == config->varinit)
@@ -73,7 +73,7 @@ namespace varexp
                     *result = num_exp_read_int(&p, end);
                     }
                 else
-                    return VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC;
+                    throw invalid_char_in_index_spec();
                 }
             else if (*p == '-')
                 {
@@ -84,10 +84,10 @@ namespace varexp
                     *result = 0 - *result;
                     }
                 else
-                    return VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC;
+                    throw invalid_char_in_index_spec();
                 }
             else
-                return VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC;
+                throw invalid_char_in_index_spec();
 
             return p - begin;
             }
@@ -104,7 +104,7 @@ namespace varexp
             int rc;
 
             if (begin == end)
-                return VAR_ERR_INCOMPLETE_INDEX_SPEC;
+                throw incomplete_index_spec();
 
             rc = num_exp_read_operand(p, end, current_index, result,
                                       rel_lookup_flag, config, nameclass,
@@ -144,7 +144,7 @@ namespace varexp
                         {
                         if (right == 0)
                             {
-                            return VAR_ERR_DIVISION_BY_ZERO_IN_INDEX;
+                            throw division_by_zero_in_index();
                             }
                         else
                             *result = *result / right;
@@ -153,7 +153,7 @@ namespace varexp
                         {
                         if (right == 0)
                             {
-                            return VAR_ERR_DIVISION_BY_ZERO_IN_INDEX;
+                            throw division_by_zero_in_index();
                             }
                         else
                             *result = *result % right;

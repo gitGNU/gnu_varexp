@@ -24,7 +24,7 @@ namespace varexp
                 return 0;
 
             if (++p == end)
-                return VAR_ERR_INCOMPLETE_VARIABLE_SPEC;
+                throw incomplete_variable_spec();
 
             /* Get the name of the variable to expand. The name may consist of
                an arbitrary number of VARNAMEs and VARIABLEs. */
@@ -57,8 +57,7 @@ namespace varexp
 
             if (name.begin == name.end)
                 {
-                rc = VAR_ERR_INCOMPLETE_VARIABLE_SPEC;
-                goto error_return;
+                throw incomplete_variable_spec();
                 }
 
             /* If the next token is START-INDEX, read the index specification. */
@@ -71,20 +70,17 @@ namespace varexp
                     goto error_return;
                 if (rc == 0)
                     {
-                    rc = VAR_ERR_INCOMPLETE_INDEX_SPEC;
-                    goto error_return;
+                    throw incomplete_index_spec();
                     }
                 p += rc;
 
                 if (p == end)
                     {
-                    rc = VAR_ERR_INCOMPLETE_INDEX_SPEC;
-                    goto error_return;
+                    throw incomplete_index_spec();
                     }
                 if (*p != config->endindex)
                     {
-                    rc = VAR_ERR_INVALID_CHAR_IN_INDEX_SPEC;
-                    goto error_return;
+                    throw invalid_char_in_index_spec();
                     }
                 p++;
                 }
@@ -94,8 +90,7 @@ namespace varexp
 
             if (p == end || (*p != config->enddelim && *p != ':'))
                 {
-                rc = VAR_ERR_INCOMPLETE_VARIABLE_SPEC;
-                goto error_return;
+                throw incomplete_variable_spec();
                 }
             p++;
 
@@ -103,22 +98,13 @@ namespace varexp
 
             rc = (*lookup) (lookup_context, name.begin, name.end - name.begin, idx,
                             &data, &len, &buffer_size);
-            if (rc == VAR_ERR_UNDEFINED_VARIABLE)
-                {
-                goto error_return;
-                }
-            else if (rc < 0 /* != VAR_OK */)
-                {
-                goto error_return;
-                }
-            else
-                {
-                /* The preliminary result is the contents of the variable.
-                   This may be modified by the commands that may follow. */
-                result->begin = data;
-                result->end = data + len;
-                result->buffer_size = buffer_size;
-                }
+
+            /* The preliminary result is the contents of the variable.
+               This may be modified by the commands that may follow. */
+
+            result->begin = data;
+            result->end = data + len;
+            result->buffer_size = buffer_size;
 
             if (p[-1] == ':')
                 {
@@ -139,8 +125,7 @@ namespace varexp
 
                 if (p == end || *p != config->enddelim)
                     {
-                    rc = VAR_ERR_INCOMPLETE_VARIABLE_SPEC;
-                    goto error_return;
+                    throw incomplete_variable_spec();
                     }
                 p++;
                 }

@@ -44,8 +44,8 @@ namespace varexp
                     var_cb_t lookup, void *lookup_context,
                     tokenbuf_t *data, int current_index, int *rel_lookup_flag);
 
-        int cut_out_offset(tokenbuf_t *data, tokenbuf_t *number1,
-                           tokenbuf_t *number2, int isrange);
+        void cut_out_offset(tokenbuf_t *data, tokenbuf_t *number1,
+                            tokenbuf_t *number2, int isrange);
 
         int expression(const char *begin, const char *end,
                        const var_config_t *config,
@@ -60,11 +60,11 @@ namespace varexp
                        tokenbuf_t *output, int current_index,
                        size_t recursion_level, int *rel_lookup_flag);
 
-        var_rc_t loop_limits(const char *begin, const char *end,
-                             const var_config_t *config,
-                             const char_class_t nameclass,
-                             var_cb_t lookup, void* lookup_context,
-                             int* start, int* step, int* stop, int* open_end);
+        size_t loop_limits(const char *begin, const char *end,
+                           const var_config_t *config,
+                           const char_class_t nameclass,
+                           var_cb_t lookup, void* lookup_context,
+                           int* start, int* step, int* stop, int* open_end);
 
         int num_exp(const char *begin, const char *end, int current_index,
                     int *result, int *rel_lookup_flag,
@@ -72,16 +72,16 @@ namespace varexp
                     const char_class_t nameclass,
                     var_cb_t lookup, void *lookup_context);
 
-        int padding(tokenbuf_t *data, tokenbuf_t *widthstr, tokenbuf_t *fill,
-                    char position);
+        void padding(tokenbuf_t *data, tokenbuf_t *widthstr, tokenbuf_t *fill,
+                     char position);
 
-        int search_and_replace(tokenbuf_t *data, tokenbuf_t *search,
-                               tokenbuf_t *replace, tokenbuf_t *flags);
+        void search_and_replace(tokenbuf_t *data, tokenbuf_t *search,
+                                tokenbuf_t *replace, tokenbuf_t *flags);
 
         int number(const char *begin, const char *end);
 
-        int exptext(const char *begin, const char *end,
-                    const var_config_t *config);
+        size_t exptext(const char *begin, const char *end,
+                       const var_config_t *config);
 
         int exptext_or_variable(const char *begin, const char *end,
                                 const var_config_t *config,
@@ -97,10 +97,10 @@ namespace varexp
                                  tokenbuf_t *result, int current_index,
                                  int *rel_lookup_flag);
 
-        int transpose(tokenbuf_t *data, tokenbuf_t *search,
-                      tokenbuf_t *replace);
+        void transpose(tokenbuf_t *data, tokenbuf_t *search,
+                       tokenbuf_t *replace);
 
-        var_rc_t expand_character_class(const char *desc, char_class_t char_class);
+        void expand_character_class(const char *desc, char_class_t char_class);
 
         int variable(const char *begin, const char *end,
                      const var_config_t *config, const char_class_t nameclass,

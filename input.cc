@@ -58,8 +58,7 @@ namespace varexp
                             goto error_return;
                         if (begin[rc] != config->endindex)
                             {
-                            rc = VAR_ERR_UNTERMINATED_LOOP_CONSTRUCT;
-                            goto error_return;
+                            throw unterminated_loop_construct();
                             }
                         if (loop_limit_length < 0)
                             {
@@ -120,8 +119,7 @@ namespace varexp
 
             if (recursion_level == 0 && begin != end)
                 {
-                rc = VAR_ERR_INPUT_ISNT_TEXT_NOR_VARIABLE;
-                goto error_return;
+                throw input_isnt_text_nor_variable();
                 }
 
             return var_rc_t(begin - p);

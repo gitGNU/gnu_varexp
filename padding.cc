@@ -6,15 +6,15 @@ namespace varexp
     {
     namespace internal
         {
-        int padding(tokenbuf_t* data, tokenbuf_t* widthstr, tokenbuf_t* fill,
-                    char position)
+        void padding(tokenbuf_t* data, tokenbuf_t* widthstr, tokenbuf_t* fill,
+                     char position)
             {
             tokenbuf_t result;
             size_t width = widthstr->toint();
             int i;
 
             if (fill->begin == fill->end)
-                return VAR_ERR_EMPTY_PADDING_FILL_STRING;
+                throw empty_padding_fill_string();
 
             if (position == 'l')
                 {
@@ -88,8 +88,6 @@ namespace varexp
                     data->shallow_move(&result);
                     }
                 }
-
-            return VAR_OK;
             }
         }
     }

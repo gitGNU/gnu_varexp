@@ -32,17 +32,11 @@ int main(int argc, char** argv)
     const char* output = "This is a foobar!";
     char*    tmp;
     size_t   tmp_len;
-    var_rc_t rc;
 
-    rc = var_expand(input, strlen(input),
-                    &tmp, &tmp_len,
-                    &dummy, 0,
-                    0);
-    if (rc != VAR_OK)
-        {
-        printf("var_expand() failed with error %d.\n", rc);
-        return 1;
-        }
+    var_expand(input, strlen(input),
+               &tmp, &tmp_len,
+               &dummy, 0,
+               0);
 
     if (tmp_len != strlen(output))
         {

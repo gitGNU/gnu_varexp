@@ -18,20 +18,19 @@ namespace varexp
         "a-zA-Z0-9_"                /* namechars */
         };
 
-    var_rc_t var_expand(const char* input_buf, size_t input_len,
+    void var_expand(const char* input_buf, size_t input_len,
                         char** result, size_t* result_len,
                         var_cb_t lookup, void* lookup_context,
                         const var_config_t* config)
         {
         char_class_t nameclass;
-        var_rc_t rc;
         tokenbuf_t output;
 
         /* Argument sanity checks */
         if (input_buf == NULL || input_len == 0 ||
             result == NULL ||
             lookup == NULL)
-            return VAR_ERR_INVALID_ARGUMENT;
+            throw invalid_argument();
 
         /* Optionally use default configuration */
         if (config == NULL)
@@ -42,8 +41,7 @@ namespace varexp
         *result = (char*)input_buf;
 
         /* Expand the class description for valid variable names. */
-        if ((rc = expand_character_class(config->namechars, nameclass)) != VAR_OK)
-            return rc;
+        expand_character_class(config->namechars, nameclass);
 
         /* Make sure that the specials defined in the configuration do not
            appear in the character name class. */
@@ -51,37 +49,23 @@ namespace varexp
             nameclass[(int)config->startdelim] ||
             nameclass[(int)config->enddelim] ||
             nameclass[(int)config->escape])
-            return VAR_ERR_INVALID_CONFIGURATION;
+            throw invalid_configuration();
 
         /* Call the parser. */
 
-        rc = input(input_buf, input_buf + input_len, config, nameclass,
-                   lookup, lookup_context, &output, 0, 0, NULL);
+        input(input_buf, input_buf + input_len, config, nameclass,
+              lookup, lookup_context, &output, 0, 0, NULL);
 
-        /* Post-process output */
-        if (rc >= 0)
-            {
-            /* always NUL-terminate output for convinience reasons */
-            output.append("\0", 1);
-            --output.end;
+        // Always NUL-terminate output for convinience.
 
-            /* Provide results */
-            *result = (char*)output.begin;
-            if (result_len != NULL)
-                *result_len = output.end - output.begin;
-            output.buffer_size = 0;
+        output.append("\0", 1);
+        --output.end;
 
-            /* canonify all positive answers */
-            rc = VAR_OK;
-            }
-        else
-            {
-            /* Provide error results */
-            *result = (char*)input_buf;
-            if (result_len != NULL)
-                *result_len = output.end - output.begin;
-            }
+        // Provide results.
 
-        return rc;
+        *result = (char*)output.begin;
+        if (result_len != NULL)
+            *result_len = output.end - output.begin;
+        output.buffer_size = 0;
         }
     }

@@ -51,8 +51,7 @@ namespace varexp
                     rc = number(p, end);
                     if (rc == 0)
                         {
-                        rc = VAR_ERR_MISSING_START_OFFSET;
-                        goto error_return;
+                        throw missing_start_offset();
                         }
                     number1.begin = p;
                     number1.end = p + rc;
@@ -72,8 +71,7 @@ namespace varexp
                             }
                         else
                             {
-                            rc = VAR_ERR_INVALID_OFFSET_DELIMITER;
-                            goto error_return;
+                            throw invalid_offset_delimiter();
                             }
 
                     rc = number(p, end);
@@ -84,9 +82,7 @@ namespace varexp
                     if (data->begin)
 
                         {
-                        rc = cut_out_offset(data, &number1, &number2, isrange);
-                        if (rc < 0)
-                            goto error_return;
+                        cut_out_offset(data, &number1, &number2, isrange);
                         }
                     break;
 
@@ -110,8 +106,7 @@ namespace varexp
                         goto error_return;
                     if (rc == 0)
                         {
-                        rc = VAR_ERR_MISSING_PARAMETER_IN_COMMAND;
-                        goto error_return;
+                        throw missing_parameter_in_command();
                         }
                     p += rc;
                     if (data->begin != NULL && data->begin == data->end)
@@ -134,8 +129,7 @@ namespace varexp
                         goto error_return;
                     if (rc == 0)
                         {
-                        rc = VAR_ERR_MISSING_PARAMETER_IN_COMMAND;
-                        goto error_return;
+                        throw missing_parameter_in_command();
                         }
                     p += rc;
                     if (data->begin != NULL)
@@ -161,8 +155,7 @@ namespace varexp
                         goto error_return;
                     if (rc == 0)
                         {
-                        rc = VAR_ERR_MISSING_PARAMETER_IN_COMMAND;
-                        goto error_return;
+                        throw missing_parameter_in_command();
                         }
                     p += rc;
                     if (data->begin != NULL && data->begin != data->end)
@@ -175,7 +168,7 @@ namespace varexp
                     p++;
 
                     if (*p != '/')
-                        return VAR_ERR_MALFORMATTED_REPLACE;
+                        throw malformatted_replace();
                     p++;
 
                     rc = substext_or_variable(p, end, config, nameclass, lookup,
@@ -186,8 +179,7 @@ namespace varexp
 
                     if (*p != '/')
                         {
-                        rc = VAR_ERR_MALFORMATTED_REPLACE;
-                        goto error_return;
+                        throw malformatted_replace();
                         }
                     p++;
 
@@ -199,7 +191,7 @@ namespace varexp
 
                     if (*p != '/')
                         {
-                        rc = VAR_ERR_MALFORMATTED_REPLACE;
+                        throw malformatted_replace();
                         goto error_return;
                         }
                     p++;
@@ -214,9 +206,7 @@ namespace varexp
 
                     if (data->begin)
                         {
-                        rc = search_and_replace(data, &search, &replace, &flags);
-                        if (rc < 0)
-                            goto error_return;
+                        search_and_replace(data, &search, &replace, &flags);
                         }
                     break;
 
@@ -224,7 +214,7 @@ namespace varexp
                     p++;
 
                     if (*p != '/')
-                        return VAR_ERR_MALFORMATTED_TRANSPOSE;
+                        throw malformatted_transpose();
                     p++;
 
                     rc = substext_or_variable(p, end, config, nameclass, lookup,
@@ -235,7 +225,7 @@ namespace varexp
 
                     if (*p != '/')
                         {
-                        rc = VAR_ERR_MALFORMATTED_TRANSPOSE;
+                        throw malformatted_transpose();
                         goto error_return;
                         }
                     p++;
@@ -248,7 +238,7 @@ namespace varexp
 
                     if (*p != '/')
                         {
-                        rc = VAR_ERR_MALFORMATTED_TRANSPOSE;
+                        throw malformatted_transpose();
                         goto error_return;
                         }
                     else
@@ -256,9 +246,7 @@ namespace varexp
 
                     if (data->begin)
                         {
-                        rc = transpose(data, &search, &replace);
-                        if (rc < 0)
-                            goto error_return;
+                        transpose(data, &search, &replace);
                         }
                     break;
 
@@ -267,14 +255,13 @@ namespace varexp
                     p++;
 
                     if (*p != '/')
-                        return VAR_ERR_MALFORMATTED_PADDING;
+                        throw malformatted_padding();
                     p++;
 
                     rc = number(p, end);
                     if (rc == 0)
                         {
-                        rc = VAR_ERR_MISSING_PADDING_WIDTH;
-                        goto error_return;
+                        throw missing_padding_width();
                         }
                     number1.begin = p;
                     number1.end = p + rc;
@@ -283,8 +270,7 @@ namespace varexp
 
                     if (*p != '/')
                         {
-                        rc = VAR_ERR_MALFORMATTED_PADDING;
-                        goto error_return;
+                        throw malformatted_padding();
                         }
                     p++;
 
@@ -296,28 +282,25 @@ namespace varexp
 
                     if (*p != '/')
                         {
-                        rc = VAR_ERR_MALFORMATTED_PADDING;
-                        goto error_return;
+                        throw malformatted_padding();
                         }
                     p++;
 
                     if (*p != 'l' && *p != 'c' && *p != 'r')
                         {
-                        rc = VAR_ERR_MALFORMATTED_PADDING;
+                        throw malformatted_padding();
                         goto error_return;
                         }
                     p++;
 
                     if (data->begin)
                         {
-                        rc = padding(data, &number1, &replace, p[-1]);
-                        if (rc < 0)
-                            goto error_return;
+                        padding(data, &number1, &replace, p[-1]);
                         }
                     break;
 
                 default:
-                    return VAR_ERR_UNKNOWN_COMMAND_CHAR;
+                    throw unknown_command_char();
                 }
 
             /* Exit gracefully. */

@@ -6,8 +6,8 @@ namespace varexp
     {
     namespace internal
         {
-        static int expand_regex_replace(const char* data, tokenbuf_t* orig,
-                                        regmatch_t* pmatch, tokenbuf_t* expanded)
+        static void expand_regex_replace(const char* data, tokenbuf_t* orig,
+                                         regmatch_t* pmatch, tokenbuf_t* expanded)
             {
             const char* p = orig->begin;
             size_t i;
@@ -20,8 +20,7 @@ namespace varexp
                     {
                     if (orig->end - p <= 1)
                         {
-                        expanded->clear();
-                        return VAR_ERR_INCOMPLETE_QUOTED_PAIR;
+                        throw incomplete_quoted_pair();
                         }
                     p++;
                     if (*p == '\\')
@@ -32,15 +31,13 @@ namespace varexp
                         }
                     if (!isdigit((int)*p))
                         {
-                        expanded->clear();
-                        return VAR_ERR_UNKNOWN_QUOTED_PAIR_IN_REPLACE;
+                        throw unknown_quoted_pair_in_replace();
                         }
                     i = *p - '0';
                     p++;
                     if (pmatch[i].rm_so == -1)
                         {
-                        expanded->clear();
-                        return VAR_ERR_SUBMATCH_OUT_OF_RANGE;
+                        throw submatch_out_of_range();
                         }
                     expanded->append(data + pmatch[i].rm_so, pmatch[i].rm_eo - pmatch[i].rm_so);
                     }
@@ -50,12 +47,10 @@ namespace varexp
                     ++p;
                     }
                 }
-
-            return VAR_OK;
             }
 
-        int search_and_replace(tokenbuf_t* data, tokenbuf_t* search,
-                               tokenbuf_t* replace, tokenbuf_t* flags)
+        void search_and_replace(tokenbuf_t* data, tokenbuf_t* search,
+                                tokenbuf_t* replace, tokenbuf_t* flags)
 
             {
             const char* p;
@@ -65,7 +60,7 @@ namespace varexp
             int rc;
 
             if (search->begin == search->end)
-                return VAR_ERR_EMPTY_SEARCH_STRING;
+                throw empty_search_string();
 
             for (p = flags->begin; p != flags->end; ++p)
                 {
@@ -81,7 +76,7 @@ namespace varexp
                         no_regex = 1;
                         break;
                     default:
-                        return VAR_ERR_UNKNOWN_REPLACE_FLAG;
+                        throw unknown_replace_flag();
                     }
                 }
 
@@ -120,6 +115,12 @@ namespace varexp
                 }
             else
                 {
+                struct sentry
+                    {
+                    sentry() : preg(0) { }
+                    ~sentry()          { if (preg) regfree(preg); }
+                    regex_t* preg;
+                    } s;
                 tokenbuf_t tmp;
                 tokenbuf_t mydata;
                 tokenbuf_t myreplace;
@@ -139,8 +140,10 @@ namespace varexp
                 tmp.clear();
                 if (rc != 0)
                     {
-                    return VAR_ERR_INVALID_REGEX_IN_REPLACE;
+                    throw invalid_regex_in_replace();
                     }
+                else
+                    s.preg = &preg;
 
                 /* Match the pattern and create the result string in the tmp
                    buffer. */
@@ -160,12 +163,7 @@ namespace varexp
                         }
                     else
                         {
-                        rc = expand_regex_replace(p, replace, pmatch, &myreplace);
-                        if (rc != VAR_OK)
-                            {
-                            regfree(&preg);
-                            return rc;
-                            }
+                        expand_regex_replace(p, replace, pmatch, &myreplace);
                         tmp.append(p, pmatch[0].rm_so);
                         tmp.append(myreplace.begin, myreplace.end - myreplace.begin);
                         p += (pmatch[0].rm_eo > 0) ? pmatch[0].rm_eo : 1;
@@ -178,11 +176,8 @@ namespace varexp
                         }
                     }
 
-                regfree(&preg);
                 data->shallow_move(&tmp);
                 }
-
-            return VAR_OK;
             }
         }
     }

@@ -14,7 +14,7 @@ namespace varexp
                 if (*p == escape)
                     {
                     if (++p == end)
-                        return VAR_ERR_INCOMPLETE_QUOTED_PAIR;
+                        throw incomplete_quoted_pair();
                     }
                 else if (*p == varinit)
                     break;
@@ -43,7 +43,7 @@ namespace varexp
             return p - begin;
             }
 
-        static int substext(const char* begin, const char* end,
+        static size_t substext(const char* begin, const char* end,
                             const var_config_t* config)
             {
             const char* p;
@@ -53,15 +53,15 @@ namespace varexp
                 if (*p == config->escape)
                     {
                     if (p + 1 == end)
-                        return VAR_ERR_INCOMPLETE_QUOTED_PAIR;
+                        throw incomplete_quoted_pair();
                     p++;
                     }
                 }
             return p - begin;
             }
 
-        int exptext(const char* begin, const char* end,
-                    const var_config_t* config)
+        size_t exptext(const char* begin, const char* end,
+                       const var_config_t* config)
             {
             const char* p;
 
@@ -74,7 +74,7 @@ namespace varexp
                 if (*p == config->escape)
                     {
                     if (p + 1 == end)
-                        return VAR_ERR_INCOMPLETE_QUOTED_PAIR;
+                        throw incomplete_quoted_pair();
                     p++;
                     }
                 }

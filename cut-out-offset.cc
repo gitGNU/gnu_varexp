@@ -4,8 +4,8 @@ namespace varexp
     {
     namespace internal
         {
-        int cut_out_offset(tokenbuf_t* data, tokenbuf_t* number1,
-                           tokenbuf_t* number2, int isrange)
+        void cut_out_offset(tokenbuf_t* data, tokenbuf_t* number1,
+                            tokenbuf_t* number2, int isrange)
             {
             tokenbuf_t res;
             const char* p;
@@ -18,7 +18,7 @@ namespace varexp
             /* Determine begin of result string. */
 
             if ((size_t)(data->end - data->begin) < num1)
-                return VAR_ERR_OFFSET_OUT_OF_BOUNDS;
+                throw offset_out_of_bounds();
             else
                 p = data->begin + num1;
 
@@ -34,20 +34,19 @@ namespace varexp
                 if (isrange)
                     {
                     if ((p + num2) > data->end)
-                        return VAR_ERR_RANGE_OUT_OF_BOUNDS;
+                        throw range_out_of_bounds();
                     res.append(p, num2);
                     }
                 else
                     {
                     if (num2 < num1)
-                        return VAR_ERR_OFFSET_LOGIC;
+                        throw offset_logic();
                     if ((data->begin + num2) > data->end)
-                        return VAR_ERR_RANGE_OUT_OF_BOUNDS;
+                        throw range_out_of_bounds();
                     res.append(p, num2 - num1 + 1);
                     }
                 }
             data->shallow_move(&res);
-            return VAR_OK;
             }
         }
     }

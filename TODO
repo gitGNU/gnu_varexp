@@ -7,17 +7,16 @@
  - Der tatsächliche Lookup des Inhaltes der Variable geschieht über
    eine Callback-Funktion.
 
- - Gültige Zeichen für einem Variablennamen sind: [a-z0-9_].
+ - Gültige Zeichen für einem Variablennamen sind: [a-z0-9_] und '['
+   sowie ']' selber.
 
  - In der Form $name muß ein Zeichen folgen, daß nicht zu einem
    Variablennamen gehören darf, um das Ende des Namens feststellen zu
    können.
 
  - Ein echtes '$'-Zeichen im Text kann durch Voranstellung eines
-   wählbaren Escapezeichen dargestellt werden.
-
- - Über Parameter ist ein generelles Escape-Zeichen wählbar (Default:
-   '\'), welches jedes Eingabezeichen escapen kann.
+   wählbaren Escapezeichen dargestellt werden. Default ist der
+   Backslash ('\').
 
  - Kann eine Variable nicht expandiert werden, so entscheidet der
    Callback: Gibt er "" zurück, wird die Variable durch den leeren
@@ -31,9 +30,6 @@
    es zur Realisierung mehrer Pässe bräuchte.
 
  - ${parameter} wird zum Inhalt der Variable "parameter".
-
- - ${!parameter} wird erst durch den Inhalt von "parameter" ersetzt
-   und dann erneut expandiert.
 
  - ${parameter:-word} wird normal expandiert. Wenn "parameter" leer
    ist, wird stattdessen "word" eingesetzt.
@@ -51,27 +47,12 @@
 
  - ${#parameter} expandiert zur Länge des Inhaltes von "parameter".
 
- - ${parameter/pattern/string} expandiert "parameter" und ersetzt dann
-   das erste Vorkommen von "pattern" durch "string". Beide Werte
-   können wiederum Variablen sein.
-
- - ${parameter//pattern/string} expandiert "parameter" und ersetzt dann
-   alle Vorkommen von "pattern" durch "string". Beide Werte können
-   wiederum Variablen sein.
-
- - ${parameter:S/pattern/string/} expandiert "parameter" und führt
+ - ${parameter:s/pattern/string/[gt]} expandiert "parameter" und führt
    dann eine Ersetzung mittels des regulären Ausdrucks "pattern"
-   durch, wobei das Ergebnis durch "string" dargestellt wirde
-
- - ${parameter:S/pattern/string/1} ist synonym zu
-   ${parameter:S/pattern/string/}.
-
- - ${parameter:S/pattern/string/g} verhält sich wie der vorherige
-   Ausdruck, ersetzte aber _alle_ Vorkommen von "pattern".
-
- - ${parameter:C/pattern/string/} und ${parameter:c/pattern/string/g}
-   sind synonym zu ${parameter:S/pattern/string/} und
-   ${parameter:S/pattern/string/g}.
+   durch. Wird das 'g'-Flag angegeben, wird nicht nur eine Instanz von
+   "pattern" durch "string" ersetzt, sondern alle. Das 't'-Flag
+   signalisiert, daß eine reine Text-Ersetzung ohne Unterstützung von
+   regulären Ausdrücken gewünscht ist.
 
  - ${parameter:E} ersetzt jedes Wort in "parameter" durch sein Suffix.
    Worte ohne Suffix werden dementsprechend zum leeren Wort.
@@ -98,16 +79,6 @@
  - ${parameter:R} entfernt vor der Expansion die jedem Wort
    vorangestellten Pfadinformationen. Aus "test/foo" wird so "foo".
 
- - ${parameter:old=new} ersetzt jedem Wort die Zeichenfolge "old"
-   durch "new", wobei angenommen wird, daß "old" nur von hinten an
-   jedes Wort angelegt wird, also nur Suffixe oder ganze Worte ersetzt
-   werden. Alternativ kann in "old" und "new" der Joker '%' angegeben
-   werden:
-
-    TEST=test.foo   $(TEST:foo=bar)     --> test.bar
-    TEST=test.foo   $(TEST:test.%=bar)  --> foobar
-    TEST=test.foo   $(TEST:test.%=bar%) --> barfoo
-
  - ${parameter:U} wandelt den Inhalt von "parameter" in
    Großbuchstaben, bevor es die Variable expandiert.
 
@@ -118,44 +89,40 @@
    und transformiert dabei nach dem Prinzip von tr(1) die "ochars" im
    Text zu "nchars".
 
- - Nicht unterstützt werden:
+ - Jedes Vorkommen eines der folgenden Konstrukte im Text wird durch
+   das zugehörige Sonderzeichen ersetzt.
 
-       ${name=string}
-       ${parameter:=word}
-       ${!prefix*}
-       ${parameter##word}
-       ${parameter%%word}
+       \t          tab                   (HT, TAB)
+       \n          newline               (LF, NL)
+       \r          return                (CR)
+       \f          form feed             (FF)
+       \a          alarm (bell)          (BEL)
+       \e          escape (think troff)  (ESC)
+       \033        octal char (think of a PDP-11)
+       \x1B        hex char
+       \x{263a}    wide hex char         (Unicode SMILEY)
+       \c[         control char
+       \N{name}    named char
+       \l          lowercase next char (think vi)
+       \u          uppercase next char (think vi)
+       \L          lowercase till \E (think vi)
+       \U          uppercase till \E (think vi)
+       \E          end case modification (think vi)
+       \Q          quote (disable) pattern metacharacters till \E
 
 
-text		: TEXT | variable
+struct configuration
+    {
+    char varinit = '$';
+    char openbracket = '{';
+    char closebracket = '}';
+    char escape = '\\';
+    char force_expand = TRUE;
+    };
 
-variable	: DOLLAR varspec
-
-varspec		: OPENBRACKET CROSS? ( variable | expression ) CLOSEBRACKET
-		| VARNAME
-
-expression	| VARNAME ( COLON command )+
-		| VARNAME SLASH replaceexp
-		| VARNAME
-
-command		:
-
-replaceexp	:
-
-TEXT		: [^\$]+
-
-VARNAME		: [a-z0-9_]+
-
-REPLACETEXT	: [^/]*
-
-DOLLAR		: '$'
-
-OPENBRACKET	: '{'
-
-CLOSEBRACKET	: '}'
-
-COLON		: ':'
-
-CROSS		: '#'
-
-SLASH		: '/'
+struct state
+    {
+    char* begin;
+    char* end;
+    char our_buffer;
+    };

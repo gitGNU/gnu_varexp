@@ -1,24 +1,17 @@
-=pod
-
-=head1 NAME
-
-libvarexp - a variable expression library
-
-=head1 SYNOPSIS
-
-void varexp::unescape(const std::string& input,
-                      std::string& output,
-                      bool unescape_all);
-
- void varexp::expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);
-
-
-=head1 DESCRIPTION
-
-The routines included in this library, var_unescape() and
-var_expand(), enable application developers to make use of variable
+.TH VAREXP 3 2002-01-02 "Library Documentation" "Library Documentation"
+.SH NAME
+libvarexp \(em A variable expression library
+.SH SYNOPSIS
+.B #include <varexp.hh>
+.sp
+.BI "void varexp::unescape(const std::string& input, std::string& output, bool unescape_all);"
+.sp
+.BI "void varexp::expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);"
+.SH DESCRIPTION
+The routines included in this library, unescape() and
+expand(), enable application developers to make use of variable
 expansion in an arbitrary text buffer. Assume, for instance, your
-application provided the data items
+application provided the variables
 
     HOST   = peti.example.org
     OSTYPE = FreeBSD
@@ -33,7 +26,7 @@ a configuration file, the system environment, or the command line:
         OSTYPE = $OSTYPE
         HOME   = $HOME
 
-Then you could use var_expand() to replace the variables in that
+Then you could use expand() to replace the variables in that
 message by their actual contents.
 
 The good thing about this kind of approach is that you separate the
@@ -48,8 +41,8 @@ is:
 
     my-application's home is $HOME
 
-To take things one step further, OSSP var provides the user -- the
-person providing the template file, that is -- with powerful
+To take things one step further, OSSP var provides the user \(em the
+person providing the template file, that is \(em with powerful
 mechanisms to modify the presentation of the variable's contents. For
 example, the expression ${HOME:l} would yield the contents of the
 variable HOME converted to all lower-case. Or, to show on even more
@@ -57,10 +50,10 @@ powerful construct: The expression ${HOME:y/ \t/__/} would turn all
 blanks or tabs in the contents of HOME to underscores, before
 inserting it into the output text.
 
-Similarly, the function var_unescape() will expand "quoted pairs",
+Similarly, the function unescape() will expand "quoted pairs",
 thus allowing the user to speficy non-printable characters is a
-template, such as the carrige return ('\r'), the newline ('\n'), or --
-as seen above -- the tab ('\t').
+template, such as the carrige return ('\\r'), the newline ('\\n'), or \(em
+as seen above \(em the tab ('\\t').
 
 Using these two routines in combination, gives the application
 developer the power to have the user custumize the application's
@@ -68,58 +61,58 @@ messages as he or she sees fit at virtually no extra cost;
 incorporating a template mechanism into your own applications with
 OSSP var is extremely simple.
 
-=head1 THE VAR_UNESCAPE FUNCTION
+.SH "THE UNESCAPE FUNCTION"
 
-The purpose of var_unescape() is to expand any quoted pairs found in
+The purpose of unescape() is to expand any quoted pairs found in
 the input buffer. Its prototype is:
 
-    var_rc_t var_unescape(const char *src, size_t len,
+    rc_t unescape(const char *src, size_t len,
                           char *dst, int unescape_all);
 
 The first parameter, "src", is a pointer to the input buffer, which
-should be processed. Unlike most C library functions, var_unescape()
-does not expect the buffer to be terminated by a null byte ('\0'),
+should be processed. Unlike most C library functions, unescape()
+does not expect the buffer to be terminated by a null byte ('\\0'),
 instead, it expects the length of the buffer's contents as parameter
 "len". The third parameter, "dst" is a pointer to a buffer, into which
 the expanded buffer is copied if processing is successful. The size of
 this buffer must be at least len+1 characters. The reason the result
 buffer has to be one byte longer than the input buffer is that
-var_unescape() always adds a terminating null byte at the end of the
+unescape() always adds a terminating null byte at the end of the
 output buffer, so that you can use the result comfortably with other C
 library routines.
 
 The last parameter, "unescape_all", is flag that modifies the behavior
-of var_unescape(). If is set to TRUE (any value except zero, that is),
-var_unescape() will expand B<any> quoted pair it sees, even those that
-it does not know about. Hence, a "\1" will become a "1", even though
-"\1" has no special meaning to var_unescape(). If "unescape_all" is
+of unescape(). If is set to TRUE (any value except zero, that is),
+unescape() will expand B<any> quoted pair it sees, even those that
+it does not know about. Hence, a "\\1" will become a "1", even though
+"\\1" has no special meaning to unescape(). If "unescape_all" is
 set to FALSE (zero), such quoted pairs will be copied verbatimly to
 the output buffer.
 
-The quoted pairs supported by var_unescape() are '\t', '\r', '\n',
-'\abc' (octal), '\xAB' (hexadecimal), and '\x{...}' (grouped
+The quoted pairs supported by unescape() are '\\t', '\\r', '\\n',
+'\\abc' (octal), '\\xAB' (hexadecimal), and '\\x{...}' (grouped
 hexadecimal). Please refer to section "SUPPORTED NAMED CHARACTERS" for
 a more comprehensive description of these quoted pairs.
 
-If var_unescape() encounters any syntax errors, it will return an
+If unescape() encounters any syntax errors, it will return an
 error code denoting exactly what kind of error occured; please refer
 to section "CODES RETURNED BY THE LIBRARY" for a complete list of
-possible return codes. If no error occured, VAR_OK is returned.
+possible return codes. If no error occured, OK is returned.
 
-=head1 THE VAR_EXPAND FUNCTION
+.SH "THE EXPAND FUNCTION"
 
-The second function of OSSP var is var_expand(), the routine that will
+The second function of OSSP var is expand(), the routine that will
 expand any variables found in a text buffer to their actual contents.
 Its prototype is:
 
-    var_rc_t var_expand(const char *input, size_t input_len,
+    rc_t expand(const char *input, size_t input_len,
                         char **result, size_t *result_len,
-                        var_cb_t lookup, void *lookup_context,
-                        const var_config_t *config,
+                        cb_t lookup, void *lookup_context,
+                        const config_t *config,
                         int force_expand);
 
 Don't be scared, the usage is way simpler than it looks at first
-glance. The parameters of var_expand() are:
+glance. The parameters of expand() are:
 
 =over 4
 
@@ -137,25 +130,25 @@ The length of the text buffer's contents.
 
 A pointer to a character pointer in which the location of the expanded
 text buffer will be stored. The result buffer will be allocated by
-var_expand() using the system call malloc(3), thus it is the caller's
+expand() using the system call malloc(3), thus it is the caller's
 responsibility to free(3) that buffer once it is not used anymore. The
 result buffer will be terminated by null byte, which is not included
 in the "result_len" counter.
 
-If var_expand() fails with an error, "result" will point to "input".
-The only exceptions are the VAR_ERR_INVALID_ARGUMENT
-VAR_ERR_OUT_OF_MEMORY errors, in which case "result" is undefined.
+If expand() fails with an error, "result" will point to "input".
+The only exceptions are the ERR_INVALID_ARGUMENT
+ERR_OUT_OF_MEMORY errors, in which case "result" is undefined.
 
 =item size_t *result_len
 
 A pointer to the location in which the length of the expanded text
-buffer will be stored. If var_expand() fails with an error -- with the
-exception of VAR_ERR_INVALID_ARGUMENT and VAR_ERR_OUT_OF_MEMORY --,
+buffer will be stored. If expand() fails with an error \(em with the
+exception of ERR_INVALID_ARGUMENT and ERR_OUT_OF_MEMORY \(em,
 "result_len" will contain the number of characters that have been
 consumed from "input" before the error occured. This argument can be
 NULL if the application is not interested in this information.
 
-=item var_cb_t lookup
+=item cb_t lookup
 
 A pointer to the function used to perform the actual variable lookup.
 Please refer to section "THE LOOKUP CALLBACK" for a comprehensive
@@ -167,9 +160,9 @@ An arbitrary value passed through to "lookup" every time it is called.
 Please refer to section "THE LOOKUP CALLBACK" for a comprehensive
 description.
 
-=item const var_config_t *config
+=item const config_t *config
 
-The configuration of var_expand(). The var_config_t structure is
+The configuration of expand(). The config_t structure is
 defined as follows:
 
     typedef struct {
@@ -181,39 +174,39 @@ defined as follows:
         char current_index;
         char escape;
         char *namechars;
-    } var_config_t;
+    } config_t;
 
 Using this structure, you can modify the parser to use different
 tokens to find variable constructs. If "config" is NULL, the default
 configuration will be used, which you can access through the
 declaration
 
-    extern const var_config_t var_config_default;
+    extern const config_t config_default;
 
-in var.h. The default configuration for var_init looks like this:
+in var.h. The default configuration for init looks like this:
 
-    const var_config_t var_config_default = {
+    const config_t config_default = {
         '$',              /* varinit */
         '{',              /* startdelim */
         '}',              /* enddelim */
         '[',              /* startindex */
         ']',              /* endindex */
         '#',              /* current_index */
-        '\\',             /* escape */
+        '\\\\',             /* escape */
         "a-zA-Z0-9_"      /* namechars */
     };
 
-Please note that the setting of var_config_t.escape is actually a
+Please note that the setting of config_t.escape is actually a
 single backslash; the quote above has been taken from the C source
 code, which is why the backslash had to be escaped with another
 backslash for the C pre-processor.
 
 =item int force_expand
 
-This flag determines how var_expand() deals with undefined variables.
-If it is set to TRUE (any value but zero), var_expand() will fail with
-error code VAR_ERR_UNDEFINED_VARIABLE whenever an undefined variable
-is encountered. If set to FALSE (zero), var_expand() will copy the
+This flag determines how expand() deals with undefined variables.
+If it is set to TRUE (any value but zero), expand() will fail with
+error code ERR_UNDEFINED_VARIABLE whenever an undefined variable
+is encountered. If set to FALSE (zero), expand() will copy the
 expression it failed to expand verbatimly into the output buffer, in
 order to enable you to go over the buffer with an additional pass.
 
@@ -223,73 +216,63 @@ variables are left over in the buffer.
 
 =back
 
-var_expand() returns VAR_OK if everything went fine, and one of the
+expand() returns OK if everything went fine, and one of the
 error codes described in section "CODES RETURNED BY THE LIBRARY" if
 the function call failed.
 
-=head1 THE VAR_STRERROR FUNCTION
-
-In order to make life for application developers easier, the helper
-function var_strerror() has been provided, which can be used to map
-any of the error codes returned by the OSSP var library into a
-clear-text message describing the reason for failure. Please note that
-errors coming from the callback, such as VAR_ERR_CALLBACK and those
-based on it, cannot be mapped and will yield the message "unknown
-error".
-
-=head1 COMBINING VAR_UNESCAPE AND VAR_EXPAND
+.SH "COMBINING UNESCAPE AND EXPAND"
 
 For maximum power and flexibility, you will want to use both routines
 provided by this library in combination. That is, you will want to use
-var_unescape() to turn all quoted pairs into their real
-representation, before you call var_expand(), because then the user
-can safely use specials like "\n" or "\t" throughout the template and
+unescape() to turn all quoted pairs into their real
+representation, before you call expand(), because then the user
+can safely use specials like "\\n" or "\\t" throughout the template and
 achieve the desired effect. These quoted pairs are particularly useful
 if search-and-replace or transpose actions are performed on variables
 before they're expanded. Be sure, though, to make the first
-var_unescape() pass with "expand_all" set to FALSE, or the routine
-will also expand quoted pairs like "\1", which might have a special
-meaning in the var_expand() pass to follow.
+unescape() pass with "expand_all" set to FALSE, or the routine
+will also expand quoted pairs like "\\1", which might have a special
+meaning in the expand() pass to follow.
 
 Once, all known quoted pairs are expanded, expand the variables with
-var_expand(). After that, you will want to have a second pass with
-var_unescape() and "expand_all" set to TRUE, to make sure all
-remaining quoted pairs are expanded. Also, the var_expand() pass might
+expand(). After that, you will want to have a second pass with
+unescape() and "expand_all" set to TRUE, to make sure all
+remaining quoted pairs are expanded. Also, the expand() pass might
 have introduced now quoted pairs into the output text, which you need
 to expand to get the desired effect.
 
-Take a look at this code snipped, to see how to combine var_unescape()
-und var_expand() properly:
+Take a look at this code snipped, to see how to combine unescape()
+und expand() properly:
 
-    var_rc_t rc;
+    rc_t rc;
     char* result;
     size_t result_len;
 
-    if ((rc = var_unescape(input, strlen(input), output, 0)) != VAR_OK ||
-        (rc = var_expand(output, strlen(output),
+    if ((rc = unescape(input, strlen(input), output, 0)) != OK ||
+        (rc = expand(output, strlen(output),
                          &result, &result_len,
                          &lookup, NULL,
-                         NULL, 1)) != VAR_OK ||
-        (rc = var_unescape(input, strlen(input), output, 1)) != VAR_OK)
+                         NULL, 1)) != OK ||
+        (rc = unescape(input, strlen(input), output, 1)) != OK)
     {
-        printf("Expanding the template failed with error %d.\n", rc);
+        printf("Expanding the template failed with error %d.\\n", rc);
         exit(1);
     }
     [...]
     free(result);
 
-=head1 THE LOOKUP CALLBACK
+.SH "THE LOOKUP CALLBACK"
 
-The function var_expand() does not know how to look the contents of a
+The function expand() does not know how to look the contents of a
 variable up itself. Instead, it relies on a caller-supplied callback
-function, which adheres to the var_cb_t function interface:
+function, which adheres to the cb_t function interface:
 
- var_rc_t lookup(void *context,
+ rc_t lookup(void *context,
                  const char *varname, size_t name_len, int index,
                  const char **data, size_t *data_len,
                  size_t *buffer_size);
 
-This function will be called by var_expand() whenever it has to
+This function will be called by expand() whenever it has to
 retrieve the contents of, say, the variable $name, using the following
 parameters:
 
@@ -297,17 +280,17 @@ parameters:
 
 =item void *context
 
-The contents of context is passed through from the var_expand()'s
+The contents of context is passed through from the expand()'s
 "lookup_context" parameter to the callback. This parameter can be used
 by the programmer to provide internal data to the callback function
-through var_expand().
+through expand().
 
 =item const char *varname
 
 This is a pointer to the name of the variable which's contents
-var_expand() wishes to retrieve. In our example of looking up $name,
+expand() wishes to retrieve. In our example of looking up $name,
 varname would point to the string "name". Please note that the string
-is NOT necessarily terminated by a '\0' character! If the callback
+is NOT necessarily terminated by a '\\0' character! If the callback
 function needs to pass the string to the standard C library string
 manipulation functions during the lookup, it will have to copy the
 string into a buffer of its own to ensure it is null-terminated.
@@ -341,40 +324,40 @@ This is a pointer to the location where the callback function should
 store the size of the buffer that has been allocated to hold the
 contents of the looked-up variable. If no buffer has been allocated at
 all, because the variable uses some other means of storing the
-contents -- as in the case of getenv(3), where the system provides the
-buffer for the string --, this should be zero (0).
+contents \(em as in the case of getenv(3), where the system provides the
+buffer for the string \(em, this should be zero (0).
 
 In case a buffer size greater than zero is returned by the callback
-function, var_expand() will make use of that buffer internally if
+function, expand() will make use of that buffer internally if
 possible. If will also free(3) the buffer when it is not needed
 anymore.
 
 =back
 
-The return code of the lookup function is interpreted by var_expand()
-according to the following convention: VAR_OK means success, that
+The return code of the lookup function is interpreted by expand()
+according to the following convention: OK means success, that
 is, the contents of the variable has been looked-up successfully and
 the "data", "data_len", and "buffer_size" locations have been filled
-with appropriate values. A return code VAR_ERR_XXX means that the lookup
+with appropriate values. A return code ERR_XXX means that the lookup
 failed, such as a system error or lack of resources. In the latter two
 cases, the contents of "data", "data_len" and "buffer_size" is assumed
-to be undefined. Hence, var_expand() will not free(3) any possibly
+to be undefined. Hence, expand() will not free(3) any possibly
 allocated buffers, the callback must take care of that itself.
 
-If a callback returns the special VAR_ERR_UNDEFINED_VARIABLE return
-code, the behaviour of var_expand() depends on the setting of
+If a callback returns the special ERR_UNDEFINED_VARIABLE return
+code, the behaviour of expand() depends on the setting of
 the "force_expand" parameter. If force-expand mode has been set,
-var_expand() will fail with this error. If force-expand mode has
-not been set, var_expand() will copy the expression that caused the
+expand() will fail with this error. If force-expand mode has
+not been set, expand() will copy the expression that caused the
 lookup to fail verbatimly into the output buffer so that an additional
 expanding pass may expand it later.
 
-If the callback returns an VAR_ERR_XXX, var_expand() will fail with the return
+If the callback returns an ERR_XXX, expand() will fail with the return
 code it got from the callback.  If the cause for the error can not be denoted
 by an error code defined in var.h, callback implementors should use the error
-code VAR_ERR_CALLBACK, which is currently defined to -64. It is guaranteed
-that no error code smaller than VAR_ERR_CALLBACK is ever used by var_expand()
-or VAR_UNESCAPE(), so if the callback implementor wishes to distinguish
+code ERR_CALLBACK, which is currently defined to -64. It is guaranteed
+that no error code smaller than ERR_CALLBACK is ever used by expand()
+or UNESCAPE(), so if the callback implementor wishes to distinguish
 between different reasons for failure, he can define his own set of errors
 
     typedef enum {
@@ -383,13 +366,13 @@ between different reasons for failure, he can define his own set of errors
         LOOKUP_ERROR_THREE = -1,
     } lookup_error_t;
 
-and return, say, "(VAR_ERR_CALLBACK - LOOKUP_ERROR_TWO)".
+and return, say, "(ERR_CALLBACK - LOOKUP_ERROR_TWO)".
 
 To illustrate the implementation of a proper callback, take a look at
 the following expamle that accesses the system environment via
-getenv(3) to lookup variables and to return them to var_expand():
+getenv(3) to lookup variables and to return them to expand():
 
-    var_rc_t env_lookup(
+    rc_t env_lookup(
         void *context,
         const char *varname, size_t name_len, int idx,
         const char **data, size_t *data_len,
@@ -398,62 +381,62 @@ getenv(3) to lookup variables and to return them to var_expand():
         char tmp[256];
 
         if (idx != 0)
-            return VAR_ERR_ARRAY_LOOKUPS_ARE_UNSUPPORTED;
+            return ERR_ARRAY_LOOKUPS_ARE_UNSUPPORTED;
         if (name_len > sizeof(tmp) - 1)
-            return VAR_ERR_CALLBACK;
+            return ERR_CALLBACK;
         memcpy(tmp, varname, name_len);
-        tmp[name_len] = '\0';
+        tmp[name_len] = '\\0';
         if ((*data = getenv(tmp)) == NULL)
-            return VAR_ERR_UNDEFINED_VARIABLE;
+            return ERR_UNDEFINED_VARIABLE;
         *data_len = strlen(*data);
         *buffer_size = 0;
-        return VAR_OK;
+        return OK;
     }
 
-=head1 SUPPORTED NAMED CHARACTERS
+.SH "SUPPORTED NAMED CHARACTERS"
 
-The var_unescape() function knows the following constructs:
+The unescape() function knows the following constructs:
 
 =over 4
 
-=item \t, \r, \n
+=item \\t, \\r, \\n
 
 These expressions are replaced by the appropriate binary
 representation of a tab, a carrige return and a newline respectively.
 
-=item \abc
+=item \\abc
 
 This expression is replaced by the value of the octal number "abc".
 Valid digits of "a" are in the range of '0' to '3', for digits "b" and
 "c" in the range of '0' to '7'. Please note that an octal expression
 is recognized only if the backslash is followed by three digits! The
-expression "\1a7", for example, is interpreted as the quoted pair "\1"
+expression "\\1a7", for example, is interpreted as the quoted pair "\\1"
 followed by the verbatim text "a7".
 
-=item \xAB
+=item \\xAB
 
 This expression is replaced by the value of the hexadecimal number
 $AB. Both characters "A" and "B" must be in the range of '0' to '9',
 'a' to 'f', or 'A' to 'F'.
 
-=item \x{...}
+=item \\x{...}
 
 This expression denotes a set of grouped hexadecimal numbers. The
 "..." part may consist of an arbitrary number of hexadecimal pairs,
-such as in "\x{}", "\x{ff}", or "\x{55ffab04}". The empty expression
-"\x{}" is a no-op; it will not produce any output.
+such as in "\\x{}", "\\x{ff}", or "\\x{55ffab04}". The empty expression
+"\\x{}" is a no-op; it will not produce any output.
 
 This construct may be useful to specify multi-byte characters (as in
-Unicode). Even though "\x{0102}" is effectively equivalent to
-"\x01\x02", the grouping of values may be useful in other contexts,
-even though var_unescape() or var_expand() make no direct use of it.
+Unicode). Even though "\\x{0102}" is effectively equivalent to
+"\\x01\\x02", the grouping of values may be useful in other contexts,
+even though unescape() or expand() make no direct use of it.
 
 =back
 
-=head1 SUPPORTED VARIABLE EXPRESSIONS
+.SH "SUPPORTED VARIABLE EXPRESSIONS"
 
 Additionally to the ordinary variable expansion of $name or ${name},
-var_expand() supports a number of operations that can be performed on
+expand() supports a number of operations that can be performed on
 the contents of "name" before it is copied to the output buffer. Such
 operations are always denoted by appending the a colon and a command
 character to the variable name, for expample: ${name:l} or
@@ -468,7 +451,7 @@ expression grammar provided in section "EBNF GRAMMAR OF SUPPORTED
 EXPRESSIONS".
 
 Generally, all operations described below do not modify the contents
-of any variable -- var_expand() generally can't set variables, it will
+of any variable \(em expand() generally can't set variables, it will
 only read them. If the description says that an operation "replaces
 the contents of variable $foo", it is meant that rather than expanding
 the expression the the contents of $foo, it will expand to the
@@ -552,7 +535,7 @@ the "nchars" class, just like the system utility tr(1) does. Both
 example "a-z0-9". A hyphon as the first or last character of the class
 specification is interpreted literally. Both the "ochars" and the
 "nchars" class must contain the same number of characters after all
-ranges are expanded, or var_expand() will abort with an error.
+ranges are expanded, or expand() will abort with an error.
 
 If, for example, "$FOO" would contain "foobar", then
 "${FOO:y/a-z/A-Z/} would yield "FOOBAR". Another goodie is to use that
@@ -574,7 +557,7 @@ yield ".......foobar......."; "${FOO:p/20/./l}" would yield
 
 =back
 
-=head1 EBNF GRAMMAR OF SUPPORTED EXPRESSIONS
+.SH "EBNF GRAMMAR OF SUPPORTED EXPRESSIONS"
 
  input      : ( TEXT | variable | START-INDEX input END-INDEX ( loop-limits )? )*
 
@@ -623,17 +606,17 @@ yield ".......foobar......."; "${FOO:p/20/./l}" would yield
 
  EXPTEXT    : '[^$}:]+'
 
- TEXT       : '[^$[\]]+'
+ TEXT       : '[^$[\\]]+'
 
 Please note that the descriptions of START-DELIM, END-DELIM, VARNAME,
-SUBSTEXT, and EXPTEXT shown here assume that var_expand() has been
+SUBSTEXT, and EXPTEXT shown here assume that expand() has been
 called in the default configuration. In thruth, the contents of
 VARNAME corresponds directly to the setting of "namechars" in the
-var_config_t structure. Similarly, the dollar ('$') corresponds
+config_t structure. Similarly, the dollar ('$') corresponds
 directly to the setting of "varinit", and the '{' and '}' characters
 to "startdelim" and "enddelim" respectively.
 
-=head1 CODES RETURNED BY THE LIBRARY
+.SH "CODES RETURNED BY THE LIBRARY"
 
 Generally, all routines part of that library follow the convention
 that a return code of zero or greater denotes success and a return
@@ -644,204 +627,201 @@ failure, the following set of defines is provided in var.h:
 
 =over 4
 
-=item VAR_OK
+=item OK
 
 No errors; everything went fine.
 
-=item VAR_ERR_INCOMPLETE_QUOTED_PAIR
+=item ERR_INCOMPLETE_QUOTED_PAIR
 
 The configured escape character as the last character in the input
 buffer.
 
-=item VAR_ERR_INVALID_ARGUMENT
+=item ERR_INVALID_ARGUMENT
 
 Any of the provided arguments is invalid, for expample: the pointer to
 the input buffer is NULL.
 
-=item VAR_ERR_SUBMATCH_OUT_OF_RANGE
+=item ERR_SUBMATCH_OUT_OF_RANGE
 
 During execution of a ${name:s/pattern/replace/flags} operation, a
 submatch has been referenced in the "replace" part, which's number is
 greater than the number of submatches encountered in the "pattern"
-part, for expample: ${name:s/foo(bar)/\2/}.
+part, for expample: ${name:s/foo(bar)/\\2/}.
 
-=item VAR_ERR_UNKNOWN_QUOTED_PAIR_IN_REPLACE
+=item ERR_UNKNOWN_QUOTED_PAIR_IN_REPLACE
 
 During execution of a ${name:s/pattern/replace/flags} operation, the
 parser encountered an unknown quoted pair in the "replace" part. Valid
-quoted pairs are "\\", "\0", "\1", ... , "\9" only.
+quoted pairs are "\\\\", "\\0", "\\1", ... , "\\9" only.
 
-=item VAR_ERR_EMPTY_PADDING_FILL_STRING
+=item ERR_EMPTY_PADDING_FILL_STRING
 
 The "fill" part in an ${name:p/width/fill/pos/} expression was found
 to be empty.
 
-=item VAR_ERR_MISSING_PADDING_WIDTH
+=item ERR_MISSING_PADDING_WIDTH
 
 The "width" part in an ${name:p/width/fill/pos/} expression was found
 to be empty.
 
-=item VAR_ERR_MALFORMATTED_PADDING
+=item ERR_MALFORMATTED_PADDING
 
 Any of the "/" delimiters was missing while parsing a
 ${name:p/width/fill/pos/} expression.
 
-=item VAR_ERR_INCORRECT_TRANSPOSE_CLASS_SPEC
+=item ERR_INCORRECT_TRANSPOSE_CLASS_SPEC
 
 While parsing a ${name:y/old-class/new-class/} expression, any of the
 character class specifications had a start-of-range character that was
 greater (in terms of ASCII encoding) than the end-of-range character,
 for expample: "[z-a]".
 
-=item VAR_ERR_EMPTY_TRANSPOSE_CLASS
+=item ERR_EMPTY_TRANSPOSE_CLASS
 
 While parsing a ${name:y/old-class/new-class/} expression, any of the
 character class specifications was found to be empty.
 
-=item VAR_ERR_TRANSPOSE_CLASSES_MISMATCH
+=item ERR_TRANSPOSE_CLASSES_MISMATCH
 
 While parsing a ${name:y/old-class/new-class/} expression, the number
 of characters found in the expanded "old-class" was different than the
 number of characters in new-class".
 
-=item VAR_ERR_MALFORMATTED_TRANSPOSE
+=item ERR_MALFORMATTED_TRANSPOSE
 
 Any of the "/" delimiters was missing while parsing a
 ${name:y/old-class/new-class/} expression.
 
-=item VAR_ERR_OFFSET_LOGIC
+=item ERR_OFFSET_LOGIC
 
 The "end" offset in a ${name:o<start>,<end>} expression is smaller
 than the "start" offset.
 
-=item VAR_ERR_OFFSET_OUT_OF_BOUNDS
+=item ERR_OFFSET_OUT_OF_BOUNDS
 
 The "start" offset in a ${name:o<start>,<end>} expression is greater
 than the number of characters found in $name.
 
-=item VAR_ERR_RANGE_OUT_OF_BOUNDS
+=item ERR_RANGE_OUT_OF_BOUNDS
 
 The end-of-range in a ${name:o<start>,<end>} or ${name:o<start>-<end>}
 expression would be greater than the number of characters found in
 $name.
 
-=item VAR_ERR_INVALID_OFFSET_DELIMITER
+=item ERR_INVALID_OFFSET_DELIMITER
 
 The two numbers in an offset operation are delimited by a character
 different from "," or "-".
 
-=item VAR_ERR_MISSING_START_OFFSET
+=item ERR_MISSING_START_OFFSET
 
 The "start" offset in a ${name:o<start>,<end>} or
 ${name:o<start>-<end>} expression was found to be empty.
 
-=item VAR_ERR_EMPTY_SEARCH_STRING
+=item ERR_EMPTY_SEARCH_STRING
 
 The "pattern" part of a ${name:s/pattern/replace/flags} expression was
 found to be empty.
 
-=item VAR_ERR_MISSING_PARAMETER_IN_COMMAND
+=item ERR_MISSING_PARAMETER_IN_COMMAND
 
 In a ${name:+word}, ${name:-word}, or ${name:*word} expression, the
-"word" part was missing -- that means empty.
+"word" part was missing \(em that means empty.
 
-=item VAR_ERR_INVALID_REGEX_IN_REPLACE
+=item ERR_INVALID_REGEX_IN_REPLACE
 
 While compiling the "pattern" part of a
 ${name:s/pattern/replace/flags} expression, regcomp(3) failed with an
 error.
 
-=item VAR_ERR_UNKNOWN_REPLACE_FLAG
+=item ERR_UNKNOWN_REPLACE_FLAG
 
 In a ${name:s/pattern/replace/flags} expression, a flag other that
 "t", "i", or "g" was found.
 
-=item VAR_ERR_MALFORMATTED_REPLACE
+=item ERR_MALFORMATTED_REPLACE
 
 Any of the "/" delimiters was missing while parsing a
 ${name:s/pattern/replace/flags} expression.
 
-=item VAR_ERR_UNKNOWN_COMMAND_CHAR
+=item ERR_UNKNOWN_COMMAND_CHAR
 
 In a ${name:<char>} expression, "char" did not specify any of the
 supported operations.
 
-=item VAR_ERR_INPUT_ISNT_TEXT_NOR_VARIABLE
+=item ERR_INPUT_ISNT_TEXT_NOR_VARIABLE
 
 At one point during parsing of the input buffer, an expression was
 found that was neither verbatim text nor a variable expression. This
-usually is the result of a inconsistent configuration of var_expand()
-via the var_config_t paramater.
+usually is the result of a inconsistent configuration of expand()
+via the config_t paramater.
 
-=item VAR_ERR_UNDEFINED_VARIABLE
+=item ERR_UNDEFINED_VARIABLE
 
-Looking up a variable's contents failed and var_expand() was running
+Looking up a variable's contents failed and expand() was running
 in "force expand" mode.
 
-=item VAR_ERR_INCOMPLETE_VARIABLE_SPEC
+=item ERR_INCOMPLETE_VARIABLE_SPEC
 
 The input buffer ended in the middle of a ${name} expression, or the
 configured variable initializer character was found to be the last
 character of the input buffer.
 
-=item VAR_ERR_OUT_OF_MEMORY
+=item ERR_OUT_OF_MEMORY
 
-var_expand() failed while malloc(3)ing internally needed buffers.
+expand() failed while malloc(3)ing internally needed buffers.
 
-=item VAR_ERR_INVALID_CONFIGURATION
+=item ERR_INVALID_CONFIGURATION
 
-Any of the characters configured in the var_config_t structure as a
+Any of the characters configured in the config_t structure as a
 special ("varinit", "startdelim", "enddelim", and "escape") was found
 to be a member of the "namechars" class.
 
-=item VAR_ERR_INCORRECT_CLASS_SPEC
+=item ERR_INCORRECT_CLASS_SPEC
 
-The character class specification "namechars" of the var_config_t
-structure provided to var_expand was syntactically incorrect, that is,
+The character class specification "namechars" of the config_t
+structure provided to expand was syntactically incorrect, that is,
 the start-of-range was greater than end-of-range. (See also
-VAR_ERR_INCORRECT_TRANSPOSE_CLASS_SPEC.)
+ERR_INCORRECT_TRANSPOSE_CLASS_SPEC.)
 
-=item VAR_ERR_INCOMPLETE_GROUPED_HEX
+=item ERR_INCOMPLETE_GROUPED_HEX
 
-var_unescape() encountered the end of the input buffer in the middle
-of a grouped-hex "\x{...}" expression.
+unescape() encountered the end of the input buffer in the middle
+of a grouped-hex "\\x{...}" expression.
 
-=item VAR_ERR_INCOMPLETE_OCTAL
+=item ERR_INCOMPLETE_OCTAL
 
-var_unescape() encountered the end of the input buffer in the middle
-of an octal "\000" expression.
+unescape() encountered the end of the input buffer in the middle
+of an octal "\\000" expression.
 
-=item VAR_ERR_INVALID_OCTAL
+=item ERR_INVALID_OCTAL
 
-The second of third digit of an octal "\000" expression was found not
+The second of third digit of an octal "\\000" expression was found not
 be in the range of '0' to '7'.
 
-=item VAR_ERR_OCTAL_TOO_LARGE
+=item ERR_OCTAL_TOO_LARGE
 
-The value specified via an octal "\000" expression was larger than
+The value specified via an octal "\\000" expression was larger than
 0377.
 
-=item VAR_ERR_INVALID_HEX
+=item ERR_INVALID_HEX
 
-Any of the digits of a hex "\x00" expression was found not be in the
+Any of the digits of a hex "\\x00" expression was found not be in the
 range of '0' to '9' or 'a' to 'b'.
 
-=item VAR_ERR_INCOMPLETE_HEX
+=item ERR_INCOMPLETE_HEX
 
-var_unescape() encountered the end of the input buffer in the middle
-of a hex "\x00" expression.
+unescape() encountered the end of the input buffer in the middle
+of a hex "\\x00" expression.
 
-=item VAR_ERR_INCOMPLETE_NAMED_CHARACTER
+=item ERR_INCOMPLETE_NAMED_CHARACTER
 
-var_unescape() encountered the backslash ('\') as the last character
+unescape() encountered the backslash ('\\') as the last character
 of the input buffer.
 
-=item VAR_ERR_ARRAY_LOOKUPS_ARE_UNSUPPORTED
+=item ERR_ARRAY_LOOKUPS_ARE_UNSUPPORTED
 
 =back
 
-=head1 SO ALSO
-
-regex(7)
-
-=cut
+.SH "SEE ALSO"
+.BR regex (7)

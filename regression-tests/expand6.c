@@ -86,12 +86,12 @@ int main(int argc, char** argv)
         setenv("TERM", "regression-term", 1) != 0 ||
         setenv("FOO", "os", 1) != 0 ||
         setenv("BAR", "type", 1) != 0 ||
-        setenv("EMPTY", "", 1) != 0 ||
-        unsetenv("UNDEFINED") != 0)
+        setenv("EMPTY", "", 1) != 0)
         {
         printf("Failed to set the environment: %s.\n", strerror(errno));
         return 1;
         }
+    unsetenv("UNDEFINED") != 0;
 
     for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {

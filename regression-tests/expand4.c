@@ -43,12 +43,12 @@ int main(int argc, char** argv)
 
     if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
         setenv("OSTYPE", "regression-os", 1) != 0 ||
-        setenv("TERM", "regression-term", 1) != 0 ||
-        unsetenv("UNDEFINED") != 0)
+        setenv("TERM", "regression-term", 1) != 0)
         {
         printf("Failed to set the environment: %s.\n", strerror(errno));
         return 1;
         }
+    unsetenv("UNDEFINED");
     rc = var_expand(input, strlen(input),
                     &tmp, &tmp_len,
                     NULL,

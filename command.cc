@@ -87,7 +87,7 @@ namespace varexp
                     if (result.empty())
                         result = tmp;
                     else
-                        result.clear();
+                        result.erase();
                     }
                     break;
 

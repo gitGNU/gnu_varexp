@@ -10,29 +10,28 @@ namespace varexp
             return 0;
         }
 
-    inline void expand_octal(const char** src, char** dst, const char* end)
+    inline void expand_octal(string::const_iterator& src, const string::const_iterator& end, std::string& dst)
         {
         unsigned char c;
 
-        if (end - *src < 3)
+        if (end - src < 3)
             throw incomplete_octal();
-        if (!isoct(**src) || !isoct((*src)[1]) || !isoct((*src)[2]))
+        if (!isoct(src[0]) || !isoct(src[1]) || !isoct(src[2]))
             throw invalid_octal();
 
-        c = **src - '0';
+        c = *src - '0';
         if (c > 3)
             throw octal_too_large();
         c *= 8;
-        ++(*src);
+        ++src;
 
-        c += **src - '0';
+        c += *src - '0';
         c *= 8;
-        ++(*src);
+        ++src;
 
-        c += **src - '0';
+        c += *src - '0';
 
-        **dst = (char) c;
-        ++(*dst);
+        dst += c;
         }
 
     inline bool ishex(char c)
@@ -44,67 +43,66 @@ namespace varexp
             return false;
         }
 
-    inline void expand_simple_hex(const char** src, char** dst,
-                                  const char* end)
+    inline void expand_simple_hex(string::const_iterator& src, const string::const_iterator& end, std::string& dst)
         {
         unsigned char c = 0;
 
-        if (end - *src < 2)
+        if (end - src < 2)
             throw incomplete_hex();
-        if (!ishex(**src) || !ishex((*src)[1]))
+        if (!ishex(*src) || !ishex(src[1]))
             throw invalid_hex();
 
-        if (**src >= '0' && **src <= '9')
-            c = **src - '0';
+        if (*src >= '0' && *src <= '9')
+            c = *src - '0';
         else if (c >= 'a' && c <= 'f')
-            c = **src - 'a' + 10;
+            c = *src - 'a' + 10;
         else if (c >= 'A' && c <= 'F')
-            c = **src - 'A' + 10;
+            c = *src - 'A' + 10;
 
         c = c << 4;
-        ++(*src);
+        ++src;
 
-        if (**src >= '0' && **src <= '9')
-            c += **src - '0';
-        else if (**src >= 'a' && **src <= 'f')
-            c += **src - 'a' + 10;
-        else if (**src >= 'A' && **src <= 'F')
-            c += **src - 'A' + 10;
+        if (*src >= '0' && *src <= '9')
+            c += *src - '0';
+        else if (*src >= 'a' && *src <= 'f')
+            c += *src - 'a' + 10;
+        else if (*src >= 'A' && *src <= 'F')
+            c += *src - 'A' + 10;
 
-        **dst = (char) c;
-        ++(*dst);
+        dst += c;
         }
 
-    inline void expand_grouped_hex(const char** src, char** dst,
-                                       const char* end)
+    inline void expand_grouped_hex(string::const_iterator& src, const string::const_iterator& end, std::string& dst)
         {
-        while (*src < end && **src != '}')
+        while (src != end && *src != '}')
             {
-            expand_simple_hex(src, dst, end);
-            ++(*src);
+            expand_simple_hex(src, end, dst);
+            ++src;
             }
-        if (*src == end)
+        if (src == end)
             throw incomplete_grouped_hex();
         }
 
-    inline void expand_hex(const char** src, char** dst, const char* end)
+    inline void expand_hex(string::const_iterator& src, const string::const_iterator& end, std::string& dst)
         {
-        if (*src == end)
+        if (src == end)
             throw incomplete_hex();
-        if (**src == '{')
+        if (*src == '{')
             {
-            ++(*src);
-            expand_grouped_hex(src, dst, end);
+            ++src;
+            expand_grouped_hex(src, end, dst);
             }
         else
-            expand_simple_hex(src, dst, end);
+            expand_simple_hex(src, end, dst);
         }
 
-    void unescape(const char* src, size_t len, char* dst,
-                          int unescape_all)
+    void unescape(const string& input, string& output, bool unescape_all)
         {
-        const char* end = src + len;
-        while (src < end)
+        string tmp;
+        string::const_iterator src = input.begin();
+        string::const_iterator end = input.end();
+
+        while (src != end)
             {
             if (*src == '\\')
                 {
@@ -115,22 +113,22 @@ namespace varexp
                     case '\\':
                         if (!unescape_all)
                             {
-                            *dst++ = '\\';
+                            tmp += '\\';
                             }
-                        *dst++ = '\\';
+                        tmp += '\\';
                         break;
                     case 'n':
-                        *dst++ = '\n';
+                        tmp += '\n';
                         break;
                     case 't':
-                        *dst++ = '\t';
+                        tmp += '\t';
                         break;
                     case 'r':
-                        *dst++ = '\r';
+                        tmp += '\r';
                         break;
                     case 'x':
                         ++src;
-                        expand_hex(&src, &dst, end);
+                        expand_hex(src, end, tmp);
                         break;
                     case '0':
                     case '1':
@@ -144,21 +142,23 @@ namespace varexp
                     case '9':
                         if (end - src >= 3 && isdigit((int)src[1]) && isdigit((int)src[2]))
                             {
-                            expand_octal(&src, &dst, end);
+                            expand_octal(src, end, tmp);
                             break;
                             }
                     default:
                         if (!unescape_all)
                             {
-                            *dst++ = '\\';
+                            tmp += '\\';
                             }
-                        *dst++ = *src;
+                        tmp += *src;
                     }
                 ++src;
                 }
             else
-                *dst++ = *src++;
+                tmp += *src++;
             }
-        *dst = '\0';
+        output = tmp;
+
+        printf("DEBUG: output is '%s'\n", output.c_str());
         }
     }

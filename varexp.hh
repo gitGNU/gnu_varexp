@@ -71,7 +71,7 @@ namespace varexp
 
     // Expand quoted pairs to their binary representation.
 
-    void unescape(const char* src, size_t len, char* dst, int unescape_all);
+    void unescape(const std::string& input, std::string& output, bool unescape_all);
 
     // Prototype for the lookup callback used in expand().
 

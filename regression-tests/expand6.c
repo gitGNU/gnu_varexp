@@ -25,88 +25,72 @@ int env_lookup(void* context,
     return 1;
     }
 
+struct test_case
+    {
+    const char* input;
+    const char* expected;
+    var_rc_t    rc;
+    };
+
 int main(int argc, char** argv)
     {
-    const char* input =                                                    \
-        "\\$HOME                      = '${HOME}'\\n"                      \
-        "\\$FOO                       = '${FOO}'\\n"                       \
-        "\\$BAR                       = '${BAR}'\\n"                       \
-        "\\$OSTYPE                    = '${${FOO:u}${BAR:u}:l}'\\n"        \
-        "\\$UNDEFINED                 = '${UNDEFINED}'\\n"                 \
-        "\\${OSTYPE:#}                = '${OSTYPE:#}'\\n"                  \
-        "\\${HEINZ:-test\\${FOO}test}   = '${HEINZ:-test${FOO}test}'\\n"   \
-        "\\${HEINZ:-test\\${FOO:u}test} = '${HEINZ:-test${FOO:u}test}'\\n" \
-        "\\${TERM:-test\\${FOO}test}    = '${TERM:-test${FOO}test}'\\n"    \
-        "\\${HEINZ:+FOO}              = '${HEINZ:+FOO}'\\n"                \
-        "\\${HOME:+test\\${FOO}test}    = '${HOME:+test${FOO}test}'\\n"    \
-        "\\${HOME:+OS\\${BAR:u}}        = '${HOME:+OS${BAR:u}}'\\n"        \
-        "\\${HOME:*heinz}             = '${HOME:*heinz}'\\n"               \
-        "\\${HEINZ:*claus}            = '${HEINZ:*claus}'\\n"              \
-        "\\$TERM                      = '${TERM}'\\n";
-    const char* output =                                                 \
-        "$HOME                      = '/home/regression-tests'\n"        \
-        "$FOO                       = 'os'\n"                            \
-        "$BAR                       = 'type'\n"                          \
-        "$OSTYPE                    = 'regression-os'\n"                 \
-        "$UNDEFINED                 = '${UNDEFINED}'\n"                  \
-        "${OSTYPE:#}                = '13'\n"                            \
-        "${HEINZ:-test${FOO}test}   = 'testostest'\n"                    \
-        "${HEINZ:-test${FOO:u}test} = 'testOStest'\n"                    \
-        "${TERM:-test${FOO}test}    = 'regression-term'\n"               \
-        "${HEINZ:+FOO}              = ''\n"                              \
-        "${HOME:+test${FOO}test}    = '${testostest}'\n"                 \
-        "${HOME:+OS${BAR:u}}        = 'regression-os'\n"                 \
-        "${HOME:*heinz}             = ''\n"                              \
-        "${HEINZ:*claus}            = 'claus'\n"                         \
-        "$TERM                      = 'regression-term'\n";
+    const struct test_case tests[] =
+        {
+        { "$HOME",                        "/home/regression-tests",      VAR_OK },
+        { "${FOO}",                       "os",                          VAR_OK },
+        { "${BAR}",                       "type",                        VAR_OK },
+        { "${${FOO:u}${BAR:u}:l}",        "regression-os",               VAR_OK },
+        { "${UNDEFINED}",                 "${UNDEFINED}",                VAR_OK },
+        { "${OSTYPE:#}",                  "13",                          VAR_OK },
+        { "${EMPTY:-test${FOO}test}",     "testostest",                  VAR_OK },
+        { "${EMPTY:-test${FOO:u}test}",   "testOStest",                  VAR_OK },
+        { "${TERM:-test${FOO}test}",      "regression-term",             VAR_OK },
+        { "${EMPTY:+FOO}",                "os",                          VAR_OK },
+        { "${HOME:+test${FOO}test}",      "${testostest}",               VAR_OK },
+        { "${HOME:+OS${BAR:u}}",          "regression-os",               VAR_OK },
+        { "${HOME:*heinz}",               "",                            VAR_OK },
+        { "${EMPTY:*claus}",              "claus",                       VAR_OK },
+        { "${TERM}",                      "regression-term",             VAR_OK },
+        { "${HOME:s/reg/bla/}"            "",                            VAR_OK },
+        { "${HOME:s/reg/bla/gi}",         "",                            VAR_OK }
+        };
     char*    tmp;
     size_t   tmp_len;
     var_rc_t rc;
+    size_t   i;
 
     if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
         setenv("OSTYPE", "regression-os", 1) != 0 ||
         setenv("TERM", "regression-term", 1) != 0 ||
         setenv("FOO", "os", 1) != 0 ||
         setenv("BAR", "type", 1) != 0 ||
-        setenv("HEINZ", "", 1) != 0 ||
+        setenv("EMPTY", "", 1) != 0 ||
         unsetenv("UNDEFINED") != 0)
         {
         printf("Failed to set the environment: %s.\n", strerror(errno));
         return 1;
         }
-    rc = var_expand(input, strlen(input),
-                    &tmp, &tmp_len,
-                    NULL,
-                    &env_lookup, NULL,
-                    NULL, 0);
-    if (rc != VAR_OK)
-        {
-        printf("var_expand() failed with error %d.\n", rc);
-        return 1;
-        }
 
-    rc = expand_named_characters(tmp, tmp_len, tmp);
-    if (rc != VAR_OK)
+    for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {
-        printf("expand_named_characters() failed with error %d.\n", rc);
-        return 1;
-        }
-    else
-        tmp_len = strlen(tmp);
-
-    printf("==================================================\n%s==================================================\n", tmp);
-
-    if (tmp_len != strlen(output))
-        {
-        printf("The length of the output string is not what we expected: %d != %d.\n",
-               tmp_len, strlen(output));
-        return 1;
-        }
-
-    if (memcmp(tmp, output, tmp_len) != 0)
-        {
-        printf("The buffer returned by var_expand() is not what we expected.\n");
-        return 1;
+        rc = var_expand(tests[i].input, strlen(tests[i].input),
+                        &tmp, &tmp_len, NULL,
+                        &env_lookup, NULL,
+                        NULL, 0);
+        if (rc != tests[i].rc)
+            {
+            printf("Test case #%d: Expected return code %d but got %d.\n", i, tests[i].rc, rc);
+            return 1;
+            }
+        if (tests[i].expected != NULL)
+            {
+            if (tmp_len != strlen(tests[i].expected) && memcmp(tests[i].expected, tmp, tmp_len) != 0)
+                {
+                printf("Test case #%d: Expected result '%s' but got '%s'.\n", i, tests[i].expected, tmp);
+                return 1;
+                }
+            }
+        printf("Test case #%02d: '%s' --> '%s'.\n", i, tests[i].input, tmp);
         }
 
     return 0;

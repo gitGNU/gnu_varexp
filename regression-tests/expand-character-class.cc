@@ -17,22 +17,18 @@ struct test_case
     {
     const char* input;
     const char* expected;
-    int         rc;
     };
 
 int main(int argc, char** argv)
     {
     struct test_case tests[] =
         {
-#if 0
-        { "",               "",                             VAR_OK                   },
-        { "abcabc",         "abc",                          VAR_OK                   },
-        { "a-z",            "abcdefghijklmnopqrstuvwxyz",   VAR_OK                   },
-        { "a-eA-Eabcdef-",  "-ABCDEabcdef",                 VAR_OK                   },
-        { "-a-eA-Eabcdef-", "-ABCDEabcdef",                 VAR_OK                   },
-        { "0-9-",           "-0123456789",                  VAR_OK                   },
-        { "g-a",            NULL,                           VAR_ERR_INCORRECT_CLASS_SPEC }
-#endif
+        { "",               ""                             },
+        { "abcabc",         "abc"                          },
+        { "a-z",            "abcdefghijklmnopqrstuvwxyz"   },
+        { "a-eA-Eabcdef-",  "-ABCDEabcdef"                 },
+        { "-a-eA-Eabcdef-", "-ABCDEabcdef"                 },
+        { "0-9-",           "-0123456789"                  },
         };
     size_t i;
     char char_class[256];
@@ -50,6 +46,15 @@ int main(int argc, char** argv)
                 return 1;
                 }
             }
+        }
+
+    try
+        {
+        expand_character_class("g-a", char_class);
+        return 1;
+        }
+    catch(const incorrect_class_spec&)
+        {
         }
 
     return 0;

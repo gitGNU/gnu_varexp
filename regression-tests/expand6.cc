@@ -8,15 +8,15 @@ using namespace std;
 
 struct variable
     {
-    const char* name;
-    const char* data;
+    char* name;
+    char* data;
     };
 
 struct variable_array
     {
-    const char* name;
-    const int   idx;
-    const char* data;
+    char* name;
+    int   idx;
+    char* data;
     };
 
 class var_lookup : public callback_t

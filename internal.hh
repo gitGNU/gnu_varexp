@@ -58,7 +58,6 @@ namespace varexp
         void search_and_replace(std::string& data, const std::string& search, const std::string& replace, const std::string& flags);
         void transpose(std::string& data, const std::string& srcclass, const std::string& dstclass);
         void expand_character_class(const char *desc, char_class_t char_class);
-        size_t ascii_to_uint(const char* begin, const char* end, unsigned int& result);
         }
     }
 

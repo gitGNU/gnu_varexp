@@ -6,7 +6,7 @@ namespace varexp
     {
     namespace internal
         {
-        parser::parser(const var_config_t& _config, callback_t& _lookup)
+        parser::parser(const config_t& _config, callback_t& _lookup)
                 : config(_config), lookup(&_lookup), current_index(0), rel_lookup_count(0)
             {
             // Create the character class from the description in the

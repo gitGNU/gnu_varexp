@@ -6,7 +6,7 @@ namespace varexp
 
     // The default configuration for the parser.
 
-    const var_config_t var_config_default =
+    const config_t config_default =
         {
         '$',                        // varinit
         '{',                        // startdelim
@@ -18,10 +18,7 @@ namespace varexp
         "a-zA-Z0-9_"                // namechars
         };
 
-    void var_expand(const string& buffer,
-                    string& result,
-                    callback_t& lookup,
-                    const var_config_t* config)
+    void expand(const string& buffer, string& result, callback_t& lookup, const config_t* config)
         {
         // Argument sanity checks
 
@@ -31,7 +28,7 @@ namespace varexp
         // If no configuration has been provided, use the default.
 
         if (config == 0)
-            config = &var_config_default;
+            config = &config_default;
 
         // Call the parser.
 

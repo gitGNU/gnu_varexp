@@ -34,7 +34,7 @@ namespace varexp
     define_exception(incomplete_octal,               "incomplete octal");
     define_exception(incomplete_grouped_hex,         "incomplete grouped hex");
     define_exception(incorrect_class_spec,           "incorrect character class specification");
-    define_exception(invalid_configuration,          "var_expand() configuration is inconsistent");
+    define_exception(invalid_configuration,          "varex::expand()'s configuration is inconsistent");
     define_exception(out_of_memory,                  "out of memory");
     define_exception(incomplete_variable_spec,       "incomplete variable");
     define_exception(undefined_variable,             "undefined variable");
@@ -73,9 +73,9 @@ namespace varexp
 
     // Expand quoted pairs to their binary representation.
 
-    void var_unescape(const char* src, size_t len, char* dst, int unescape_all);
+    void unescape(const char* src, size_t len, char* dst, int unescape_all);
 
-    // Prototype for the lookup callback used in var_expand().
+    // Prototype for the lookup callback used in expand().
 
     struct callback_t
         {
@@ -83,9 +83,9 @@ namespace varexp
         virtual void operator()(const std::string& name, int idx, std::string& data) = 0;
         };
 
-    // Configure the var_expand() parser's tokens.
+    // Configure the expand() parser's tokens.
 
-    struct var_config_t
+    struct config_t
         {
         char  varinit;        // '$'
         char  startdelim;     // '{'
@@ -96,13 +96,11 @@ namespace varexp
         char  escape;         // '\'
         char* namechars;      // 'a-zA-Z0-9_'
         };
-    extern const var_config_t var_config_default;
+    extern const config_t config_default;
 
     // Expand variable expressions in a text buffer.
 
-    void var_expand(const std::string& input,
-                    std::string& result, callback_t& lookup,
-                    const var_config_t* config = 0);
+    void expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);
 
     }
     }

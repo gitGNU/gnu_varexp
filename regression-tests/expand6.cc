@@ -183,11 +183,11 @@ try
     for (size_t i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {
         printf("Test case #%02d: Original input is '%s'.\n", i, tests[i].input);
-        var_unescape(tests[i].input, strlen(tests[i].input), buffer, 0);
+        unescape(tests[i].input, strlen(tests[i].input), buffer, 0);
 
         string tmp;
         printf("Test case #%02d: Unescaped input is '%s'.\n", i, buffer);
-        var_expand(buffer, tmp, lookup);
+        expand(buffer, tmp, lookup);
         printf("Test case #%02d: Expanded output is '%s'.\n", i, tmp.c_str());
 
         if (tmp.size() != strlen(tests[i].expected) ||

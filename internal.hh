@@ -44,11 +44,11 @@ namespace varexp
         class parser
             {
           protected:
-            friend void varexp::var_expand(const std::string& input,
-                                           std::string& result, callback_t& lookup,
-                                           const var_config_t* config);
+            friend void varexp::expand(const std::string& input,
+                                       std::string& result, callback_t& lookup,
+                                       const config_t* config);
 
-            parser(const var_config_t& _config, callback_t& _lookup);
+            parser(const config_t& _config, callback_t& _lookup);
             size_t input(const char* begin, const char* end, string& result);
 
           private:
@@ -66,11 +66,11 @@ namespace varexp
             size_t text(const char *begin, const char *end);
             size_t substext(const char* begin, const char* end);
 
-            const var_config_t& config;
-            char_class_t        nameclass;
-            callback_t*         lookup;
-            int                 current_index;
-            int                 rel_lookup_count;
+            const config_t&  config;
+            char_class_t     nameclass;
+            callback_t*      lookup;
+            int              current_index;
+            int              rel_lookup_count;
             };
 
         void cut_out_offset(std::string& data, unsigned int num1, unsigned int num2, bool is_range);

@@ -2,7 +2,7 @@
 
 namespace varexp
     {
-    static int isoct(char c)
+    inline int isoct(char c)
         {
         if (c >= '0' && c <= '7')
             return 1;
@@ -10,7 +10,7 @@ namespace varexp
             return 0;
         }
 
-    static void expand_octal(const char** src, char** dst, const char* end)
+    inline void expand_octal(const char** src, char** dst, const char* end)
         {
         unsigned char c;
 
@@ -35,7 +35,7 @@ namespace varexp
         ++(*dst);
         }
 
-    static bool ishex(char c)
+    inline bool ishex(char c)
         {
         if ((c >= '0' && c <= '9') ||
             (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
@@ -44,7 +44,7 @@ namespace varexp
             return false;
         }
 
-    static void expand_simple_hex(const char** src, char** dst,
+    inline void expand_simple_hex(const char** src, char** dst,
                                   const char* end)
         {
         unsigned char c = 0;
@@ -75,7 +75,7 @@ namespace varexp
         ++(*dst);
         }
 
-    static void expand_grouped_hex(const char** src, char** dst,
+    inline void expand_grouped_hex(const char** src, char** dst,
                                        const char* end)
         {
         while (*src < end && **src != '}')
@@ -87,7 +87,7 @@ namespace varexp
             throw incomplete_grouped_hex();
         }
 
-    static void expand_hex(const char** src, char** dst, const char* end)
+    inline void expand_hex(const char** src, char** dst, const char* end)
         {
         if (*src == end)
             throw incomplete_hex();
@@ -100,7 +100,7 @@ namespace varexp
             expand_simple_hex(src, dst, end);
         }
 
-    void var_unescape(const char* src, size_t len, char* dst,
+    void unescape(const char* src, size_t len, char* dst,
                           int unescape_all)
         {
         const char* end = src + len;

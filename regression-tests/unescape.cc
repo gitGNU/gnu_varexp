@@ -4,6 +4,7 @@
 #include <cstring>
 #include "../varexp.hh"
 using namespace varexp;
+using namespace std;
 
 struct test_case
     {
@@ -28,7 +29,7 @@ int main(int argc, char** argv)
         { "x\\x{5a5A5a5A}a",      "xZZZZa"           },
         };
     size_t i;
-    std::string tmp;
+    string tmp;
 
     for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {

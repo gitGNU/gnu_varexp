@@ -10,7 +10,7 @@ namespace varexp
             return 0;
         }
 
-    inline void expand_octal(string::const_iterator& src, const string::const_iterator& end, std::string& dst)
+    inline void expand_octal(string::const_iterator& src, const string::const_iterator& end, string& dst)
         {
         unsigned char c;
 
@@ -43,7 +43,7 @@ namespace varexp
             return false;
         }
 
-    inline void expand_simple_hex(string::const_iterator& src, const string::const_iterator& end, std::string& dst)
+    inline void expand_simple_hex(string::const_iterator& src, const string::const_iterator& end, string& dst)
         {
         unsigned char c = 0;
 
@@ -72,7 +72,7 @@ namespace varexp
         dst += c;
         }
 
-    inline void expand_grouped_hex(string::const_iterator& src, const string::const_iterator& end, std::string& dst)
+    inline void expand_grouped_hex(string::const_iterator& src, const string::const_iterator& end, string& dst)
         {
         while (src != end && *src != '}')
             {
@@ -83,7 +83,7 @@ namespace varexp
             throw incomplete_grouped_hex();
         }
 
-    inline void expand_hex(string::const_iterator& src, const string::const_iterator& end, std::string& dst)
+    inline void expand_hex(string::const_iterator& src, const string::const_iterator& end, string& dst)
         {
         if (src == end)
             throw incomplete_hex();

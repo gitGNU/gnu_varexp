@@ -4,10 +4,11 @@
 #include <cstring>
 #include "../varexp.hh"
 using namespace varexp;
+using namespace std;
 
 struct env_lookup : public callback_t
     {
-    virtual void operator()(const std::string& name, std::string& data)
+    virtual void operator()(const string& name, string& data)
         {
         const char* p = getenv(name.c_str());
         if (p == NULL)
@@ -15,9 +16,9 @@ struct env_lookup : public callback_t
         else
             data = p;
         }
-    virtual void operator()(const std::string& name, int idx, std::string& data)
+    virtual void operator()(const string& name, int idx, string& data)
         {
-        throw std::runtime_error("Not implemented.");
+        throw runtime_error("Not implemented.");
         }
     };
 
@@ -29,7 +30,7 @@ int main(int argc, char** argv)
     const char* input4 = "${HOME:o8,90}";
     const char* input5 = "${HOME:o8,4}";
 
-    std::string tmp;
+    string tmp;
     env_lookup lookup;
 
     if (setenv("HOME", "/home/regression-tests", 1) !=0)

@@ -6,7 +6,7 @@ namespace varexp
     {
     namespace internal
         {
-        void padding(std::string& data, unsigned int width, const std::string& fillstring, char position)
+        void padding(string& data, unsigned int width, const string& fillstring, char position)
             {
             size_t i;
 

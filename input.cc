@@ -10,11 +10,11 @@ namespace varexp
                 : lookup(_lookup), rel_lookup_count(counter)
             {
             }
-        virtual void operator()(const std::string& name, std::string& data)
+        virtual void operator()(const string& name, string& data)
             {
             lookup(name, data);
             }
-        virtual void operator()(const std::string& name, int idx, std::string& data)
+        virtual void operator()(const string& name, int idx, string& data)
             {
             try
                 {

@@ -29,7 +29,7 @@ namespace varexp
                 }
             }
 
-        void transpose(std::string& data, const std::string& srcdesc, const std::string& dstdesc)
+        void transpose(string& data, const string& srcdesc, const string& dstdesc)
             {
             string srcclass, dstclass;
 

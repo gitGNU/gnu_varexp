@@ -80,7 +80,7 @@ namespace varexp
             return p - begin;
             }
 
-        size_t parser::exptext_or_variable(const char *begin, const char *end, std::string& result)
+        size_t parser::exptext_or_variable(const char *begin, const char *end, string& result)
             {
             const char* p = begin;
             size_t rc;
@@ -110,7 +110,7 @@ namespace varexp
             return p - begin;
             }
 
-        size_t parser::substext_or_variable(const char *begin, const char *end, std::string& result)
+        size_t parser::substext_or_variable(const char *begin, const char *end, string& result)
             {
             const char* p = begin;
             size_t rc;

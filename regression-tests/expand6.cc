@@ -19,11 +19,11 @@ class var_lookup : public callback_t
     var_lookup(const variable* _vars) : vars(_vars)
         {
         }
-    virtual void operator()(const std::string& name, std::string& data)
+    virtual void operator()(const string& name, string& data)
         {
         (*this)(name, 0, data);
         }
-    virtual void operator()(const std::string& name, int idx, std::string& data)
+    virtual void operator()(const string& name, int idx, string& data)
         {
         static char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
 
@@ -199,7 +199,7 @@ try
         }
     return 0;
     }
-catch(const std::exception& e)
+catch(const exception& e)
     {
     printf("Caught exception: %s\n", e.what());
     return 1;

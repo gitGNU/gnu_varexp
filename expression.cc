@@ -4,7 +4,7 @@ namespace varexp
     {
     namespace internal
         {
-        size_t parser::expression(const char *begin, const char *end, std::string& result)
+        size_t parser::expression(const char *begin, const char *end, string& result)
             {
             const char* p = begin;
             size_t rc;

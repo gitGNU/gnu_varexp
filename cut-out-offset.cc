@@ -4,7 +4,7 @@ namespace varexp
     {
     namespace internal
         {
-        void cut_out_offset(std::string& data, unsigned int num1, unsigned int num2, bool is_range)
+        void cut_out_offset(string& data, unsigned int num1, unsigned int num2, bool is_range)
             {
             if (data.size() < num1)
                 throw offset_out_of_bounds();

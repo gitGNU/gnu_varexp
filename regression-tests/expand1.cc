@@ -4,16 +4,17 @@
 #include <cstring>
 #include "../varexp.hh"
 using namespace varexp;
+using namespace std;
 
 struct dummy : public callback_t
     {
-    virtual void operator()(const std::string& name, std::string& data)
+    virtual void operator()(const string& name, string& data)
         {
-        throw std::runtime_error("Not implemented.");
+        throw runtime_error("Not implemented.");
         }
-    virtual void operator()(const std::string& name, int idx, std::string& data)
+    virtual void operator()(const string& name, int idx, string& data)
         {
-        throw std::runtime_error("Not implemented.");
+        throw runtime_error("Not implemented.");
         }
     };
 
@@ -21,7 +22,7 @@ int main(int argc, char** argv)
     {
     const char* input  = "This is a \\$test!";
     const char* output = "This is a \\$test!";
-    std::string tmp;
+    string tmp;
     dummy lookup;
 
     expand(input, tmp, lookup);

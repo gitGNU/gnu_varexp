@@ -47,10 +47,10 @@ namespace varexp
                 }
             }
 
-        void search_and_replace(std::string& data,
-                                const std::string& search,
-                                const std::string& replace,
-                                const std::string& flags)
+        void search_and_replace(string& data,
+                                const string& search,
+                                const string& replace,
+                                const string& flags)
             {
             bool case_insensitive = false;
             bool global = false;

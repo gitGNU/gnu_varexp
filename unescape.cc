@@ -158,7 +158,5 @@ namespace varexp
                 tmp += *src++;
             }
         output = tmp;
-
-        printf("DEBUG: output is '%s'\n", output.c_str());
         }
     }

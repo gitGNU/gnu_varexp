@@ -19,11 +19,9 @@ namespace varexp
             try
                 {
                 lookup(name, idx, data);
-                printf("wrapped array lookup for %s[%d] ... ok\n", name.c_str(), idx);
                 }
             catch(const undefined_variable&)
                 {
-                printf("wrapped array lookup for %s[%d] ... undefined\n", name.c_str(), idx);
                 --rel_lookup_count;
                 data = "";
                 }
@@ -97,7 +95,6 @@ namespace varexp
                             // to the result.
 
                             rc = input(p, end, result);
-                            printf("rel_lookup_count = %d\torig_rel_lookup_count = %d\n", rel_lookup_count, orig_rel_lookup_count);
 
                             // Check whether the whole loop was parsed
                             // successfully.

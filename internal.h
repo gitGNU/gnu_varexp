@@ -16,6 +16,6 @@ typedef enum
     }
 var_rc_t;
 
-var_rc_t expand_named_characters(char* buffer, size_t len);
+var_rc_t expand_named_characters(const char* src, size_t len, char* dst);
 
 #endif /* !defined(INTERNAL_H) */

@@ -4,17 +4,6 @@
 #include <errno.h>
 #include "../internal.h"
 
-static char* xstrdup(const char* buf)
-    {
-    char* tmp = strdup(buf);
-    if (tmp == NULL)
-        {
-        printf("strdup() failed: %s", strerror(errno));
-        exit(1);
-        }
-    return tmp;
-    }
-
 struct test_case
     {
     const char* input;
@@ -48,17 +37,16 @@ int main(int argc, char** argv)
         { "x\\x{5a\\x{5a}5A}a",   NULL,               VAR_INVALID_HEX                }
         };
     size_t i;
+    char tmp[1024];
 
     for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {
-        char* tmp = xstrdup(tests[i].input);
-        if (expand_named_characters(tmp, strlen(tests[i].input)) != tests[i].rc ||
+        if (expand_named_characters(tests[i].input, strlen(tests[i].input), tmp) != tests[i].rc ||
             (tests[i].expected != NULL && strcmp(tmp, tests[i].expected) != 0))
             {
             printf("expand_named_characters() failed test case %d.\n", i);
             return 1;
             }
-        free(tmp);
         }
 
     return 0;

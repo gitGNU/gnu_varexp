@@ -14,7 +14,7 @@ struct dummy : public callback_t
         }
     virtual void operator()(const string& name, int idx, string& data)
         {
-        throw runtime_error("Not implemented.");
+        throw array_lookups_are_unsupported();
         }
     };
 

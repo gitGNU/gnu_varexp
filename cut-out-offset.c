@@ -1,10 +1,4 @@
-#include <string.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <regex.h>
 #include "internal.h"
-
-#include <stdio.h>
 
 static size_t tokenbuf2int(tokenbuf* number)
     {
@@ -24,8 +18,6 @@ int cut_out_offset(tokenbuf* data, tokenbuf* number1, tokenbuf* number2, int isr
     const char* p;
     size_t num1 = tokenbuf2int(number1);
     size_t num2 = tokenbuf2int(number2);
-
-    printf("*** Cutting out from offset %d to %d.\n", num1, num2);
 
     /* Determine begin of result string. */
 

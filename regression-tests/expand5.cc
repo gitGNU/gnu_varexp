@@ -33,7 +33,6 @@ int main(int argc, char** argv)
         "$TERM      = 'regression-term'\n";
     std::string tmp;
     env_lookup lookup;
-    char buffer[1024];
 
     if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
         setenv("OSTYPE", "regression-os", 1) != 0 ||
@@ -47,9 +46,9 @@ int main(int argc, char** argv)
     unsetenv("UNDEFINED");
 
     expand(input, tmp, lookup);
-    unescape(tmp.data(), tmp.size(), buffer, 1);
+    unescape(tmp, tmp, true);
 
-    if (std::string(buffer, strlen(buffer)) != output)
+    if (tmp != output)
         {
         printf("The buffer returned by var_expand() is not what we expected.\n");
         return 1;

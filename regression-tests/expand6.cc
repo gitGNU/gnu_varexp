@@ -177,23 +177,23 @@ try
         "entry0:entry1,entry3, entry2:entry1,entry3, "
         },
         };
-    char buffer[1024];
     var_lookup lookup(vars);
 
     for (size_t i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {
         printf("Test case #%02d: Original input is '%s'.\n", i, tests[i].input);
-        unescape(tests[i].input, strlen(tests[i].input), buffer, 0);
 
         string tmp;
-        printf("Test case #%02d: Unescaped input is '%s'.\n", i, buffer);
-        expand(buffer, tmp, lookup);
+        unescape(tests[i].input, tmp, false);
+        printf("Test case #%02d: Unescaped input is '%s'.\n", i, tmp.c_str());
+
+        expand(tmp, tmp, lookup);
         printf("Test case #%02d: Expanded output is '%s'.\n", i, tmp.c_str());
 
         if (tmp.size() != strlen(tests[i].expected) ||
             memcmp(tests[i].expected, tmp.data(), tmp.size()) != 0)
             {
-            printf("Test case #%d: Expected result '%s' but got '%s'.\n", i, tests[i].expected, tmp.c_str());
+            printf("Test case #%02d: Expected result '%s' but got '%s'.\n", i, tests[i].expected, tmp.c_str());
             return 1;
             }
         }

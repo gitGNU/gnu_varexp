@@ -9,47 +9,55 @@ struct test_case
     {
     const char* input;
     const char* expected;
-    int         rc;
     };
 
 int main(int argc, char** argv)
     {
     struct test_case tests[] =
         {
-#if 0
-        { "",                     "",                 VAR_OK                             },
-        { "\\",                   NULL,               VAR_ERR_INCOMPLETE_NAMED_CHARACTER },
-        { "hello world",          "hello world",      VAR_OK                             },
-        { "\\n",                  "\n",               VAR_OK                             },
-        {"\\t",                   "\t",               VAR_OK                             },
-        { "\\rhello\\tworld\\n",  "\rhello\tworld\n", VAR_OK                             },
-        { "\\x5a\\x5A",           "ZZ",               VAR_OK                             },
-        { "\\x5g\\x5A",           NULL,               VAR_ERR_INVALID_HEX                },
-        { "\\x5",                 NULL,               VAR_ERR_INCOMPLETE_HEX             },
-        { "\\033",                "\033",             VAR_OK                             },
-        { "\\038",                NULL,               VAR_ERR_INVALID_OCTAL              },
-        { "\\400",                NULL,               VAR_ERR_OCTAL_TOO_LARGE            },
-        { "\\x{4243}",            "BC",               VAR_OK                             },
-        { "\\x{}",                "",                 VAR_OK                             },
-        { "\\x{5a5A5a5A}",        "ZZZZ",             VAR_OK                             },
-        { "\\x{",                 NULL,               VAR_ERR_INCOMPLETE_GROUPED_HEX     },
-        { "x\\x{5a5A5a5A}a",      "xZZZZa",           VAR_OK                             },
-        { "x\\x{5a5A5a\\0015A}a", NULL,               VAR_ERR_INVALID_HEX                },
-        { "x\\x{5a\\x{5a}5A}a",   NULL,               VAR_ERR_INVALID_HEX                }
-#endif
+        { "",                     ""                 },
+        { "hello world",          "hello world"      },
+        { "\\n",                  "\n"               },
+        {"\\t",                   "\t"               },
+        { "\\rhello\\tworld\\n",  "\rhello\tworld\n" },
+        { "\\x5a\\x5A",           "ZZ"               },
+        { "\\033",                "\033"             },
+        { "\\x{4243}",            "BC"               },
+        { "\\x{}",                ""                 },
+        { "\\x{5a5A5a5A}",        "ZZZZ"             },
+        { "x\\x{5a5A5a5A}a",      "xZZZZa"           },
         };
     size_t i;
-    char tmp[1024];
+    std::string tmp;
 
     for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {
-        unescape(tests[i].input, strlen(tests[i].input), tmp, 0);
-        if (tests[i].expected != NULL && strcmp(tmp, tests[i].expected) != 0)
+        unescape(tests[i].input, tmp, false);
+        if (tmp != tests[i].expected)
             {
             printf("unescape() failed test case %d.\n", i);
             return 1;
             }
         }
+
+#define fail_test(input, exception)            \
+    try                                        \
+        {                                      \
+        unescape(input, tmp, false);           \
+        return 1;                              \
+        }                                      \
+    catch(const exception&)                    \
+        {                                      \
+        }                                      \
+        while(false)
+
+    fail_test("\\x5g\\x5A",           invalid_hex);
+    fail_test("\\x5",                 incomplete_hex);
+    fail_test("\\038",                invalid_octal);
+    fail_test("\\400",                octal_too_large);
+    fail_test("\\x{",                 incomplete_grouped_hex);
+    fail_test("x\\x{5a5A5a\\0015A}a", invalid_hex);
+    fail_test("x\\x{5a\\x{5a}5A}a",   invalid_hex);
 
     return 0;
     }

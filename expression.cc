@@ -18,6 +18,8 @@ namespace varexp
             tokenbuf_t name;
             tokenbuf_t tmp;
 
+            result->clear();
+
             /* Expect STARTDELIM. */
 
             if (p == end || *p != config->startdelim)
@@ -32,8 +34,6 @@ namespace varexp
             do
                 {
                 rc = varname(p, end, nameclass);
-                if (rc < 0)
-                    goto error_return;
                 if (rc > 0)
                     {
                     name.append(p, rc);

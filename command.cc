@@ -15,6 +15,7 @@ namespace varexp
             tokenbuf_t number1, number2;
             int isrange;
             int rc;
+            char* ptr;
 
             if (begin == end)
                 return 0;
@@ -22,27 +23,19 @@ namespace varexp
             switch (tolower(*p))
                 {
                 case 'l':                   /* Turn data to lowercase. */
-                    if (data->begin)
-                        {
-                        char* ptr;
-                        /* If the buffer does not live in an allocated buffer,
-                           we have to copy it before modifying the contents. */
+                    /* If the buffer does not live in an allocated buffer,
+                       we have to copy it before modifying the contents. */
 
-                        data->force_copy();
-                        for (ptr = (char*)data->begin; ptr != data->end; ++ptr)
-                            *ptr = tolower(*ptr);
-                        }
+                    data->force_copy();
+                    for (ptr = (char*)data->begin; ptr != data->end; ++ptr)
+                        *ptr = tolower(*ptr);
                     p++;
                     break;
 
                 case 'u':                   /* Turn data to uppercase. */
-                    if (data->begin)
-                        {
-                        char* ptr;
-                        data->force_copy();
-                        for (ptr = (char*) data->begin; ptr != data->end; ++ptr)
-                            *ptr = toupper(*ptr);
-                        }
+                    data->force_copy();
+                    for (ptr = (char*) data->begin; ptr != data->end; ++ptr)
+                        *ptr = toupper(*ptr);
                     ++p;
                     break;
 
@@ -79,21 +72,14 @@ namespace varexp
                     number2.end = p + rc;
                     number2.buffer_size = 0;
                     p += rc;
-                    if (data->begin)
-
-                        {
-                        cut_out_offset(data, &number1, &number2, isrange);
-                        }
+                    cut_out_offset(data, &number1, &number2, isrange);
                     break;
 
                 case '#':                   /* Substitute length of the string. */
-                    if (data->begin)
-                        {
-                        char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
-                        sprintf(buf, "%d", (int)(data->end - data->begin));
-                        data->clear();
-                        data->append(buf, strlen(buf));
-                        }
+                    char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
+                    sprintf(buf, "%d", (int)(data->end - data->begin));
+                    data->clear();
+                    data->append(buf, strlen(buf));
                     ++p;
                     break;
 
@@ -111,13 +97,7 @@ namespace varexp
                     p += rc;
                     if (data->begin != NULL && data->begin == data->end)
                         {
-                        data->clear();
-                        data->begin           = tmptokbuf.begin;
-                        data->end             = tmptokbuf.end;
-                        data->buffer_size     = tmptokbuf.buffer_size;
-                        tmptokbuf.begin       = 0;
-                        tmptokbuf.end         = 0;
-                        tmptokbuf.buffer_size = 0;
+                        data->shallow_move(&tmptokbuf);
                         }
                     break;
 
@@ -132,18 +112,15 @@ namespace varexp
                         throw missing_parameter_in_command();
                         }
                     p += rc;
-                    if (data->begin != NULL)
+                    if (data->begin == data->end)
                         {
-                        if (data->begin == data->end)
-                            {
-                            data->shallow_move(&tmptokbuf);
-                            }
-                        else
-                            {
-                            data->clear();
-                            data->begin = data->end = "";
-                            data->buffer_size = 0;
-                            }
+                        data->shallow_move(&tmptokbuf);
+                        }
+                    else
+                        {
+                        data->clear();
+                        data->begin = data->end = "";
+                        data->buffer_size = 0;
                         }
                     break;
 
@@ -203,11 +180,7 @@ namespace varexp
                     flags.end = p + rc;
                     flags.buffer_size = 0;
                     p += rc;
-
-                    if (data->begin)
-                        {
-                        search_and_replace(data, &search, &replace, &flags);
-                        }
+                    search_and_replace(data, &search, &replace, &flags);
                     break;
 
                 case 'y':                   /* Transpose characters from class A to class B. */
@@ -243,11 +216,7 @@ namespace varexp
                         }
                     else
                         ++p;
-
-                    if (data->begin)
-                        {
-                        transpose(data, &search, &replace);
-                        }
+                    transpose(data, &search, &replace);
                     break;
 
 
@@ -292,11 +261,7 @@ namespace varexp
                         goto error_return;
                         }
                     p++;
-
-                    if (data->begin)
-                        {
-                        padding(data, &number1, &replace, p[-1]);
-                        }
+                    padding(data, &number1, &replace, p[-1]);
                     break;
 
                 default:

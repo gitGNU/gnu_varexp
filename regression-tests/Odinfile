@@ -9,8 +9,9 @@
                       (expand3.exe) \
                       (expand4.exe) \
                       (expand5.exe) \
-                      (expand6.exe) \
                       (user-abort.exe) \
+                      (expand6.exe) \
+                      (empty-search-pattern.exe) \
                       +output_show \
                       :stdout
 
@@ -24,6 +25,7 @@ expand4.exe == expand4.c +(%test.flags) :exe
 expand5.exe == expand5.c +(%test.flags) :exe
 expand6.exe == expand6.c +(%test.flags) :exe
 user-abort.exe == user-abort.c +(%test.flags) :exe
+empty-search-pattern.exe == empty-search-pattern.c +(%test.flags) :exe
 
 %test.flags == <<
     +lib=(../libvarexp.a)

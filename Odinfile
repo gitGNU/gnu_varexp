@@ -1,6 +1,6 @@
 # Build variable-expression library.
 
-libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -ansi -pedantic' \
+libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -pedantic' \
                                +debug \
                                :a
 

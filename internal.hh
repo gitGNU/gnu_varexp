@@ -39,26 +39,26 @@ namespace varexp
             static const size_t INITIAL_BUFSIZE;
             };
 
-        int command(const char *begin, const char *end,
-                    const var_config_t *config, const char_class_t nameclass,
-                    var_cb_t lookup, void *lookup_context,
-                    tokenbuf_t *data, int current_index, int *rel_lookup_flag);
+        size_t command(const char *begin, const char *end,
+                       const var_config_t *config, const char_class_t nameclass,
+                       var_cb_t lookup, void *lookup_context,
+                       tokenbuf_t *data, int current_index, int *rel_lookup_flag);
 
         void cut_out_offset(tokenbuf_t *data, tokenbuf_t *number1,
                             tokenbuf_t *number2, int isrange);
 
-        int expression(const char *begin, const char *end,
-                       const var_config_t *config,
-                       const char_class_t nameclass, var_cb_t lookup,
-                       void *lookup_context,
-                       tokenbuf_t *result, int current_index, int *rel_lookup_flag);
+        size_t expression(const char *begin, const char *end,
+                          const var_config_t *config,
+                          const char_class_t nameclass, var_cb_t lookup,
+                          void *lookup_context,
+                          tokenbuf_t *result, int current_index, int *rel_lookup_flag);
 
-        var_rc_t input(const char *begin, const char *end,
-                       const var_config_t *config,
-                       const char_class_t nameclass, var_cb_t lookup,
-                       void *lookup_context,
-                       tokenbuf_t *output, int current_index,
-                       size_t recursion_level, int *rel_lookup_flag);
+        size_t input(const char *begin, const char *end,
+                     const var_config_t *config,
+                     const char_class_t nameclass, var_cb_t lookup,
+                     void *lookup_context,
+                     tokenbuf_t *output, int current_index,
+                     size_t recursion_level, int *rel_lookup_flag);
 
         size_t loop_limits(const char *begin, const char *end,
                            const var_config_t *config,
@@ -66,11 +66,11 @@ namespace varexp
                            var_cb_t lookup, void* lookup_context,
                            int* start, int* step, int* stop, int* open_end);
 
-        int num_exp(const char *begin, const char *end, int current_index,
-                    int *result, int *rel_lookup_flag,
-                    const var_config_t *config,
-                    const char_class_t nameclass,
-                    var_cb_t lookup, void *lookup_context);
+        size_t num_exp(const char *begin, const char *end, int current_index,
+                       int *result, int *rel_lookup_flag,
+                       const var_config_t *config,
+                       const char_class_t nameclass,
+                       var_cb_t lookup, void *lookup_context);
 
         void padding(tokenbuf_t *data, tokenbuf_t *widthstr, tokenbuf_t *fill,
                      char position);
@@ -78,38 +78,38 @@ namespace varexp
         void search_and_replace(tokenbuf_t *data, tokenbuf_t *search,
                                 tokenbuf_t *replace, tokenbuf_t *flags);
 
-        int number(const char *begin, const char *end);
+        size_t number(const char *begin, const char *end);
 
         size_t exptext(const char *begin, const char *end,
                        const var_config_t *config);
 
-        int exptext_or_variable(const char *begin, const char *end,
-                                const var_config_t *config,
-                                const char_class_t nameclass, var_cb_t lookup,
-                                void *lookup_context,
-                                tokenbuf_t *result, int current_index,
-                                int *rel_lookup_flag);
+        size_t exptext_or_variable(const char *begin, const char *end,
+                                   const var_config_t *config,
+                                   const char_class_t nameclass, var_cb_t lookup,
+                                   void *lookup_context,
+                                   tokenbuf_t *result, int current_index,
+                                   int *rel_lookup_flag);
 
-        int substext_or_variable(const char *begin, const char *end,
-                                 const var_config_t *config,
-                                 const char_class_t nameclass, var_cb_t lookup,
-                                 void *lookup_context,
-                                 tokenbuf_t *result, int current_index,
-                                 int *rel_lookup_flag);
+        size_t substext_or_variable(const char *begin, const char *end,
+                                    const var_config_t *config,
+                                    const char_class_t nameclass, var_cb_t lookup,
+                                    void *lookup_context,
+                                    tokenbuf_t *result, int current_index,
+                                    int *rel_lookup_flag);
 
         void transpose(tokenbuf_t *data, tokenbuf_t *search,
                        tokenbuf_t *replace);
 
         void expand_character_class(const char *desc, char_class_t char_class);
 
-        int variable(const char *begin, const char *end,
-                     const var_config_t *config, const char_class_t nameclass,
-                     var_cb_t lookup, void *lookup_context,
-                     tokenbuf_t *result, int current_index,
-                     int *rel_lookup_flag);
+        size_t variable(const char *begin, const char *end,
+                        const var_config_t *config, const char_class_t nameclass,
+                        var_cb_t lookup, void *lookup_context,
+                        tokenbuf_t *result, int current_index,
+                        int *rel_lookup_flag);
 
-        int varname(const char *begin, const char *end,
-                    const char_class_t nameclass);
+        size_t varname(const char *begin, const char *end,
+                       const char_class_t nameclass);
 
         struct wrapper_context
             {
@@ -118,13 +118,13 @@ namespace varexp
             int     *rel_lookup_flag;
             };
 
-        var_rc_t lookup_wrapper(void* context,
-                                const char* name, size_t name_len, int idx,
-                                const char** data, size_t* data_len,
-                                size_t* buffer_size);
+        int lookup_wrapper(void* context,
+                           const char* name, size_t name_len, int idx,
+                           const char** data, size_t* data_len,
+                           size_t* buffer_size);
 
-        int text(const char *begin, const char *end, char varinit,
-                 char startindex, char endindex, char escape);
+        size_t text(const char *begin, const char *end, char varinit,
+                    char startindex, char endindex, char escape);
 
         }
     }

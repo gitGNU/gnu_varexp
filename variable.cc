@@ -4,7 +4,7 @@ namespace varexp
     {
     namespace internal
         {
-        int variable(const char* begin, const char* end,
+        size_t variable(const char* begin, const char* end,
                      const var_config_t* config, const char_class_t nameclass,
                      var_cb_t lookup, void* lookup_context,
                      tokenbuf_t* result, int current_index,

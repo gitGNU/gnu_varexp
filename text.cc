@@ -4,8 +4,8 @@ namespace varexp
     {
     namespace internal
         {
-        int text(const char* begin, const char* end, char varinit,
-                 char startindex, char endindex, char escape)
+        size_t text(const char* begin, const char* end, char varinit,
+                    char startindex, char endindex, char escape)
             {
             const char* p;
 
@@ -24,8 +24,8 @@ namespace varexp
             return p - begin;
             }
 
-        int varname(const char* begin, const char* end,
-                    const char_class_t nameclass)
+        size_t varname(const char* begin, const char* end,
+                       const char_class_t nameclass)
             {
             const char* p;
 
@@ -34,7 +34,7 @@ namespace varexp
             return p - begin;
             }
 
-        int number(const char* begin, const char* end)
+        size_t number(const char* begin, const char* end)
             {
             const char* p;
 
@@ -44,7 +44,7 @@ namespace varexp
             }
 
         static size_t substext(const char* begin, const char* end,
-                            const var_config_t* config)
+                               const var_config_t* config)
             {
             const char* p;
 
@@ -81,16 +81,16 @@ namespace varexp
             return p - begin;
             }
 
-        int exptext_or_variable(const char* begin, const char* end,
-                                const var_config_t* config,
-                                const char_class_t nameclass, var_cb_t lookup,
-                                void* lookup_context,
-                                tokenbuf_t* result, int current_index,
-                                int* rel_lookup_flag)
+        size_t exptext_or_variable(const char* begin, const char* end,
+                                   const var_config_t* config,
+                                   const char_class_t nameclass, var_cb_t lookup,
+                                   void* lookup_context,
+                                   tokenbuf_t* result, int current_index,
+                                   int* rel_lookup_flag)
             {
             const char* p = begin;
             tokenbuf_t tmp;
-            int rc;
+            size_t rc;
 
             result->clear();
 
@@ -127,16 +127,16 @@ namespace varexp
             return rc;
             }
 
-        int substext_or_variable(const char* begin, const char* end,
-                                 const var_config_t* config,
-                                 const char_class_t nameclass, var_cb_t lookup,
-                                 void* lookup_context,
-                                 tokenbuf_t* result, int current_index,
-                                 int* rel_lookup_flag)
+        size_t substext_or_variable(const char* begin, const char* end,
+                                    const var_config_t* config,
+                                    const char_class_t nameclass, var_cb_t lookup,
+                                    void* lookup_context,
+                                    tokenbuf_t* result, int current_index,
+                                    int* rel_lookup_flag)
             {
             const char* p = begin;
             tokenbuf_t tmp;
-            int rc;
+            size_t rc;
 
             result->clear();
 

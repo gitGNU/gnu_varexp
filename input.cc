@@ -4,7 +4,7 @@ namespace varexp
     {
     namespace internal
         {
-        var_rc_t input(const char* begin, const char* end,
+        size_t input(const char* begin, const char* end,
                        const var_config_t* config,
                        const char_class_t nameclass, var_cb_t lookup,
                        void* lookup_context,
@@ -12,7 +12,7 @@ namespace varexp
                        size_t recursion_level, int* rel_lookup_flag)
             {
             const char* p = begin;
-            int rc, rc2;
+            size_t rc, rc2;
             tokenbuf_t result;
             int start, step, stop, open_end;
             int i;
@@ -54,8 +54,6 @@ namespace varexp
                         output_backup = output->end - output->begin;
                         rc = input(begin, end, config, nameclass, &lookup_wrapper,
                                    &wcon, output, i, recursion_level+1, rel_lookup_flag);
-                        if (rc < 0)
-                            goto error_return;
                         if (begin[rc] != config->endindex)
                             {
                             throw unterminated_loop_construct();
@@ -65,11 +63,7 @@ namespace varexp
                             rc2 = loop_limits(begin + rc + 1, end, config, nameclass,
                                               lookup, lookup_context, &start, &step,
                                               &stop, &open_end);
-                            if (rc2 < 0)
-                                {
-                                goto error_return;
-                                }
-                            else if (rc2 == 0)
+                            if (rc2 == 0)
                                 {
                                 loop_limit_length = 0;
                                 }
@@ -122,14 +116,14 @@ namespace varexp
                 throw input_isnt_text_nor_variable();
                 }
 
-            return var_rc_t(begin - p);
+            return begin - p;
 
           error_return:
             output->clear();
             output->begin = p;
             output->end = begin;
             output->buffer_size = 0;
-            return var_rc_t(rc);
+            return rc;
             }
         }
     }

@@ -4,14 +4,14 @@ namespace varexp
     {
     namespace internal
         {
-        var_rc_t lookup_wrapper(void* context,
+        int lookup_wrapper(void* context,
                                 const char* name, size_t name_len, int idx,
                                 const char** data, size_t* data_len,
                                 size_t* buffer_size)
             {
             static char buf[1];
             struct wrapper_context* wcon = static_cast<wrapper_context*>(context);
-            var_rc_t rc;
+            size_t rc;
 
             try
                 {
@@ -53,12 +53,12 @@ namespace varexp
                 {
                 rc = num_exp(p, end, 0, start, &dummy,
                              config, nameclass, lookup, lookup_context);
+                p += rc;
                 }
             catch(const invalid_char_in_index_spec&)
                 {
                 *start = 0;          /* use default */
                 }
-            p += rc;
 
             if (*p != ',')
                 throw invalid_char_in_loop_limits();
@@ -76,6 +76,7 @@ namespace varexp
             catch(const invalid_char_in_index_spec&)
                 {
                 *step = 1;          /* use default */
+                rc = 0;
                 }
 
             if (*p != ',')

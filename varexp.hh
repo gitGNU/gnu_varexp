@@ -78,16 +78,15 @@ namespace varexp
 
     // Expand quoted pairs to their binary representation.
 
-    typedef int var_rc_t;
     void var_unescape(const char* src, size_t len, char* dst, int unescape_all);
 
 
     // Prototype for the lookup callback used in var_expand().
 
-    typedef var_rc_t (*var_cb_t)(void* context,
-                                 const char* varname, size_t name_len, int idx,
-                                 const char* *data, size_t* data_len,
-                                 size_t* buffer_size);
+    typedef int (*var_cb_t)(void* context,
+                            const char* varname, size_t name_len, int idx,
+                            const char* *data, size_t* data_len,
+                            size_t* buffer_size);
 
     // Configure the var_expand() parser's tokens.
 

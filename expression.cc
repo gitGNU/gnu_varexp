@@ -4,7 +4,7 @@ namespace varexp
     {
     namespace internal
         {
-        int expression(const char* begin, const char* end,
+        size_t expression(const char* begin, const char* end,
                        const var_config_t* config,
                        const char_class_t nameclass, var_cb_t lookup,
                        void* lookup_context,

@@ -4,7 +4,7 @@ namespace varexp
     {
     namespace internal
         {
-        int command(const char* begin, const char* end,
+        size_t command(const char* begin, const char* end,
                     const var_config_t* config, const char_class_t nameclass,
                     var_cb_t lookup, void* lookup_context,
                     tokenbuf_t* data, int current_index, int* rel_lookup_flag)

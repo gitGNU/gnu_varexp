@@ -92,7 +92,7 @@ namespace varexp
             return p - begin;
             }
 
-        int num_exp(const char* begin, const char* end, int current_index,
+        size_t num_exp(const char* begin, const char* end, int current_index,
                     int* result, int* rel_lookup_flag,
                     const var_config_t* config,
                     const char_class_t nameclass,

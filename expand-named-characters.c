@@ -50,7 +50,7 @@ static int ishex(char c)
 
 static var_rc_t expand_simple_hex(const char** src, char** dst, const char* end)
     {
-    unsigned char c;
+    unsigned char c = 0;
 
     if (end - *src < 2)
         return VAR_INCOMPLETE_HEX;

@@ -4,17 +4,18 @@ namespace varexp
     {
     namespace internal
         {
-        inline void expand_range(char a, char b, char_class_t char_class)
+        inline void expand_range(unsigned char a, unsigned char b, char_class_t char_class)
             {
             do
                 {
-                char_class[(int)a] = 1;
+                char_class[static_cast<int>(a)] = 1;
                 }
             while (++a <= b);
             }
 
-        void expand_character_class(const char* desc, char_class_t char_class)
+        void expand_character_class(const char* _desc, char_class_t char_class)
             {
+            const unsigned char* desc = reinterpret_cast<const unsigned char*>(_desc);
             size_t i;
 
             /* Clear the char_class array. */
@@ -36,7 +37,7 @@ namespace varexp
                     }
                 else
                     {
-                    char_class[(int) *desc] = 1;
+                    char_class[static_cast<int>(*desc)] = 1;
                     ++desc;
                     }
                 }

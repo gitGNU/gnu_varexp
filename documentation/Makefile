@@ -26,9 +26,13 @@ DOCBOOKBASE	= /usr/local/sgml/dsssl/docbook
 .dvi.pdf:
 	dvipdf $< $@
 
-all:	user-manual.html user-manual.pdf
+all:	user-manual.html user-manual.pdf readme.txt
 
-user-manual.html user-manual.pdf: ../VERSION peti.dsl
+user-manual.html user-manual.tex: ../VERSION peti.dsl operations-on-variables.inc
+user-manual.html user-manual.tex: arrays-of-variables.inc ebnf.inc looping.inc
+user-manual.html user-manual.tex: purpose.inc quoted-pairs.inc variable-expressions.inc
+
+readme.html:	peti.dsl purpose.inc
 
 clean distclean:
 	@rm -f *.aux *.dvi *.log *.toc
@@ -36,5 +40,4 @@ clean distclean:
 	@rm -f *.tex
 
 realclean:	clean
-	@rm -f *.pdf *.html
-
+	@rm -f *.pdf *.html *.txt

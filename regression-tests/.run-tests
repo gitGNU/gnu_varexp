@@ -1,0 +1,44 @@
+#! /bin/sh
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 test1.exe [...]"
+    exit 1
+fi
+
+RESCOLUMN=50
+numTests=0
+numFails=0
+
+echo "Running test suite:"
+
+pad=''
+n=$RESCOLUMN
+while [ $n -gt 0 ]; do
+    pad="$pad."
+    n=`expr $n - 1`
+done
+for suite in "$@"; do
+    name=`basename "${suite}"`
+    name=`expr "${name}" : '\(.*\)\.exe$'`
+    echo "$name$pad" | awk '{ printf("%s ", substr($0, 0, n)); }' n=$RESCOLUMN
+    export DMALLOC_OPTIONS=debug=0x4f47d03,inter=1,log=/tmp/$name.dmalloc
+    numTests=`expr $numTests + 1`
+    eval ./$suite >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "OK"
+    else
+        numFails=`expr $numFails + 1`
+        echo "FAILED"
+    fi
+done
+
+echo
+if [ $numFails -eq 0 ]; then
+    echo "Summary: All tests succeeded."
+    exit 0
+else
+    percent=`expr $numFails \* 100`
+    percent=`expr $percent / $numTests`
+    echo "Summary: $numFails of $numTests tests failed ($percent%)."
+    exit 1
+fi

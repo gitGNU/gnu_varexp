@@ -5,7 +5,6 @@
 
 namespace varexp
     {
-
     /* Error codes returned by the varexp library. */
 
     typedef enum
@@ -94,7 +93,6 @@ namespace varexp
     /* Map an error code to a text message. */
 
     const char* var_strerror(int rc);
-
     }
 
 #endif /* !defined(LIB_VARIABLE_EXPAND_HH) */

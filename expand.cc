@@ -32,13 +32,15 @@ namespace varexp
 
         // Call the parser.
 
+        string tmp;
         parser p(*config, lookup);
-        size_t rc = p.input(buffer.data(), buffer.data() + buffer.size(), result);
+        size_t rc = p.input(buffer.data(), buffer.data() + buffer.size(), tmp);
         if (rc != buffer.size())
             {
             input_isnt_text_nor_variable e;
             e.current_position = rc;
             throw e;
             }
+        result = tmp;
         }
     }

@@ -36,23 +36,25 @@ int main(int argc, char** argv)
     {
     const struct test_case tests[] =
         {
-        { "$HOME",                        "/home/regression-tests",      VAR_OK },
-        { "${FOO}",                       "os",                          VAR_OK },
-        { "${BAR}",                       "type",                        VAR_OK },
-        { "${${FOO:u}${BAR:u}:l}",        "regression-os",               VAR_OK },
-        { "${UNDEFINED}",                 "${UNDEFINED}",                VAR_OK },
-        { "${OSTYPE:#}",                  "13",                          VAR_OK },
-        { "${EMPTY:-test${FOO}test}",     "testostest",                  VAR_OK },
-        { "${EMPTY:-test${FOO:u}test}",   "testOStest",                  VAR_OK },
-        { "${TERM:-test${FOO}test}",      "regression-term",             VAR_OK },
-        { "${EMPTY:+FOO}",                "os",                          VAR_OK },
-        { "${HOME:+test${FOO}test}",      "${testostest}",               VAR_OK },
-        { "${HOME:+OS${BAR:u}}",          "regression-os",               VAR_OK },
-        { "${HOME:*heinz}",               "",                            VAR_OK },
-        { "${EMPTY:*claus}",              "claus",                       VAR_OK },
-        { "${TERM}",                      "regression-term",             VAR_OK },
-        { "${HOME:s/reg/bla/}"            "",                            VAR_OK },
-        { "${HOME:s/reg/bla/gi}",         "",                            VAR_OK }
+        { "$HOME",                      "/home/regression-tests",         VAR_OK },
+        { "${FOO}",                     "os",                             VAR_OK },
+        { "${BAR}",                     "type",                           VAR_OK },
+        { "${${FOO:u}${BAR:u}:l}",      "regression-os",                  VAR_OK },
+        { "${UNDEFINED}",               "${UNDEFINED}",                   VAR_OK },
+        { "${OSTYPE:#}",                "13",                             VAR_OK },
+        { "${EMPTY:-test${FOO}test}",   "testostest",                     VAR_OK },
+        { "${EMPTY:-test${FOO:u}test}", "testOStest",                     VAR_OK },
+        { "${TERM:-test${FOO}test}",    "regression-term",                VAR_OK },
+        { "${EMPTY:+FOO}",              "",                               VAR_OK },
+        { "${HOME:+test${FOO}test}",    "${testostest}",                  VAR_OK },
+        { "${HOME:+OS${BAR:u}}",        "regression-os",                  VAR_OK },
+        { "${HOME:+OS${UNDEFINED:u}}",  "${OS${UNDEFINED:u}}",            VAR_OK },
+        { "${UNDEFINED:+OS${BAR:u}}",   "${UNDEFINED:+OS${BAR:u}}",       VAR_OK },
+        { "${HOME:*heinz}",             "",                               VAR_OK },
+        { "${EMPTY:*claus}",            "claus",                          VAR_OK },
+        { "${TERM}",                    "regression-term",                VAR_OK },
+        { "${HOME:s/reg/bla/}",         "/home/blaression-tests",         VAR_OK },
+        { "${HOME:s/e/bla/g}",          "/hombla/rblagrblassion-tblasts", VAR_OK }
         };
     char*    tmp;
     size_t   tmp_len;
@@ -82,13 +84,10 @@ int main(int argc, char** argv)
             printf("Test case #%d: Expected return code %d but got %d.\n", i, tests[i].rc, rc);
             return 1;
             }
-        if (tests[i].expected != NULL)
+        if (tmp_len != strlen(tests[i].expected) || tmp == NULL || memcmp(tests[i].expected, tmp, tmp_len) != 0)
             {
-            if (tmp_len != strlen(tests[i].expected) && memcmp(tests[i].expected, tmp, tmp_len) != 0)
-                {
-                printf("Test case #%d: Expected result '%s' but got '%s'.\n", i, tests[i].expected, tmp);
-                return 1;
-                }
+            printf("Test case #%d: Expected result '%s' but got '%s'.\n", i, tests[i].expected, tmp);
+            return 1;
             }
         printf("Test case #%02d: '%s' --> '%s'.\n", i, tests[i].input, tmp);
         }

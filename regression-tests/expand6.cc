@@ -75,21 +75,22 @@ try
     {
     const struct variable vars[] =
         {
-        { "HOME",   0, "/home/regression-tests" },
-        { "OSTYPE", 0, "regression-os" },
-        { "TERM",   0, "regression-term" },
-        { "FOO",    0, "os" },
-        { "BAR",    0, "type" },
-        { "EMPTY",  0, "" },
-        { "ARRAY",  0, "entry0" },
-        { "ARRAY",  1, "entry1" },
-        { "ARRAY",  2, "entry2" },
-        { "ARRAY",  3, "entry3" },
-        { "HEINZ",  0, "heinz0" },
-        { "HEINZ",  1, "heinz1" },
-        { "NUMBER", 0, "+2" },
-        { "NUMEXP", 0, "((16)%5)" },
-        { NULL,     0, NULL }
+        { "ARRAY",     0, "entry0" },
+        { "ARRAY",     1, "entry1" },
+        { "ARRAY",     2, "entry2" },
+        { "ARRAY",     3, "entry3" },
+        { "BAR",       0, "type" },
+        { "EMPTY",     0, "" },
+        { "FOO",       0, "os" },
+        { "HEINZ",     0, "heinz0" },
+        { "HEINZ",     1, "heinz1" },
+        { "HOME",      0, "/home/regression-tests" },
+        { "NUMBER",    0, "+2" },
+        { "MULTILINE", 0, "line1\nline2\n" },
+        { "NUMEXP",    0, "((16)%5)" },
+        { "OSTYPE",    0, "regression-os" },
+        { "TERM",      0, "regression-term" },
+        { NULL,        0, NULL }
         };
 
     const struct test_case tests[] =
@@ -160,6 +161,7 @@ try
         { "[${HEINZ[#]}:${ARRAY[#]}-]",   "heinz0:entry0-heinz1:entry1-:entry2-:entry3-"                     },
         { "[${HEINZ[#]}:[${ARRAY[#]}] ]", "heinz0:entry0entry1entry2entry3 heinz1:entry0entry1entry2entry3 " },
         { "[${ARRAY[#]}:[${ARRAY[#]},]{1,2,} ]{0,2,}", "entry0:entry1,entry3, entry2:entry1,entry3, "        },
+        { "${MULTILINE:s/^/ | /g}",       " | line1\n | line2\n" },
         {
         "[${HEINZ[#]}: [${ARRAY[#]}${ARRAY[#+1]:+, }]${HEINZ[#+1]:+; }]",
         "heinz0: entry0, entry1, entry2, entry3; heinz1: entry0, entry1, entry2, entry3"
@@ -176,7 +178,7 @@ try
         printf("Test case #%02d: Unescaped input is '%s'.\n", i, tmp.c_str());
 
         expand(tmp, tmp, lookup);
-        printf("Test case #%02d: Expanded output is '%s'.\n", i, tmp.c_str());
+        printf("Test case #%02d: Output is '%s'.\n", i, tmp.c_str());
 
         if (tmp.size() != strlen(tests[i].expected) ||
             memcmp(tests[i].expected, tmp.data(), tmp.size()) != 0)

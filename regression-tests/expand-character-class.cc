@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "../internal.hh"
 using namespace varexp;
 using namespace varexp::internal;

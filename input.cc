@@ -171,9 +171,7 @@ namespace varexp
                 }
             catch(error& e)
                 {
-                e.begin   = begin;
-                e.current = p;
-                e.end     = end;
+                e.current_position = p - begin;
                 throw;
                 }
             }

@@ -12,13 +12,11 @@ namespace varexp
     struct error : public std::runtime_error
         {
         error(const std::string& _what)
-                : std::runtime_error(_what), begin(0), current(0), end(0)
+                : std::runtime_error(_what), current_position(0)
             {
             }
         virtual ~error() throw() = 0;
-        const char* begin;
-        const char* current;
-        const char* end;
+        size_t current_position;
         };
 
 #define define_exception(name, msg) \
@@ -102,7 +100,7 @@ namespace varexp
 
     // Expand variable expressions in a text buffer.
 
-    void var_expand(const char* input, const size_t input_len,
+    void var_expand(const std::string& input,
                     std::string& result, callback_t& lookup,
                     const var_config_t* config = 0);
 

@@ -187,7 +187,7 @@ try
 
         string tmp;
         printf("Test case #%02d: Unescaped input is '%s'.\n", i, buffer);
-        var_expand(buffer, strlen(buffer), tmp, lookup);
+        var_expand(buffer, tmp, lookup);
         printf("Test case #%02d: Expanded output is '%s'.\n", i, tmp.c_str());
 
         if (tmp.size() != strlen(tests[i].expected) ||

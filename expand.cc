@@ -18,16 +18,14 @@ namespace varexp
         "a-zA-Z0-9_"                // namechars
         };
 
-    void var_expand(const char* input_buf, const size_t input_len,
+    void var_expand(const string& buffer,
                     string& result,
                     callback_t& lookup,
                     const var_config_t* config)
         {
         // Argument sanity checks
 
-        if (input_buf == 0)
-            throw invalid_argument("empty input buffer for varexp::expand()");
-        if (input_len == 0)
+        if (buffer.empty())
             return;
 
         // If no configuration has been provided, use the default.
@@ -38,13 +36,11 @@ namespace varexp
         // Call the parser.
 
         parser p(*config, lookup);
-        size_t rc = p.input(input_buf, input_buf + input_len, result);
-        if (rc != input_len)
+        size_t rc = p.input(buffer.data(), buffer.data() + buffer.size(), result);
+        if (rc != buffer.size())
             {
             input_isnt_text_nor_variable e;
-            e.begin   = input_buf;
-            e.current = input_buf + rc;
-            e.end     = input_buf + input_len;
+            e.current_position = rc;
             throw e;
             }
         }

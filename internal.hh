@@ -44,7 +44,7 @@ namespace varexp
         class parser
             {
           protected:
-            friend void varexp::var_expand(const char* input_buf, const size_t input_len,
+            friend void varexp::var_expand(const std::string& input,
                                            std::string& result, callback_t& lookup,
                                            const var_config_t* config);
 

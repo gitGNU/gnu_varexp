@@ -37,7 +37,9 @@ namespace varexp
                 }
             else if (isdigit(*p))
                 {
-                rc = number(p, end, static_cast<unsigned int>(result));
+                unsigned int tmp;
+                rc = number(p, end, tmp);
+                result = tmp;
                 p += rc;
                 }
             else if (*p == '+')
@@ -45,7 +47,9 @@ namespace varexp
                 if (end - p > 1 && isdigit(p[1]))
                     {
                     p++;
-                    rc = number(p, end, static_cast<unsigned int>(result));
+                    unsigned int tmp;
+                    rc = number(p, end, tmp);
+                    result = tmp;
                     p += rc;
                     }
                 else
@@ -56,7 +60,9 @@ namespace varexp
                 if (end - p > 1 && isdigit(p[1]))
                     {
                     p++;
-                    rc = number(p, end, static_cast<unsigned int>(result));
+                    unsigned int tmp;
+                    rc = number(p, end, tmp);
+                    result = tmp;
                     p += rc;
                     result = 0 - result;
                     }

@@ -26,6 +26,7 @@ int main(int argc, char** argv)
         { "abcabc",         "abc",                          VAR_OK                   },
         { "a-z",            "abcdefghijklmnopqrstuvwxyz",   VAR_OK                   },
         { "a-eA-Eabcdef-",  "-ABCDEabcdef",                 VAR_OK                   },
+        { "-a-eA-Eabcdef-", "-ABCDEabcdef",                 VAR_OK                   },
         { "0-9-",           "-0123456789",                  VAR_OK                   },
         { "g-a",            NULL,                           VAR_INCORRECT_CLASS_SPEC }
         };

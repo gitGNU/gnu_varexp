@@ -5,47 +5,30 @@
 #include "../varexp.hh"
 using namespace varexp;
 
-int dummy(void* context,
-          const char* varname, size_t name_len, int idx,
-          const char** data, size_t* data_len, size_t* buffer_size)
+struct dummy : public callback_t
     {
-    if (name_len != sizeof("test")-1)
+    virtual void operator()(const std::string& name, std::string& data)
         {
-        printf("The the length of the variable name (%d) doesn't fit.\n", name_len);
-        exit(1);
+        if (name == "test")
+            data = "foobar";
+        else
+            throw undefined_variable();
         }
-    if (memcmp(varname, "test", sizeof("test")-1) != 0)
+    virtual void operator()(const std::string& name, int idx, std::string& data)
         {
-        printf("Callback called for unknown variable.\n");
-        exit(1);
+        throw std::runtime_error("Not implemented.");
         }
-    *data        = "foobar";
-    *data_len    = sizeof("foobar")-1;
-    *buffer_size = 0;
-
-    return 1;
-    }
+    };
 
 int main(int argc, char** argv)
     {
     const char* input  = "This is a $test!";
     const char* output = "This is a foobar!";
-    char*    tmp;
-    size_t   tmp_len;
+    std::string tmp;
+    dummy lookup;
 
-    var_expand(input, strlen(input),
-               &tmp, &tmp_len,
-               &dummy, 0,
-               0);
-
-    if (tmp_len != strlen(output))
-        {
-        printf("The length of the output string is not what we expected: %d != %d.\n",
-               tmp_len, strlen(output));
-        return 1;
-        }
-
-    if (memcmp(tmp, output, tmp_len) != 0)
+    expand(input, tmp, lookup);
+    if (tmp != output)
         {
         printf("The buffer returned by var_expand() is not what we expected.\n");
         return 1;

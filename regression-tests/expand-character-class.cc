@@ -17,7 +17,7 @@ struct test_case
     {
     const char* input;
     const char* expected;
-    var_rc_t    rc;
+    int         rc;
     };
 
 int main(int argc, char** argv)

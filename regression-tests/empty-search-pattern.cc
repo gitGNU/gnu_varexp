@@ -5,32 +5,27 @@
 #include "../varexp.hh"
 using namespace varexp;
 
-int env_lookup(void* context,
-               const char* varname, size_t name_len, int idx,
-               const char** data, size_t* data_len, size_t* buffer_size)
+struct env_lookup : public callback_t
     {
-    char tmp[256];
-
-    if (name_len > sizeof(tmp)-1)
+    virtual void operator()(const std::string& name, std::string& data)
         {
-        printf("Callback can't expand variable names longer than %d characters.\n", sizeof(tmp-1));
-        exit(1);
+        const char* p = getenv(name.c_str());
+        if (p == NULL)
+            throw undefined_variable();
+        else
+            data = p;
         }
-    memcpy(tmp, varname, name_len);
-    tmp[name_len] = '\0';
-    *data = getenv(tmp);
-    if (*data == NULL)
-        throw undefined_variable();
-    *data_len = strlen(*data);
-    *buffer_size = 0;
-    return 1;
-    }
+    virtual void operator()(const std::string& name, int idx, std::string& data)
+        {
+        throw std::runtime_error("Not implemented.");
+        }
+    };
 
 int main(int argc, char** argv)
     {
     const char* input = "${HOME:s/$EMPTY/test/}";
-    char*    tmp;
-    size_t   tmp_len;
+    std::string tmp;
+    env_lookup lookup;
 
     if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
         setenv("EMPTY", "", 1) != 0)
@@ -40,10 +35,8 @@ int main(int argc, char** argv)
         }
     try
         {
-        var_expand(input, strlen(input),
-                   &tmp, &tmp_len,
-                   &env_lookup, NULL,
-                   NULL);
+        expand(input, tmp, lookup);
+        return 1;
         }
     catch(const empty_search_string&)
         {

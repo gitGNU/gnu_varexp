@@ -9,7 +9,7 @@ struct test_case
     {
     const char* input;
     const char* expected;
-    var_rc_t    rc;
+    int         rc;
     };
 
 int main(int argc, char** argv)
@@ -43,10 +43,10 @@ int main(int argc, char** argv)
 
     for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {
-        var_unescape(tests[i].input, strlen(tests[i].input), tmp, 0);
+        unescape(tests[i].input, strlen(tests[i].input), tmp, 0);
         if (tests[i].expected != NULL && strcmp(tmp, tests[i].expected) != 0)
             {
-            printf("var_unescape() failed test case %d.\n", i);
+            printf("unescape() failed test case %d.\n", i);
             return 1;
             }
         }

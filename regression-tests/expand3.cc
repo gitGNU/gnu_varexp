@@ -5,26 +5,21 @@
 #include "../varexp.hh"
 using namespace varexp;
 
-int env_lookup(void* context,
-               const char* varname, size_t name_len, int idx,
-               const char** data, size_t* data_len, size_t* buffer_size)
+struct env_lookup : public callback_t
     {
-    char tmp[256];
-
-    if (name_len > sizeof(tmp)-1)
+    virtual void operator()(const std::string& name, std::string& data)
         {
-        printf("Callback can't expand variable names longer than %d characters.\n", sizeof(tmp-1));
-        exit(1);
+        const char* p = getenv(name.c_str());
+        if (p == NULL)
+            throw undefined_variable();
+        else
+            data = p;
         }
-    memcpy(tmp, varname, name_len);
-    tmp[name_len] = '\0';
-    *data = getenv(tmp);
-    if (*data == NULL)
-        throw undefined_variable();
-    *data_len = strlen(*data);
-    *buffer_size = 0;
-    return 1;
-    }
+    virtual void operator()(const std::string& name, int idx, std::string& data)
+        {
+        throw std::runtime_error("Not implemented.");
+        }
+    };
 
 int main(int argc, char** argv)
     {
@@ -36,8 +31,9 @@ int main(int argc, char** argv)
         "$HOME      = '/home/regression-tests'\n"  \
         "$OSTYPE    = 'regression-os'\n"           \
         "$TERM      = 'regression-term'\n";
-    char*    tmp;
-    size_t   tmp_len;
+    std::string tmp;
+    env_lookup lookup;
+    char buffer[1024];
 
     if (setenv("HOME", "/home/regression-tests", 1) != 0 ||
         setenv("OSTYPE", "regression-os", 1) != 0 ||
@@ -47,21 +43,11 @@ int main(int argc, char** argv)
         return 1;
         }
     unsetenv("UNDEFINED");
-    var_expand(input, strlen(input),
-               &tmp, &tmp_len,
-               &env_lookup, 0,
-               0);
-    var_unescape(tmp, tmp_len, tmp, 1);
-    tmp_len = strlen(tmp);
 
-    if (tmp_len != strlen(output))
-        {
-        printf("The length of the output string is not what we expected: %d != %d.\n",
-               tmp_len, strlen(output));
-        return 1;
-        }
+    expand(input, tmp, lookup);
+    unescape(tmp.c_str(), tmp.size(), buffer, 1);
 
-    if (memcmp(tmp, output, tmp_len) != 0)
+    if (std::string(buffer, strlen(buffer)) != output)
         {
         printf("The buffer returned by var_expand() is not what we expected.\n");
         return 1;

@@ -76,7 +76,7 @@
 
     variable        : '$' ( name | expression )
 
-    expression      : START-DELIM ( name | variable ) ( ':' command )* END-DELIM
+    expression      : START-DELIM ( name | variable )+ ( ':' command )* END-DELIM
 
     name            : ( VARNAME | SPECIAL1 | SPECIAL2 )+
 

@@ -41,6 +41,9 @@ realclean distclean clean::
 	@find . -name '.#*'   -exec rm -f {} \;
 	@echo All dependent files have been removed.
 
+realclean::
+	@(cd documentation && $(MAKE) realclean)
+
 depend::
 	makedepend -Y -fMakefile '-s# Dependencies' `find . -name '*.cc' ` 2>/dev/null
 	@sed <Makefile >Makefile.bak -e 's/\.\///g'
@@ -60,12 +63,14 @@ dist:
 	@V=`cat VERSION`; \
 	cp -ra . /tmp/libvarexp-$$V; \
 	$(MAKE) >/dev/null -C /tmp/libvarexp-$$V distclean; \
-	find /tmp/libvarexp-$$V -name 'Odinfile' -exec rm -f {} \; ; \
 	find /tmp/libvarexp-$$V -name 'CVS' -print | xargs rm -rf \; ; \
 	find /tmp/libvarexp-$$V -name '.cvsignore' -exec rm -f {} \; ; \
 	(cd /tmp; tar cfz libvarexp-$$V.tar.gz libvarexp-$$V); \
 	rm -rf /tmp/libvarexp-$$V; \
 	echo Created distribution archive /tmp/libvarexp-$$V.tar.gz
+
+tag::
+	echo cvs tag -c libvarexp-`sed <VERSION -e 's#\.#-#g'`
 
 # Dependencies
 

@@ -76,45 +76,41 @@ namespace varexp
     define_exception(invalid_char_in_loop_limits,    "invalid character in loop limits");
 #undef define_exception
 
-    /* Expand quoted pairs to their binary representation. */
+    // Expand quoted pairs to their binary representation.
 
     typedef int var_rc_t;
     void var_unescape(const char* src, size_t len, char* dst, int unescape_all);
 
 
-    /* Prototype for the lookup callback used in var_expand(). */
+    // Prototype for the lookup callback used in var_expand().
 
     typedef var_rc_t (*var_cb_t)(void* context,
                                  const char* varname, size_t name_len, int idx,
                                  const char* *data, size_t* data_len,
                                  size_t* buffer_size);
 
-    /* Configure the var_expand() parser's tokens. */
+    // Configure the var_expand() parser's tokens.
 
     typedef struct
         {
-        char varinit;        /* '$' */
-        char startdelim;     /* '{' */
-        char enddelim;       /* '}' */
-        char startindex;     /* '[' */
-        char endindex;       /* ']' */
-        char current_index;  /* '#' */
-        char escape;         /* '\' */
-        char* namechars;     /* 'a-zA-Z0-9_' */
+        char  varinit;        // '$'
+        char  startdelim;     // '{'
+        char  enddelim;       // '}'
+        char  startindex;     // '['
+        char  endindex;       // ']'
+        char  current_index;  // '#'
+        char  escape;         // '\'
+        char* namechars;      // 'a-zA-Z0-9_'
         }
     var_config_t;
     extern const var_config_t var_config_default;
 
-    /* Expand variable expressions in a text buffer. */
+    // Expand variable expressions in a text buffer.
 
     void var_expand(const char* input, size_t input_len,
                     char* *result, size_t* result_len,
                     var_cb_t lookup, void* lookup_context,
                     const var_config_t* config);
-
-    /* Map an error code to a text message. */
-
-    const char* var_strerror(int rc);
     }
 
-#endif /* !defined(LIB_VARIABLE_EXPAND_HH) */
+#endif // !defined(LIB_VARIABLE_EXPAND_HH)

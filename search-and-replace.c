@@ -5,6 +5,7 @@
 #include "internal.h"
 
 #include <stdio.h>
+#include <dmalloc.h>
 
 int search_and_replace(tokenbuf* data, tokenbuf* search, tokenbuf* replace, tokenbuf* flags)
     {

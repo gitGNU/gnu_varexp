@@ -57,6 +57,7 @@ offset-failure.exe == offset-failure.c +(%test.flags) :exe
         name=`basename "${suite}"`
         name=`expr "${name}" : '\(.*\)\.exe$'`
         echo "$name$pad" | awk '{ printf("%s ", substr($0, 0, n)); }' n=$RESCOLUMN
+        export DMALLOC_OPTIONS=debug=0x4f47d03,inter=1,log=/tmp/$name.dmalloc
         numTests=`expr $numTests + 1`
         eval $suite >/dev/null 2>&1
         if [ $? -eq 0 ]; then

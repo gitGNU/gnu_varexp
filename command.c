@@ -4,6 +4,7 @@
 #include "internal.h"
 
 #include <stdio.h>
+#include <dmalloc.h>
 
 int command(const char* begin, const char* end, const var_config_t* config,
             const char nameclass[256], var_cb_t lookup, void* lookup_context,

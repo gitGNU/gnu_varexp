@@ -4,6 +4,7 @@
 #include "internal.h"
 
 #include <stdio.h>
+#include <dmalloc.h>
 
 int text(const char* begin, const char* end, char varinit, char escape)
     {

@@ -3,6 +3,7 @@
 #include "internal.h"
 
 #include <stdio.h>
+#include <dmalloc.h>
 
 const var_config_t var_config_default =
     {

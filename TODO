@@ -76,13 +76,13 @@
 
     name            : ( VARNAME | SPECIAL1 | SPECIAL2 )+
 
-    command         : '-' ( EXPTEXT | variable )*
-                    | '+' ( EXPTEXT | variable )*
+    command         : '-' ( EXPTEXT | variable )+
+                    | '+' ( EXPTEXT | variable )+
                     | 'o' ( NUMBER ('-' | ',') ( NUMBER )? )
                     | '#'
-                    | '*' ( EXPTEXT | variable )*
-                    | 's' '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/' ( 'g' | 'i' | 't' )*
-                    | 'y' '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/'
+                    | '*' ( EXPTEXT | variable )+
+                    | 's' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/' ( 'g' | 'i' | 't' )*
+                    | 'y' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/'
                     | 'l'
                     | 'u'
 

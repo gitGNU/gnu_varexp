@@ -43,6 +43,7 @@ realclean distclean clean::
 
 realclean::
 	@(cd documentation && $(MAKE) realclean)
+	rm -f README
 
 depend::
 	makedepend -Y -fMakefile '-s# Dependencies' `find . -name '*.cc' ` 2>/dev/null

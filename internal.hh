@@ -18,9 +18,9 @@ namespace varexp
         class parser
             {
           protected:
-            friend void ::varexp::expand(const string& input,
-                                         string& result, callback_t& lookup,
-                                         const config_t* config);
+            friend void varexp::expand(const string& input,
+                                       string& result, callback_t& lookup,
+                                       const config_t* config);
 
             parser(const config_t& _config, callback_t& _lookup);
             size_t input(const char* begin, const char* end, string& result);

@@ -1,175 +1,131 @@
-                              libvar.a
+                               OSSP var
 
- - Prefix ist "var_", beziehungsweise "VAR_".
+ - Man braucht ein Schleifenkonstrukt, das über Arrays iteriert:
 
- - Eine Variable kann im Text in der Form $name oder ${name} angegeben
-   werden, wobei die Wahl der Klammern '{' '}' und des '$'
-   parametriesiert werden können.
+       [${foo}${bar}]
 
- - Gültige Zeichen für einen Variablennamen sind konfigurierbar.
-   Garbage in -- garbage out.
+   Dies wird so interpretiert, daß der Parser an den Variablennamen
+   den jeweiligen Index anhängt, und die ganze Zeile expandiert,
+   solange, bis _alle_ in dem Konstrukt verwandten Variablen für den
+   derzeitigen Index undefiniert sind -- sind nur einzelne Variablen
+   undefiniert, werden sie durch den Leerstring "" ersetzt. Text
+   innerhalb des Konstrukten wird "verbatim" in jeder Zeile erhalten,
+   beispielsweise:
 
- - Ein echtes '$'-Zeichen im Text kann durch Voranstellung eines
-   wählbaren Escapezeichen dargestellt werden. Default ist der
-   Backslash ('\').
+        [${foo}: ${bar}\n]
 
- - Der Aufrufer der Funktion soll steuern können, wie sich die Library
-   verhält, wenn eine Variable nicht existiert. Denkbar sind:
+   Hierzu muß var_expand() wissen, wie sie einen indizierten
+   Variablenzugriff erzeugen kann. Hierzu wird var_config_t um
+   "char startindex" und "char endindex" erweitert. Weiterhin wird in
+   var_config_t "char current_index" ein Zeichen konfiguriert, unter
+   dem der aktuelle Index der Schleife zu bekommen ist. Defaults
+   werden sein: "[", "]" und "#" respektive.
 
-    - Abbruch mit Fehler,
-    - die Variable wird zu "", oder
-    - der Ausdruck wird unverändert in den Ausgabetext übernommen,
-      sodaß eventuell ein zweiter Pass gemacht werden kann.
+   Wenn Variablen innerhalb des Konstruktes bereits einen Index haben,
+   wird dieser (unter Beachtung eventuell notwendiger Arithmetik)
+   berechnet und "fest" verwendet, zum Beispiel:
 
- - ${parameter:-word} wird normal expandiert. Wenn "parameter" leer
-   ist, wird stattdessen "word" eingesetzt.
+       [${foo[1]}]
 
- - ${parameter:+word} substituiert "word" wenn "parameter" nicht leer
-   ist, sonst wird "" substituiert.
+   oder
 
- - ${parameter:o<start>-}, ${parameter:o<start>-<end>}
+       [${foo[(#+1)/2]}]
 
- - ${parameter:o<start>,}, ${parameter:o<start>,<length>}
+   Dementsprechend sind die folgenden Ausdrück equivalent:
 
- - ${parameter:#} expandiert zur Länge des Inhaltes von "parameter".
+       [${foo[#]}] == [${foo}]
 
- - ${parameter:s/pattern/string/[gti]} expandiert "parameter" und
-   führt dann eine Ersetzung mittels des regulären Ausdrucks "pattern"
-   durch. Wird das 'g'-Flag angegeben, wird nicht nur eine Instanz von
-   "pattern" durch "string" ersetzt, sondern alle. Das 't'-Flag
-   signalisiert, daß eine reine Text-Ersetzung ohne Unterstützung von
-   regulären Ausdrücken gewünscht ist. Das 'i'-Flag besagt, daß die
-   Suche nach "pattern" case-insensitiv durchgeführt wird.
+   Wir unterstützen die vier Grundrechenarten, Modulo und Klammerung
+   für arithmetische Operationen.
 
- - ${parameter:y/ochars/nchars/} expandiert den Inhalt von "parameter"
-   und transformiert dabei nach dem Prinzip von tr(1) die "ochars" im
-   Text zu "nchars".
+   Weiterhin wird der Callback um einen Parameter "int index"
+   erweitert, welchen im Falle eines "normalen Variablenzugriffs" auf
+   Null gesetzt wird. Zugriffe auf Indices, die nicht existieren,
+   müssen vom Callback mit "UNDEFINED" quittiert werden. Ein Zugriff
+   auf einen negativen Index liefert die Anzahl der Elemente in dem
+   Array als String zurück. Ebenso liefert das Konstrukt ${foo:#} die
+   Anzahl der Elemente zurück, wenn $foo ein Array ist.
 
- - ${parameter:l} wandelt den Inhalt von "parameter" in
-   Kleinbuchstaben, bevor es die Variable expandiert. Dies geschieht
-   über toupper(3).
+   [...]-Konstrukte können beliebig tief geschachtelt werden.
 
- - ${parameter:u} wandelt den Inhalt von "parameter" in
-   Großbuchstaben, bevor es die Variable expandiert. Dies geschieht
-   über tolower(3).
-
- - ${parameter:*word} expandiert zum leeren Wort, wenn "parameter"
-   nicht leer ist, sonst zu "word".
-
- - Padding: ${parameter:p/<width>/<string>/<align>} expandiert
-   "parameter" in einen String der Mindestbreite <width>, wobei abhaengig
-   von <align> ("r" = right, "l" = left, "c" = center) noch fehlende
-   Zeichen mit <string> aufgefuellt werden. Diest ist gedacht, um in
-   Templates saubere Tabellen erzeugen zu koennen.
-   Beispiele (foo="bar"):
-       "${foo:p/6/./r}" -> "bar..."
-       "${foo:p/6/./l}" -> "...bar"
-       "${foo:p/6/./c}" -> ".bar.." (oder "..bar.", egal)
-       "${foo:p/20/-=/c}" -> "-=-=-=-=-bar-=-=-=-="
-
- - Jedes Vorkommen eines der folgenden Konstrukte im Text wird durch
-   das zugehörige Sonderzeichen ersetzt.
-
-       \t          tab
-       \n          newline
-       \r          return
-       \033        octal char
-       \x1B        hex char
-       \x{263a}    wide hex char
-
- - Syntax:
-
-    input           : ( TEXT | variable )*
-
-    variable        : '$' ( name | expression )
-
-    expression      : START-DELIM ( name | variable )+ ( ':' command )* END-DELIM
-
-    name            : ( VARNAME | SPECIAL1 | SPECIAL2 )+
-
-    command         : '-' ( EXPTEXT | variable )+
-                    | '+' ( EXPTEXT | variable )+
-                    | 'o' ( NUMBER ('-' | ',') ( NUMBER )? )
-                    | '#'
-                    | '*' ( EXPTEXT | variable )+
-                    | 's' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/' ( 'g' | 'i' | 't' )*
-                    | 'y' '/' ( variable | SUBSTTEXT )+ '/' ( variable | SUBSTTEXT )* '/'
-                    | 'p' '/' NUMBER '/' ( variable | SUBSTTEXT )* '/' ( 'r' | 'l' | 'c' )
-                    | 'l'
-                    | 'u'
-
-    START-DELIM     : '{'
-
-    END-DELIM       : '}'
-
-    VARNAME         : '[a-zA-Z0-9_]+'
-
-    SPECIAL1        : '['
-
-    SPECIAL2        : ']'
-
-    NUMBER          : '[0-9]+'
-
-    SUBSTTEXT       : '[^$/]'
-
-    EXPTEXT         : '[^$}:]+'
-
-    TEXT            : '[^$]+'
-
- - Doku sollte ein Beispiel für Quoting von Shell- und
-   Regexp-Ausdrücken enthalten.
-
- - Wir unterstützen PCRE-, POSIX-Regex- oder keine regulären
-   Ausdrücke. Dies kann über autoconf zur Compilezeit angegeben
+   Innerhalb von Indixangaben dürfen erneut Variablen verwendet
    werden.
 
- - Das Escaping-Problem:
+   Arrays werden nur in "expressions" erkannt, und im Konstrukt werden
+   auch nur "expressions" gesondert behandelt; normale Variablen
+   werden in jedem Pass normal expandiert.
 
-Unsere Library macht zwei Dinge:
+   Sind "stardindex", "endindex" oder "current_index" leer (gleich
+   '\0'), wird dieses Konstrukt vom Parser nicht erkannt und als Text
+   interpretiert -- abgesehen von den Variablen, natürlich, welche
+   aber nicht in einer Schleife expandiert werden, noch werden beim
+   Callback Array-Elemente abgefragt.
 
- (1) Sie expandiert Variablen-Ausdrücke mit Unterstützung von
-     Operationen wie Suchen/Ersetzen, und
+ - Abgabe: 6.12.2001 zum Nikolaustag im CVS.
 
- (2) sie expandiert sogenannte "quoted pairs", wie zum Beispiel \n.
+ **** CLARIFICATION ****
 
-Das Problem ist nun, daß sie dies in zwei Pässen tun will -- und muß.
-Die Frage ist jedoch, in welcher Reihenfolge tut sie es und welche
-Ergebnisse werden in den Ausgabetext ausgegeben? Betrachtet man
-folgendes Beispiel, wird das Problem klarer:
+    <            [ $HOME ${ARRAY} ]
+    is same as > [ $HOME ${ARRAY[0]} ]
+    must use   > [ $HOME ${ARRAY[#]} ]
 
-    Variablen: TEST = foo
-    Eingabe..: Der Betrag auf Konto $TEST ist \$50.
+    Correction to termination condition: we loop unless all ARRAYs containing
+    '#' somewhere in the index expression return undefined. Any array using an
+    constant index and scalar variables are ignored when evaluating the
+    termination condition. Additionally we need support for explicit indexing,
+    ranges and stepping using the following "regex-style" quantifiers:
 
-Soll die korrekte Ausgabe an dieser Stelle nun
+                 [ ... body ... ]{begin,step,end}
+                 [ ... body ... ]{begin,end}
 
-    Der Betrag auf Konto foo ist \$50.
+                 begin, step and end can be digits or arithmetic expressions
+                 using variables (exactly like the index expressions) or empty
+                 string with default for the empty string
+                 - begin = 0
+                 - step  = 1
+                 - end   = maximum of all $#{anyvar} where  ${anyvar[...#...]}
+                           occurs in body.
 
-oder
+                 {,,} is same as {0,end} and can be omitted.
 
-    Der Betrag auf Konto foo ist $50.
+    <            ${ARRAY:s/foo/bar:#}
+    is same as > ${ARRAY[0]:s/foo/bar/:#}
 
-sein? Die erste Form ist die, die man intuitiv erwartet, die zweite
-Form ist jedoch die, die man braucht, wenn man den Text durch mehrere
-Pässe jagen will -- was wir ausdrücklich vorgesehen haben.
+    This means that operation has nothing to do with arrays but works on
+    scalars.
 
-Schlimmer noch: Wie soll die Library die Eingabe
+    Correction to index variable from var_cb_t: this is a signed integer and
+    allows negative, zero and positive indexes. It's up to the lookup callback
+    to decide what is undefined. Some callbacks may support negative indices
+    to support indexing from the end backwards through the array.
 
-    Der Betrag auf Konto ${TEST:s/(.*)/\1bar/} ist \$50.
+    This means negative numbers can not be used as the magic identifier for
+    "gimme the number of elements for this variable".
 
-interpretieren? Würde unser Parser das Token "\1" interpretieren,
-würde nur eine "1" zurückbleiben, der Benutzer müßte also "\\1"
-schreiben, um das Ergebnis zu erhalten, was er erwartet.
-Interpretierte unser Parser die "quoted pairs" nicht, könnte man den
-Ausdruck
+    The callback needs another input, enum { VAR_LOOKUP_VALUE,
+    VAR_LOOKUP_ELEMENTS, ... } var_lookup_t which tells the callback what to
+    look up. Initially, only these modes are supported but we have room for
+    future expansion here.
 
-    ${TEST:s/\n/ /g}
+    The syntax change to adopt these changes is: $#{foo} returns the number of
+    elements in foo while ${foo:#} returns the number of characters in the
+    expanded value of foo. This keeps :# an command and makes ${foo} executing
+    callback with VAR_LOOKUP_VALUE and $#{foo} executing callback with
+    VAR_LOOKUP_ELEMENTS. Additionally it adopts Perl syntax. Extreme case:
+    $#{foo:#} tells you how many digits the number of elements of foo has.
 
-nicht verwenden, weil die Regular-Expression-Funktionen ein '\n' nicht
-kennen.
+    Examples now working correctly:
 
-Nehmen wir also an, wir interpretieren "quoted pairs" und leben damit,
-daß der Benutzer dann doppelt escapen muß ... Wie verhält sich das
-dann mit mehreren Pässen? Läuft die Library zweimal über die Eingabe,
-bräuchte man bereits
+    - Creation of a Newsgroups: header from To: headers w/o the last comma
 
-    Der Betrag auf Konto ${TEST:s/(.*)/\\1bar/} ist \$50.
+        Newsgroup: [${To[#]}${To[#+1]:+${Separator} }]
+        Newsgroup: [${To[#-1]:+${Separator} }${To[#]}]
+
+    - Assume index zero is a header and the last element is a footer. Print a
+      table with header, ruler, body, ruler and footer.
+
+        ${foo[0]}
+        ${empty:p/-/${foo[0]:#}/}
+        [$foo{#}\n]{1,$#{foo}-1}
+        ${empty:p/-/${foo[$#{foo}]:#}/}
+        ${foo[$#{foo}]}

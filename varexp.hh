@@ -11,11 +11,8 @@ namespace varexp
 
     struct error : public std::runtime_error
         {
-        error(const std::string& _what,
-              const char* _begin,
-              const char* _current,
-              const char* _end)
-                : std::runtime_error(_what)
+        error(const std::string& _what)
+                : std::runtime_error(_what), begin(0), current(0), end(0)
             {
             }
         virtual ~error() throw() = 0;
@@ -24,12 +21,11 @@ namespace varexp
         const char* end;
         };
 
-#define define_exception(name, msg)                                       \
-    struct name : public error                                            \
-        {                                                                 \
-        name()                                                            \
-            : error(msg, 0, 0, 0) { }                                     \
-        ~name() throw() { }                                               \
+#define define_exception(name, msg) \
+    struct name : public error      \
+        {                           \
+        name() : error(msg) { }     \
+        ~name() throw() { }         \
         }
 
     define_exception(incomplete_named_character,     "incomplete named character");
@@ -79,7 +75,6 @@ namespace varexp
     // Expand quoted pairs to their binary representation.
 
     void var_unescape(const char* src, size_t len, char* dst, int unescape_all);
-
 
     // Prototype for the lookup callback used in var_expand().
 

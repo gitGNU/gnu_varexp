@@ -1,0 +1,14 @@
+# Build variable-expression library.
+
+libvarexp.a == %libvarexp.a.sm :a
+
+%libvarexp.a.sm == <<
+    expand-variables.cc
+
+test == test.cc +lib=(libvarexp.a) \
+                +cxx_flags='-Wall -ansi -pedantic' \
+                +optimize=3 \
+                :exe
+
+%clean ! == !<<
+    rm -f test libvarexp.a

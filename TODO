@@ -16,10 +16,19 @@
  - Ein echtes '$'-Zeichen im Text kann durch Voranstellung eines
    wählbaren Escapezeichen dargestellt werden.
 
+ - Über Parameter ist ein generelles Escape-Zeichen wählbar (Default:
+   '\'), welches jedes Eingabezeichen escapen kann.
+
  - Kann eine Variable nicht expandiert werden, so entscheidet der
    Callback: Gibt er "" zurück, wird die Variable durch den leeren
    String ersetzt, gibt er NULL zurück, bricht die Verarbeitung mit
    einem Fehler ab.
+
+   Weiterhin kann der Aufrufer der Funktion ein Flag angeben, welches
+   besagt, ob Variablen, die nicht expandiert werden können einen
+   Fehler auslösen, beziehungsweise zu "" werden, oder ob der Ausdruck
+   unverarbeitet wieder in den Ausgabetext geschrieben wird, wie man
+   es zur Realisierung mehrer Pässe bräuchte.
 
  - ${parameter} wird zum Inhalt der Variable "parameter".
 
@@ -42,19 +51,11 @@
 
  - ${#parameter} expandiert zur Länge des Inhaltes von "parameter".
 
- - ${parameter#word} expandiert zum Inhalt von "parameter" schneidet
-   jedoch ein Prefix ab, das "word" entspricht. "word" kann wieder
-   eine Variable sein.
-
- - ${parameter%word} expandiert zum Inhalt von "parameter" schneidet
-   jedoch ein Suffix ab, das "word" entspricht. "word" kann wieder
-   eine Variable sein.
-
  - ${parameter/pattern/string} expandiert "parameter" und ersetzt dann
    das erste Vorkommen von "pattern" durch "string". Beide Werte
    können wiederum Variablen sein.
 
- - ${parameter/pattern/string} expandiert "parameter" und ersetzt dann
+ - ${parameter//pattern/string} expandiert "parameter" und ersetzt dann
    alle Vorkommen von "pattern" durch "string". Beide Werte können
    wiederum Variablen sein.
 
@@ -112,6 +113,10 @@
 
  - ${parameter:*word} expandiert zum leeren Wort, wenn "parameter"
    nicht leer ist.
+
+ - ${parameter:y/ochars/nchars/} expandiert den Inhalt von "parameter"
+   und transformiert dabei nach dem Prinzip von tr(1) die "ochars" im
+   Text zu "nchars".
 
  - Nicht unterstützt werden:
 

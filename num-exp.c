@@ -1,6 +1,6 @@
 #include "internal.h"
 
-static int num_exp_read_int(const char **begin, const char *end)
+static int num_exp_read_int(const char** begin, const char* end)
     {
     int num = 0;
 
@@ -14,11 +14,11 @@ static int num_exp_read_int(const char **begin, const char *end)
     return num;
     }
 
-static int num_exp_read_operand(const char *begin, const char *end, int current_index,
-                                int *result, int *rel_lookup_flag,
-                                const var_config_t *config,
+static int num_exp_read_operand(const char* begin, const char* end, int current_index,
+                                int* result, int* rel_lookup_flag,
+                                const var_config_t* config,
                                 const char_class_t nameclass,
-                                var_cb_t lookup, void *lookup_context)
+                                var_cb_t lookup, void* lookup_context)
     {
     const char* p = begin;
     tokenbuf_t tmp;
@@ -90,14 +90,13 @@ static int num_exp_read_operand(const char *begin, const char *end, int current_
     return p - begin;
     }
 
-int num_exp(const char *begin, const char *end, int current_index,
-                   int *result, int *rel_lookup_flag,
-                   const var_config_t *config,
+int num_exp(const char* begin, const char* end, int current_index,
+                   int* result, int* rel_lookup_flag,
+                   const var_config_t* config,
                    const char_class_t nameclass,
-                   var_cb_t lookup, void *lookup_context)
-
+                   var_cb_t lookup, void* lookup_context)
     {
-    const char *p = begin;
+    const char* p = begin;
     char operator;
     int right;
     int rc;

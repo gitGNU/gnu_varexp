@@ -3,8 +3,9 @@
 /* The var_strerror() routine will map a var_rc_t into a text message. */
 
 const char* var_strerror(var_rc_t rc)
-{
-    static char *var_errors[] = {
+    {
+    static char* var_errors[] =
+        {
         "OK",                                                                   /* VAR_OK = 0 */
         "incomplete named character",                                           /* VAR_ERR_INCOMPLETE_NAMED_CHARACTER = -1 */
         "incomplete hex",                                                       /* VAR_ERR_INCOMPLETE_HEX = -2 */
@@ -49,12 +50,12 @@ const char* var_strerror(var_rc_t rc)
         "division by zero error in index specification",                        /* VAR_ERR_DIVISION_BY_ZERO_IN_INDEX = -41 */
         "unterminated loop construct",                                          /* VAR_ERR_UNTERMINATED_LOOP_CONSTRUCT = -42 */
         "invalid character in loop limits"                                      /* VAR_ERR_INVALID_CHAR_IN_LOOP_LIMITS = -43 */
-    };
+        };
 
     rc = 0 - rc;
-    if (rc < 0 || rc >= sizeof(var_errors) / sizeof(char *))
+    if (rc < 0 || rc >= sizeof(var_errors) / sizeof(char*))
         return "unknown error";
 
     return var_errors[rc];
-}
+    }
 

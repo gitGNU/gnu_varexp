@@ -1,13 +1,13 @@
 #include "internal.h"
 
-int expression(const char *begin, const char *end,
-               const var_config_t *config,
+int expression(const char* begin, const char* end,
+               const var_config_t* config,
                const char_class_t nameclass, var_cb_t lookup,
-               void *lookup_context,
-               tokenbuf_t *result, int current_index, int *rel_lookup_flag)
+               void* lookup_context,
+               tokenbuf_t* result, int current_index, int* rel_lookup_flag)
     {
-    const char *p = begin;
-    const char *data;
+    const char* p = begin;
+    const char* data;
     size_t len, buffer_size;
     int rc;
     int idx = 0;
@@ -59,7 +59,8 @@ int expression(const char *begin, const char *end,
                 }
             p += rc;
             }
-        } while (rc > 0);
+        }
+    while (rc > 0);
 
     /* We must have the complete variable name now, so make sure we
        do. */

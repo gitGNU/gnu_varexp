@@ -1,13 +1,13 @@
 #include "internal.h"
 
-var_rc_t input(const char *begin, const char *end,
-               const var_config_t *config,
+var_rc_t input(const char* begin, const char* end,
+               const var_config_t* config,
                const char_class_t nameclass, var_cb_t lookup,
-               void *lookup_context,
-               tokenbuf_t *output, int current_index,
-               size_t recursion_level, int *rel_lookup_flag)
-{
-    const char *p = begin;
+               void* lookup_context,
+               tokenbuf_t* output, int current_index,
+               size_t recursion_level, int* rel_lookup_flag)
+    {
+    const char* p = begin;
     int rc, rc2;
     tokenbuf_t result;
     int start, step, stop, open_end;
@@ -20,13 +20,16 @@ var_rc_t input(const char *begin, const char *end,
 
     tokenbuf_init(&result);
 
-    if (rel_lookup_flag == NULL) {
+    if (rel_lookup_flag == NULL)
+        {
         rel_lookup_flag  = &my_rel_lookup_flag;
         *rel_lookup_flag = 0;
-    }
+        }
 
-    do {
-        if (begin != end && config->startindex && *begin == config->startindex) {
+    do
+        {
+        if (begin != end && config->startindex && *begin == config->startindex)
+            {
             original_rel_lookup_state = *rel_lookup_flag;
             loop_limit_length = -1;
             wcon.lookup = lookup;
@@ -39,21 +42,23 @@ var_rc_t input(const char *begin, const char *end,
             open_end = 1;
             rc = 0;
             output_backup = 0;
-      re_loop:
+          re_loop:
             for (i = start;
                  (open_end  && (loop_limit_length < 0 || *rel_lookup_flag > original_rel_lookup_state)) ||
                      (!open_end && i <= stop);
-                 i += step) {
+                 i += step)
+                {
                 *rel_lookup_flag = original_rel_lookup_state;
                 output_backup = output->end - output->begin;
                 rc = input(begin, end, config, nameclass, &lookup_wrapper,
                            &wcon, output, i, recursion_level+1, rel_lookup_flag);
                 if (rc < 0)
                     goto error_return;
-                if (begin[rc] != config->endindex) {
+                if (begin[rc] != config->endindex)
+                    {
                     rc = VAR_ERR_UNTERMINATED_LOOP_CONSTRUCT;
                     goto error_return;
-                }
+                    }
                 if (loop_limit_length < 0)
                     {
                     rc2 = loop_limits(begin + rc + 1, end, config, nameclass,
@@ -74,7 +79,7 @@ var_rc_t input(const char *begin, const char *end,
                         goto re_loop;
                         }
                     }
-            }
+                }
             if (open_end)
                 output->end = output->begin + output_backup;
             else
@@ -83,39 +88,47 @@ var_rc_t input(const char *begin, const char *end,
             begin++;
             begin += loop_limit_length;
             continue;
-        }
+            }
 
         rc = text(begin, end, config->varinit, config->startindex,
                   config->endindex, config->escape);
-        if (rc > 0) {
-            if (!tokenbuf_append(output, begin, rc)) {
+        if (rc > 0)
+            {
+            if (!tokenbuf_append(output, begin, rc))
+                {
                 rc = VAR_ERR_OUT_OF_MEMORY;
                 goto error_return;
-            }
+                }
             begin += rc;
             continue;
-        } else if (rc < 0)
-            goto error_return;
+            }
+        else
+            if (rc < 0)
+                goto error_return;
 
         rc = variable(begin, end, config, nameclass, lookup,
                       lookup_context, &result,
                       current_index, rel_lookup_flag);
-        if (rc > 0) {
-            if (!tokenbuf_append(output, result.begin, result.end - result.begin)) {
+        if (rc > 0)
+            {
+            if (!tokenbuf_append(output, result.begin, result.end - result.begin))
+                {
                 rc = VAR_ERR_OUT_OF_MEMORY;
                 goto error_return;
-            }
+                }
             begin += rc;
             continue;
-        }
+            }
         if (rc < 0)
             goto error_return;
-    } while (begin != end && rc > 0);
+        }
+    while (begin != end && rc > 0);
 
-    if (recursion_level == 0 && begin != end) {
+    if (recursion_level == 0 && begin != end)
+        {
         rc = VAR_ERR_INPUT_ISNT_TEXT_NOR_VARIABLE;
         goto error_return;
-    }
+        }
 
     return begin - p;
 
@@ -126,4 +139,4 @@ var_rc_t input(const char *begin, const char *end,
     output->end = begin;
     output->buffer_size = 0;
     return rc;
-}
+    }

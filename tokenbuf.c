@@ -4,7 +4,7 @@
 
 #define TOKENBUF_INITIAL_BUFSIZE 1
 
-void tokenbuf_init(tokenbuf_t *buf)
+void tokenbuf_init(tokenbuf_t* buf)
     {
     buf->begin = NULL;
     buf->end = NULL;
@@ -12,7 +12,7 @@ void tokenbuf_init(tokenbuf_t *buf)
     return;
     }
 
-void tokenbuf_move(tokenbuf_t *src, tokenbuf_t *dst)
+void tokenbuf_move(tokenbuf_t* src, tokenbuf_t* dst)
     {
     dst->begin = src->begin;
     dst->end = src->end;
@@ -21,9 +21,9 @@ void tokenbuf_move(tokenbuf_t *src, tokenbuf_t *dst)
     return;
     }
 
-int tokenbuf_assign(tokenbuf_t *buf, const char *data, size_t len)
+int tokenbuf_assign(tokenbuf_t* buf, const char* data, size_t len)
     {
-    char *p;
+    char* p;
 
     if ((p = malloc(len + 1)) == NULL)
         return 0;
@@ -31,15 +31,15 @@ int tokenbuf_assign(tokenbuf_t *buf, const char *data, size_t len)
     buf->begin = p;
     buf->end = p + len;
     buf->buffer_size = len + 1;
-    *((char *)(buf->end)) = '\0';
+    *((char*)(buf->end)) = '\0';
     return 1;
     }
 
-int tokenbuf_append(tokenbuf_t *output, const char *data, size_t len)
+int tokenbuf_append(tokenbuf_t* output, const char* data, size_t len)
     {
-    char *new_buffer;
+    char* new_buffer;
     size_t new_size;
-    char *tmp;
+    char* tmp;
 
     /* Is the tokenbuffer initialized at all? If not, allocate a
        standard-sized buffer to begin with. */
@@ -81,7 +81,7 @@ int tokenbuf_append(tokenbuf_t *output, const char *data, size_t len)
             new_size *= 2;
             }
         while ((new_size - (output->end - output->begin)) <= len);
-        if ((new_buffer = realloc((char *)output->begin, new_size)) == NULL)
+        if ((new_buffer = realloc((char*)output->begin, new_size)) == NULL)
             return 0;
         output->end = new_buffer + (output->end - output->begin);
         output->begin = new_buffer;
@@ -89,30 +89,31 @@ int tokenbuf_append(tokenbuf_t *output, const char *data, size_t len)
         }
 
     /* Append the data at the end of the current buffer. */
-    memcpy((char *)output->end, data, len);
+    memcpy((char*)output->end, data, len);
     output->end += len;
-    *((char *)output->end) = '\0';
+    *((char*)output->end) = '\0';
     return 1;
     }
 
-void tokenbuf_free(tokenbuf_t *buf)
+void tokenbuf_free(tokenbuf_t* buf)
     {
     if (buf->begin != NULL && buf->buffer_size > 0)
-        free((char *)buf->begin);
+        free((char*)buf->begin);
     buf->begin = buf->end = NULL;
     buf->buffer_size = 0;
     return;
     }
 
-size_t tokenbuf_toint(tokenbuf_t *number)
+size_t tokenbuf_toint(tokenbuf_t* number)
     {
-    const char *p;
+    const char* p;
     size_t num;
 
     num = 0;
-    for (p = number->begin; p != number->end; ++p) {
-    num *= 10;
-    num += *p - '0';
-    }
+    for (p = number->begin; p != number->end; ++p)
+        {
+        num *= 10;
+        num += *p - '0';
+        }
     return num;
     }

@@ -1,12 +1,12 @@
 #include "internal.h"
 
-int lookup_wrapper(void *context,
-                   const char *name, size_t name_len, int idx,
-                   const char **data, size_t *data_len,
-                   size_t *buffer_size)
+int lookup_wrapper(void* context,
+                   const char* name, size_t name_len, int idx,
+                   const char** data, size_t* data_len,
+                   size_t* buffer_size)
     {
     static char buf[1];
-    struct wrapper_context *wcon = context;
+    struct wrapper_context* wcon = context;
     int rc;
 
     rc = (*wcon->lookup)(wcon->context, name, name_len,
@@ -22,8 +22,8 @@ int lookup_wrapper(void *context,
     return rc;
     }
 
-var_rc_t loop_limits(const char *begin, const char *end,
-                     const var_config_t *config,
+var_rc_t loop_limits(const char* begin, const char* end,
+                     const var_config_t* config,
                      const char_class_t nameclass,
                      var_cb_t lookup, void* lookup_context,
                      int* start, int* step, int* stop, int* open_end)

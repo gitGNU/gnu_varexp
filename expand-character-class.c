@@ -9,7 +9,7 @@ static void expand_range(char a, char b, char_class_t class)
     while (++a <= b);
     }
 
-var_rc_t expand_character_class(const char *desc, char_class_t class)
+var_rc_t expand_character_class(const char* desc, char_class_t class)
     {
     size_t i;
 

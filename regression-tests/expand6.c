@@ -2,41 +2,46 @@
 
 struct variable
     {
-    const char *name;
+    const char*        name;
     const unsigned int idx;
-    const char *data;
+    const char*        data;
     };
 
-static var_rc_t var_lookup(
-    void *context,
-    const char *varname, size_t name_len, int idx,
-    const char **data, size_t *data_len,
-    size_t *buffer_size)
-{
-    const struct variable *vars = context;
+static var_rc_t var_lookup(void* context,
+                           const char* varname, size_t name_len, int idx,
+                           const char** data, size_t* data_len,
+                           size_t* buffer_size)
+    {
+    const struct variable* vars = context;
     size_t i, counter, length;
     static char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
 
-    if (idx >= 0) {
-        for (i = 0; vars[i].name; ++i) {
-            if (strncmp(varname, vars[i].name, name_len) == 0 && vars[i].idx == idx) {
+    if (idx >= 0)
+        {
+        for (i = 0; vars[i].name; ++i)
+            {
+            if (strncmp(varname, vars[i].name, name_len) == 0 && vars[i].idx == idx)
+                {
                 *data = vars[i].data;
                 *data_len = strlen(*data);
                 *buffer_size = 0;
                 return VAR_OK;
+                }
             }
         }
-    }
-    else {
-        for (i = 0; vars[i].name; ++i) {
-            if (strncmp(varname, vars[i].name, name_len) == 0) {
+    else
+        {
+        for (i = 0; vars[i].name; ++i)
+            {
+            if (strncmp(varname, vars[i].name, name_len) == 0)
+                {
 #ifdef DEBUG
                 printf("Found variable at index %d.\n", i);
 #endif
                 counter = 1;
                 length = strlen(vars[i].data);
                 while (   vars[i + counter].data
-                       && strncmp(varname, vars[i + counter].name, name_len) == 0)
+                          && strncmp(varname, vars[i + counter].name, name_len) == 0)
                     counter++;
                 if (counter == 1)
                     sprintf(buf, "%d", length);
@@ -46,20 +51,22 @@ static var_rc_t var_lookup(
                 *data_len = strlen(buf);
                 *buffer_size = 0;
                 return VAR_OK;
+                }
             }
         }
-    }
     return VAR_ERR_UNDEFINED_VARIABLE;
-}
+    }
 
-struct test_case {
-    const char *input;
-    const char *expected;
-};
+struct test_case
+    {
+    const char* input;
+    const char* expected;
+    };
 
-int main(int argc, char **argv)
-{
-    const struct variable vars[] = {
+int main(int argc, char* *argv)
+    {
+    const struct variable vars[] =
+        {
         { "HOME",   0, "/home/regression-tests" },
         { "OSTYPE", 0, "regression-os" },
         { "TERM",   0, "regression-term" },
@@ -77,7 +84,8 @@ int main(int argc, char **argv)
         { NULL,     0, NULL }
         };
 
-    const struct test_case tests[] = {
+    const struct test_case tests[] =
+        {
         { "$HOME",                        "/home/regression-tests"                         },
         { "${FOO}",                       "os"                                             },
         { "${BAR}",                       "type"                                           },
@@ -159,46 +167,49 @@ int main(int argc, char **argv)
         "[${ARRAY[#]}:[${ARRAY[#]},]{1,2,} ]{0,2,}",
         "entry0:entry1,entry3, entry2:entry1,entry3, "
         },
-    };
-    char *tmp;
+        };
+    char* tmp;
     size_t tmp_len;
     var_rc_t rc;
     size_t i;
     char buffer[1024];
 
-    for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i) {
+    for (i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
+        {
 #ifdef DEBUG
         printf("Test case #%02d: Original input is '%s'.\n", i,
                tests[i].input);
 #endif
         rc = var_unescape(tests[i].input, strlen(tests[i].input), buffer, 0);
-        if (rc != VAR_OK) {
+        if (rc != VAR_OK)
+            {
             printf ("Test case #%d: First var_unescape() failed with return code %d ('%s').\n",
                     i, rc, var_strerror(rc));
             return 1;
-        }
+            }
 #ifdef DEBUG
         printf("Test case #%02d: Unescaped input is '%s'.\n", i, buffer);
 #endif
         rc = var_expand(buffer, strlen(buffer), &tmp, &tmp_len,
-            &var_lookup, (void *)vars, NULL);
-        if (rc != VAR_OK) {
+                        &var_lookup, (void*)vars, NULL);
+        if (rc != VAR_OK)
+            {
             printf ("Test case #%d: var_expand() failed with return code %d ('%s').\n",
                     i, rc, var_strerror(rc));
             return 1;
-        }
+            }
 #ifdef DEBUG
         printf("Test case #%02d: Expanded output is '%s'.\n", i, tmp);
 #endif
         if (   tmp_len != strlen(tests[i].expected)
-            || tmp == NULL
-            || memcmp(tests[i].expected, tmp, tmp_len) != 0) {
+               || tmp == NULL
+               || memcmp(tests[i].expected, tmp, tmp_len) != 0)
+            {
             printf("Test case #%d: Expected result '%s' but got '%s'.\n",
-                i, tests[i].expected, tmp);
+                   i, tests[i].expected, tmp);
             return 1;
-        }
+            }
         free(tmp);
-    }
+        }
     return 0;
-}
-
+    }

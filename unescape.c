@@ -1,15 +1,15 @@
 #include "internal.h"
 
 static int isoct(char c)
-{
+    {
     if (c >= '0' && c <= '7')
         return 1;
     else
         return 0;
-}
+    }
 
-static var_rc_t expand_octal(const char **src, char **dst, const char *end)
-{
+static var_rc_t expand_octal(const char** src, char** dst, const char* end)
+    {
     unsigned char c;
 
     if (end - *src < 3)
@@ -32,20 +32,20 @@ static var_rc_t expand_octal(const char **src, char **dst, const char *end)
     **dst = (char) c;
     ++(*dst);
     return VAR_OK;
-}
+    }
 
 static int ishex(char c)
-{
+    {
     if ((c >= '0' && c <= '9') ||
         (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
         return 1;
     else
         return 0;
-}
+    }
 
-static var_rc_t expand_simple_hex(const char **src, char **dst,
-                                  const char *end)
-{
+static var_rc_t expand_simple_hex(const char** src, char** dst,
+                                  const char* end)
+    {
     unsigned char c = 0;
 
     if (end - *src < 2)
@@ -73,11 +73,11 @@ static var_rc_t expand_simple_hex(const char **src, char **dst,
     **dst = (char) c;
     ++(*dst);
     return VAR_OK;
-}
+    }
 
-static var_rc_t expand_grouped_hex(const char **src, char **dst,
-                                   const char *end)
-{
+static var_rc_t expand_grouped_hex(const char** src, char** dst,
+                                   const char* end)
+    {
     var_rc_t rc;
 
     while (*src < end && **src != '}')
@@ -85,29 +85,30 @@ static var_rc_t expand_grouped_hex(const char **src, char **dst,
         if ((rc = expand_simple_hex(src, dst, end)) != VAR_OK)
             return rc;
         ++(*src);
-    }
+        }
     if (*src == end)
         return VAR_ERR_INCOMPLETE_GROUPED_HEX;
 
     return VAR_OK;
-}
+    }
 
-static var_rc_t expand_hex(const char **src, char **dst, const char *end)
-{
+static var_rc_t expand_hex(const char** src, char** dst, const char* end)
+    {
     if (*src == end)
         return VAR_ERR_INCOMPLETE_HEX;
     if (**src == '{')
         {
         ++(*src);
         return expand_grouped_hex(src, dst, end);
-    } else
+        }
+    else
         return expand_simple_hex(src, dst, end);
-}
+    }
 
-var_rc_t var_unescape(const char *src, size_t len, char *dst,
+var_rc_t var_unescape(const char* src, size_t len, char* dst,
                       int unescape_all)
     {
-    const char *end = src + len;
+    const char* end = src + len;
     var_rc_t rc;
 
     while (src < end)
@@ -163,8 +164,9 @@ var_rc_t var_unescape(const char *src, size_t len, char *dst,
                     *dst++ = *src;
                 }
             ++src;
-            } else
-                *dst++ = *src++;
+            }
+        else
+            *dst++ = *src++;
         }
     *dst = '\0';
     return VAR_OK;

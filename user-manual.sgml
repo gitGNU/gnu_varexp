@@ -1,0 +1,749 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+<!ENTITY varexp "<application>libvarexp</application>">
+]>
+
+<refentry id="libvarexp" lang="en" revision="$Revision$">
+  <refmeta>
+    <refentrytitle>libvarexp</refentrytitle>
+    <manvolnum>3</manvolnum>
+  </refmeta>
+
+  <refnamediv>
+    <refname>libvarexp</refname>
+    <refpurpose>A library for expansion of variable-expressions
+  </refnamediv>
+
+  <refsect1>
+    <title>Description</title>
+
+    <para>
+      The routines included in this library, <function>unescape()</function> and
+      <function>expand()</function>, enable application developers to make use
+      of variable expansion in an arbitrary text buffer. Assume, for instance,
+      your application provided the variables
+
+      <informalexample>
+        <screen>
+          HOST   = peti.example.org
+          OSTYPE = FreeBSD
+          HOME   = /home/my-application
+        </screen>
+      </informalexample>
+
+      and you had obtained the following message from the user via means of
+      a configuration file, the system environment, or the command line:
+
+      <informalexample>
+        <screen>
+          My-application starting up with the following configuration:
+
+          HOST   = $HOST
+          OSTYPE = $OSTYPE
+          HOME   = $HOME
+        </screen>
+      </informalexample>
+    </para>
+
+    <para>Then you could use <function>expand()</function> to replace the
+      variables in that message by their actual contents.</para>
+
+    <para>The good thing about this kind of approach is that you separate the
+      actual information in a message from the message's layout, language, or
+      content encoding. If the user doesn't like messages as long the one above,
+      he'd simply provide the template
+
+      <informalexample>
+        <screen>
+          my-application: $HOST ($OSTYPE), $HOME
+        </screen>
+      </informalexample>
+
+      to get the result, he's interested in. Maybe all he's interested in
+      is:
+
+      <informalexample>
+        <screen>
+          my-application's home is $HOME
+        </screen>
+      </informalexample>
+    </para>
+
+    <para>To take things one step further, OSSP var provides the user -- the
+      person providing the template file, that is -- with powerful mechanisms to
+      modify the presentation of the variable's contents. For example, the
+      expression <varname>${HOME:l}</varname> would yield the contents of the
+      variable <varname>$HOME</varname> converted to all lower-case. Or, to show
+      on even more powerful construct: The expression
+      <varname>${HOME:y/&nbsp;\t/__/}</varname> would turn all blanks or tabs in
+      the contents of <varname>$HOME</varname> to underscores, before inserting
+      it into the output text.</para>
+
+    <para>Similarly, the function <function>unescape()</function> will expand
+      "quoted pairs", thus allowing the user to speficy non-printable characters
+      is a template, such as the carrige return ('<symbol>\r</symbol>'), the
+      newline ('<symbol>\n</symbol>'), or -- as seen above -- the tab
+      ('<symbol>\t</symbol>').</para>
+
+    <para>Using these two routines in combination, gives the application
+      developer the power to have the user custumize the application's messages
+      as he or she sees fit at virtually no extra cost; incorporating a template
+      mechanism into your own applications with OSSP var is extremely
+      simple.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>The <function>unescape()</function> Function</title>
+
+    <para>The purpose of <function>unescape()</function> is to expand any quoted
+      pairs found in the input buffer. Its prototype is:
+
+      <informalexample>
+        <screen>
+      rc_t unescape(const char *src, size_t len,
+                          char *dst, int unescape_all);
+        </screen>
+      </informalexample>
+    </para>
+
+    <para>The first parameter, <varname>src</varname>, is a pointer to the input
+      buffer, which should be processed. Unlike most C library functions,
+      <function>unescape()</function> does not expect the buffer to be
+      terminated by a null byte ('<symbol>\0</symbol>'), instead, it expects the
+      length of the buffer's contents as parameter <varname>len</varname>". The
+      third parameter, <varname>dst</varname> is a pointer to a buffer, into
+      which the expanded buffer is copied if processing is successful. The size
+      of this buffer must be at least <varname>len</varname>+1 characters. The
+      reason the result buffer has to be one byte longer than the input buffer
+      is that <function>unescape()</function> always adds a terminating null
+      byte at the end of the output buffer, so that you can use the result
+      comfortably with other C library routines.</para>
+
+    <para>The last parameter, <varname>unescape_all</varname>, is flag that
+      modifies the behavior of <function>unescape()</function>. If is set to
+      <symbol>TRUE</symbol> (any value except zero, that is),
+      <function>unescape()</function> will expand <emphasis>any</emphasis>
+      quoted pair it sees, even those that it does not know about. Hence, a "\1"
+      will become a "1", even though "\1" has no special meaning to
+      <function>unescape()</function>. If <varname>unescape_all</varname> is set
+      to <symbol>FALSE</symbol> (zero), such quoted pairs will be copied
+      verbatimly to the output buffer.</para>
+
+    <para>The quoted pairs supported by <function>unescape()</function> are
+      '<symbol>\t</symbol>', '<symbol>\r</symbol>', '<symbol>\n</symbol>',
+      '<symbol>\abc</symbol>' (octal), '<symbol>\xAB</symbol>' (hexadecimal),
+      and '<symbol>\x{&hellip;}</symbol>' (grouped hexadecimal). Please refer to
+      section <citetitle pubwork="section">Supported
+      Named Characters</citetitle> for a more comprehensive description of these
+      quoted pairs.</para>
+
+    <para>If <function>unescape()</function> encounters any syntax errors, it
+      will return an error code denoting exactly what kind of error occured;
+      please refer to section "CODES RETURNED BY THE LIBRARY" for a complete
+      list of possible return codes. If no error occured, <symbol>OK</symbol> is
+      returned.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>The <function>expand()</function> Function</title>
+
+    <para>Not documented yet.</para>
+
+<!-- =item const config_t *config
+
+The configuration of expand(). The config_t structure is
+defined as follows:
+
+    typedef struct {
+        char varinit;
+        char startdelim;
+        char enddelim;
+        char startindex;
+        char endindex;
+        char current_index;
+        char escape;
+        char *namechars;
+    } config_t;
+
+Using this structure, you can modify the parser to use different
+tokens to find variable constructs. If "config" is NULL, the default
+configuration will be used, which you can access through the
+declaration
+
+    extern const config_t config_default;
+
+in var.h. The default configuration for init looks like this:
+
+    const config_t config_default = {
+        '$',              /* varinit */
+        '{',              /* startdelim */
+        '}',              /* enddelim */
+        '[',              /* startindex */
+        ']',              /* endindex */
+        '#',              /* current_index */
+        '\\\\',             /* escape */
+        "a-zA-Z0-9_"      /* namechars */
+    };
+
+Please note that the setting of config_t.escape is actually a
+single backslash; the quote above has been taken from the C source
+code, which is why the backslash had to be escaped with another
+backslash for the C pre-processor. -->
+  </refsect1>
+
+  <refsect1>
+    <title>Combining <function>unescape()</function> and
+      <function>expand()</function></title>
+
+    <para>For maximum power and flexibility, you will want to use both routines
+      provided by this library in combination. That is, you will want to use
+      unescape() to turn all quoted pairs into their real representation, before
+      you call expand(), because then the user can safely use specials like
+      "\\n" or "\\t" throughout the template and achieve the desired effect.
+      These quoted pairs are particularly useful if search-and-replace or
+      transpose actions are performed on variables before they're expanded. Be
+      sure, though, to make the first unescape() pass with "expand_all" set to
+      FALSE, or the routine will also expand quoted pairs like "\\1", which
+      might have a special meaning in the expand() pass to follow.</para>
+
+    <para>Once, all known quoted pairs are expanded, expand the variables with
+      expand(). After that, you will want to have a second pass with unescape()
+      and "expand_all" set to TRUE, to make sure all remaining quoted pairs are
+      expanded. Also, the expand() pass might have introduced now quoted pairs
+      into the output text, which you need to expand to get the desired
+      effect.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>Supported Named Characters</title>
+
+    <para>The <function>unescape()</function> function knows the following
+    constructs:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><symbol>\t</symbol></term>
+        <term><symbol>\r</symbol></term>
+        <term><symbol>\n</symbol></term>
+        <listitem>
+          <para>These expressions are replaced by the appropriate binary
+          representation of a tab, a carrige return and a newline
+          respectively.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>\abc</term>
+        <listitem>
+          <para>This expression is replaced by the value of the octal number
+            "abc". Valid digits of "a" are in the range of '0' to '3', for
+            digits "b" and "c" in the range of '0' to '7'. Please note that an
+            octal expression is recognized only if the backslash is followed by
+            three digits! The expression "\\1a7", for example, is interpreted as
+            the quoted pair "\\1" followed by the verbatim text "a7".</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><symbol>\x<replaceable>AB</replaceable></symbol></term>
+        <listitem>
+          <para>This expression is replaced by the value of the hexadecimal
+            number $AB. Both characters "A" and "B" must be in the range of '0'
+            to '9', 'a' to 'f', or 'A' to 'F'.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><symbol>\x{&hellip;}</symbol></term>
+        <listitem>
+          <para>This expression denotes a set of grouped hexadecimal numbers.
+            The "&hellip;" part may consist of an arbitrary number of hexadecimal
+            pairs, such as in "\\x{}", "\\x{ff}", or "\\x{55ffab04}". The empty
+            expression "\\x{}" is a no-op; it will not produce any
+            output.</para>
+
+          <para>This construct may be useful to specify multi-byte characters
+            (as in Unicode). Even though "\\x{0102}" is effectively equivalent
+            to "\\x01\\x02", the grouping of values may be useful in other
+            contexts, even though unescape() or expand() make no direct use of
+            it.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>Supported Variable Expressions</title>
+
+    <para>In addition to the ordinary variable expansion of
+      <varname>$name</varname> or <varname>${name}</varname>,
+      <function>expand()</function> supports a number of operations that can be
+      performed on the contents of "name" before it is copied to the output
+      buffer. Such operations are always denoted by appending the a colon and a
+      command character to the variable name, for expample:
+      <varname>${name:l}</varname> or <varname>${name:s/foo/bar/}</varname>. You
+      can specify multiple operations, which are executed from the left to the
+      right, for expample: <varname>${name:l:s/foo/bar/:u}</varname>.</para>
+
+    <para>Also, you can nest variable expansion and command execution pretty
+      much anywhere in the construct, for example: ${name:s/$foo/$bar/g}. In
+      that context is probably useful to have a look at the formal expression
+      grammar provided in section <citetitle pubwork="section">EBNF Grammar of
+      Supported Expressions</citetitle>.</para>
+
+    <para>Generally, all operations described below do not modify the contents
+      of any variable -- <function>expand()</function> generally can't set
+      variables, it will only read them. If the description says that an
+      operation "replaces the contents of variable <varname>$foo</varname>", it
+      is meant that rather than expanding the expression the the contents of
+      <varname>$foo</varname>, it will expand to the modified string instead.
+      The contents of <varname>$foo</varname> is left untouched in any
+      case.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><varname>${name:#}</varname></term>
+        <listitem>
+          <para>This operation will expand to the length of the contents of
+            <varname>$name</varname>. If, for example, <varname>$FOO</varname>
+            is "foobar", then <varname>${FOO:#}</varname> will result in
+            "6".</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:l}</varname></term>
+        <listitem>
+          <para>This operation will turn the contents of <varname>$name</varname> to all lower-case,
+            using the system routine
+            <citerefentry>
+              <refentrytitle>tolower</refentrytitle>
+              <manvolnum>3</manvolnum>
+            </citerefentry>,
+            thereby possibly using the system's localization settings.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:u}</varname></term>
+        <listitem>
+          <para>This operation will turn the contents of
+            <varname>$name</varname> to all upper-case, using the system routine
+            <citerefentry>
+              <refentrytitle>toupper</refentrytitle>
+              <manvolnum>3</manvolnum>
+            </citerefentry>,
+            thereby possibly using the system's localization settings.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:*&lt;word&gt;}</varname></term>
+        <listitem>
+          <para>This operation will replace the contents of
+            <varname>$name</varname> with the empty string ("") if
+            <varname>$name</varname> is not empty. Otherwise, it will replace it
+            by "word".</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:-&lt;word&gt;}</varname></term>
+        <listitem>
+          <para>This operation will replace the contents of
+            <varname>$name</varname> with "word" if <varname>$name</varname> is
+            empty. Otherwise, it will expand to the contents of
+            <varname>$name</varname>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:+&lt;word&gt;}</varname></term>
+        <listitem>
+          <para>This operation will replace the contents of
+            <varname>$name</varname> with "word" if <varname>$name</varname> is
+            not empty. Otherwise, it will expand to the contents of
+            <varname>$name</varname>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:o&lt;start&gt;,&lt;end&gt;}</varname></term>
+        <listitem>
+          <para>This operation will cut the string starting at position "start"
+            to ending position "end" out of the contents of
+            <varname>$name</varname> and return that. Please note that the
+            character at position "end" is included in the result; ${name:o3,4}
+            for instance, will return a two-character string. Also, please note
+            that start positions begin at zero (0)! If the "end" parameter is
+            left out, as in ${name:o3,}, the operation will return the string
+            starting at position 3 until the end.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:o&lt;start&gt;-&lt;length&gt;}</varname></term>
+        <listitem>
+          <para>This operation will cut the range of "start" to "end" out of the
+            contents of <varname>$name</varname> and return that. ${name:o3-4}
+            means, for instance, to return the next 4 charaters starting at
+            position 3 in the string. Please note that start positions begin at
+            zero (0)! If the "end" range is left out, as in ${name:o3-}, the
+            operation will return the string starting at position 3 until the
+            end.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:s/&lt;pattern&gt;/&lt;string&gt;/[gti]}</varname></term>
+        <listitem>
+          <para>This operation will perform a search-and-replace operation on
+            the contents of <varname>$name</varname> and return the result. The
+            behavior of the search-and-replace is modified by the following
+            flags parameter: If a 't' flag has been provided, a plain text
+            search-and-replace is performed, otherwise, the default is to a
+            regular expression search-and-replace as in the system utility
+            sed(1). If the 'g' flag has been provided, the search-and-replace
+            will replace all instances of "pattern" by "replace", otherwise, the
+            default is to replace only the first instance. If the 'i' flag has
+            been provided, the search-and-replace will take place
+            case-insensitively, otherwise, the default is to distinguish
+            character case.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:y/&lt;ochars&gt;/&lt;nchars&gt;/}</varname></term>
+        <listitem>
+          <para>This operation will translate all characters in the contents of
+            <varname>$name</varname> that are found in the "ochars" class to the
+            corresponding character in the "nchars" class, just like the system
+            utility tr(1) does. Both "ochars" and "nchars" may contain character
+            range specifications, for example "a-z0-9". A hyphon as the first or
+            last character of the class specification is interpreted literally.
+            Both the "ochars" and the "nchars" class must contain the same
+            number of characters after all ranges are expanded, or expand() will
+            abort with an error.</para>
+
+          <para> If, for example, <varname>$FOO</varname> would contain
+            "foobar", then <varname>${FOO:y/a-z/A-Z/}</varname> would yield
+            "FOOBAR". Another goodie is to use that operation to ROT13-encrypt
+            or decrypt a string with the expression
+            "${FOO:y/a-z/n-za-m/}".</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><varname>${name:p/&lt;width&gt;/&lt;string&gt;/&lt;align&gt;}</varname></term>
+        <listitem>
+          <para>This operation will pad the contents of <varname>$name</varname>
+            with "string" according to the "align" parameter, so that the result
+            is at least "width" characters long. Valid parameters for align are
+            'l' (left), 'r' (right), or 'c' (center). The "string" parameter may
+            contain multiple characters, if you see any use for that.</para>
+
+          <para>If, for example, "$FOO" is "foobar", then "${FOO:p/20/./c}"
+            would yield ".......foobar......."; "${FOO:p/20/./l}" would yield
+            "foobar.............."; and "${FOO:p/20/./r}" would yield
+            "..............foobar";</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>EBNF Grammar of Supported Expressions</title>
+
+    <informalexample>
+      <screen>
+ input      : ( TEXT | variable | START-INDEX input END-INDEX ( loop-limits )? )*
+
+ loop-limits: START-DELIM (numexp)? ',' (numexp)? ( ',' (numexp)? )? END-DELIM
+
+ variable   : '$' (name|expression)
+
+ expression : START-DELIM (name|variable)+ (START-INDEX num-exp END-INDEX)? (':' command)* END-DELIM
+
+ name       : (VARNAME)+
+
+ command    : '-' (EXPTEXT|variable)+
+            | '+' (EXPTEXT|variable)+
+            | 'o' (NUMBER ('-'|',') (NUMBER)?)
+            | '#'
+            | '*' (EXPTEXT|variable)+
+            | 's' '/' (variable|SUBSTTEXT)+ '/' (variable|SUBSTTEXT)* '/' ('g'|'i'|'t')*
+            | 'y' '/' (variable|SUBSTTEXT)+ '/' (variable|SUBSTTEXT)* '/'
+            | 'p' '/' NUMBER '/' (variable|SUBSTTEXT)* '/' ('r'|'l'|'c')
+            | 'l'
+            | 'u'
+
+ num-exp    : operand
+            | operand ('+'|'-'|'*'|'/'|'%') num-exp
+
+ operand    : ('+'|'-')? NUMBER
+            | CURR-INDEX
+            | '(' num-exp ')'
+            | variable
+
+ START-DELIM: '{'
+
+ END-DELIM  : '}'
+
+ START-INDEX: '['
+
+ END-INDEX  : ']'
+
+ CURR-INDEX : '#'
+
+ VARNAME    : '[a-zA-Z0-9_]+'
+
+ NUMBER     : '[0-9]+'
+
+ SUBSTTEXT  : '[^$/]'
+
+ EXPTEXT    : '[^$}:]+'
+
+ TEXT       : '[^$[\\]]+'
+      </screen>
+    </informalexample>
+
+    <para>Please note that the descriptions of START-DELIM, END-DELIM, VARNAME,
+      SUBSTEXT, and EXPTEXT shown here assume that expand() has been called in
+      the default configuration. In thruth, the contents of VARNAME corresponds
+      directly to the setting of "namechars" in the config_t structure.
+      Similarly, the dollar ('$') corresponds directly to the setting of
+      "varinit", and the '{' and '}' characters to "startdelim" and "enddelim"
+      respectively.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>Codes Returned by the Library</title>
+
+    <para>Generally, all routines part of that library follow the convention
+      that a return code of zero or greater denotes success and a return code of
+      less than zero denotes failure. (This is slightly different for the
+      callbacks, please see section "THE LOOKUP CALLBACK" for further details.)
+      In order to distinguish the various causes of failure, the following set
+      of defines is provided in <filename>var.h</filename>:</para>
+
+=over 4
+
+=item OK
+
+No errors; everything went fine.
+
+=item ERR_INCOMPLETE_QUOTED_PAIR
+
+The configured escape character as the last character in the input
+buffer.
+
+=item ERR_INVALID_ARGUMENT
+
+Any of the provided arguments is invalid, for expample: the pointer to
+the input buffer is NULL.
+
+=item ERR_SUBMATCH_OUT_OF_RANGE
+
+During execution of a ${name:s/pattern/replace/flags} operation, a
+submatch has been referenced in the "replace" part, which's number is
+greater than the number of submatches encountered in the "pattern"
+part, for expample: ${name:s/foo(bar)/\\2/}.
+
+=item ERR_UNKNOWN_QUOTED_PAIR_IN_REPLACE
+
+During execution of a ${name:s/pattern/replace/flags} operation, the
+parser encountered an unknown quoted pair in the "replace" part. Valid
+quoted pairs are "\\\\", "\\0", "\\1", ... , "\\9" only.
+
+=item ERR_EMPTY_PADDING_FILL_STRING
+
+The "fill" part in an ${name:p/width/fill/pos/} expression was found
+to be empty.
+
+=item ERR_MISSING_PADDING_WIDTH
+
+The "width" part in an ${name:p/width/fill/pos/} expression was found
+to be empty.
+
+=item ERR_MALFORMATTED_PADDING
+
+Any of the "/" delimiters was missing while parsing a
+${name:p/width/fill/pos/} expression.
+
+=item ERR_INCORRECT_TRANSPOSE_CLASS_SPEC
+
+While parsing a ${name:y/old-class/new-class/} expression, any of the
+character class specifications had a start-of-range character that was
+greater (in terms of ASCII encoding) than the end-of-range character,
+for expample: "[z-a]".
+
+=item ERR_EMPTY_TRANSPOSE_CLASS
+
+While parsing a ${name:y/old-class/new-class/} expression, any of the
+character class specifications was found to be empty.
+
+=item ERR_TRANSPOSE_CLASSES_MISMATCH
+
+While parsing a ${name:y/old-class/new-class/} expression, the number
+of characters found in the expanded "old-class" was different than the
+number of characters in new-class".
+
+=item ERR_MALFORMATTED_TRANSPOSE
+
+Any of the "/" delimiters was missing while parsing a
+${name:y/old-class/new-class/} expression.
+
+=item ERR_OFFSET_LOGIC
+
+The "end" offset in a ${name:o&lt;start&gt;,&lt;end&gt;} expression is smaller
+than the "start" offset.
+
+=item ERR_OFFSET_OUT_OF_BOUNDS
+
+The "start" offset in a ${name:o&lt;start&gt;,&lt;end&gt;} expression is greater
+than the number of characters found in <varname>$name</varname>.
+
+=item ERR_RANGE_OUT_OF_BOUNDS
+
+The end-of-range in a ${name:o&lt;start&gt;,&lt;end&gt;} or ${name:o&lt;start&gt;-&lt;end&gt;}
+expression would be greater than the number of characters found in
+<varname>$name</varname>.
+
+=item ERR_INVALID_OFFSET_DELIMITER
+
+The two numbers in an offset operation are delimited by a character
+different from "," or "-".
+
+=item ERR_MISSING_START_OFFSET
+
+The "start" offset in a ${name:o&lt;start&gt;,&lt;end&gt;} or
+${name:o&lt;start&gt;-&lt;end&gt;} expression was found to be empty.
+
+=item ERR_EMPTY_SEARCH_STRING
+
+The "pattern" part of a ${name:s/pattern/replace/flags} expression was
+found to be empty.
+
+=item ERR_MISSING_PARAMETER_IN_COMMAND
+
+In a ${name:+word}, ${name:-word}, or ${name:*word} expression, the
+"word" part was missing -- that means empty.
+
+=item ERR_INVALID_REGEX_IN_REPLACE
+
+While compiling the "pattern" part of a
+${name:s/pattern/replace/flags} expression, regcomp(3) failed with an
+error.
+
+=item ERR_UNKNOWN_REPLACE_FLAG
+
+In a ${name:s/pattern/replace/flags} expression, a flag other that
+"t", "i", or "g" was found.
+
+=item ERR_MALFORMATTED_REPLACE
+
+Any of the "/" delimiters was missing while parsing a
+${name:s/pattern/replace/flags} expression.
+
+=item ERR_UNKNOWN_COMMAND_CHAR
+
+In a ${name:<char>} expression, "char" did not specify any of the
+supported operations.
+
+=item ERR_INPUT_ISNT_TEXT_NOR_VARIABLE
+
+At one point during parsing of the input buffer, an expression was
+found that was neither verbatim text nor a variable expression. This
+usually is the result of a inconsistent configuration of expand()
+via the config_t paramater.
+
+=item ERR_UNDEFINED_VARIABLE
+
+Looking up a variable's contents failed and expand() was running
+in "force expand" mode.
+
+=item ERR_INCOMPLETE_VARIABLE_SPEC
+
+The input buffer ended in the middle of a ${name} expression, or the
+configured variable initializer character was found to be the last
+character of the input buffer.
+
+=item ERR_OUT_OF_MEMORY
+
+expand() failed while malloc(3)ing internally needed buffers.
+
+=item ERR_INVALID_CONFIGURATION
+
+Any of the characters configured in the config_t structure as a
+special ("varinit", "startdelim", "enddelim", and "escape") was found
+to be a member of the "namechars" class.
+
+=item ERR_INCORRECT_CLASS_SPEC
+
+The character class specification "namechars" of the config_t
+structure provided to expand was syntactically incorrect, that is,
+the start-of-range was greater than end-of-range. (See also
+ERR_INCORRECT_TRANSPOSE_CLASS_SPEC.)
+
+=item ERR_INCOMPLETE_GROUPED_HEX
+
+unescape() encountered the end of the input buffer in the middle
+of a grouped-hex "\\x{...}" expression.
+
+=item ERR_INCOMPLETE_OCTAL
+
+unescape() encountered the end of the input buffer in the middle
+of an octal "\\000" expression.
+
+=item ERR_INVALID_OCTAL
+
+The second of third digit of an octal "\\000" expression was found not
+be in the range of '0' to '7'.
+
+=item ERR_OCTAL_TOO_LARGE
+
+The value specified via an octal "\\000" expression was larger than
+0377.
+
+=item ERR_INVALID_HEX
+
+Any of the digits of a hex "\\x00" expression was found not be in the
+range of '0' to '9' or 'a' to 'b'.
+
+=item ERR_INCOMPLETE_HEX
+
+unescape() encountered the end of the input buffer in the middle
+of a hex "\\x00" expression.
+
+=item ERR_INCOMPLETE_NAMED_CHARACTER
+
+unescape() encountered the backslash ('\\') as the last character
+of the input buffer.
+
+=item ERR_ARRAY_LOOKUPS_ARE_UNSUPPORTED
+
+=back
+
+.SH "SEE ALSO"
+.BR regex (7)
+
+
+
+  <refsect1>
+    <title>License</title>
+
+    <para>This software is copyrighted by Peter Simons
+      <email>simons@computer.org</email>. Permission is granted to use it under
+      the terms of the GNU General Public License. For further details, refer to
+      the file <filename>LICENSE</filename> included in the software
+      distribution or see <ulink
+      url="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</ulink>
+      in case that file is missing.</para>
+
+    <para>&mapson; uses the Variable Expression Library, which is included in
+      the distribution for comfort. This library is <emphasis>not</emphasis>
+      part of the &mapson; package and is licensed under the terms described in
+      the file <filename>libvarexp/LICENSE</filename>. Should that file be
+      missing in your distribution, contact me for a copy.</para>
+  </refsect1>
+
+</refentry>

@@ -3,179 +3,173 @@
 ]>
 
 <refentry id="libvarexp" lang="en" revision="$Revision$">
-  <refmeta>
-    <refentrytitle>libvarexp</refentrytitle>
-    <manvolnum>3</manvolnum>
-  </refmeta>
-
   <refnamediv>
     <refname>libvarexp</refname>
-    <refpurpose>A library for expansion of variable-expressions
+    <refpurpose>A library for expansion of variable expressions
   </refnamediv>
 
   <refsynopsisdiv>
-    <classsynopsis>
-      <ooclass>
-        <classname>callback_t</classname>
-      </ooclass>
+    <funcsynopsis>
+      <funcsynopsisinfo>#include &lt;varexp.hh&gt;</funcsynopsisinfo>
 
-      <methodsynopsis>
-        <type>void</type>
-        <methodname>operator()</methodname>
-        <methodparam>
-          <parameter>const std::string& name</parameter>
-        </methodparam>
-        <methodparam>
-          <parameter>std::string& data</parameter>
-        </methodparam>
-      </methodsynopsis>
+      <funcprototype>
+        <funcdef>void <function>varexp::unescape</function></funcdef>
+        <paramdef>const std::string& <parameter>input</parameter></paramdef>
+        <paramdef>std::string& <parameter>output</parameter></paramdef>
+        <paramdef>bool <parameter>unescape_all</parameter></paramdef>
+      </funcprototype>
 
-      <methodsynopsis>
-        <type>void</type>
-        <methodname>operator()</methodname>
-        <methodparam>
-          <parameter>const std::string& name</parameter>
-        </methodparam>
-        <methodparam>
-          <parameter>int idx</parameter>
-        </methodparam>
-        <methodparam>
-          <parameter>std::string& data</parameter>
-        </methodparam>
-      </methodsynopsis>
-
-
-    </classsynopsis>
+      <funcprototype>
+        <funcdef>void <function>varexp::expand</function></funcdef>
+        <paramdef>const std::string& <parameter>input</parameter></paramdef>
+        <paramdef>std::string& <parameter>output</parameter></paramdef>
+        <paramdef>varexp::callback_t& <parameter>lookup</parameter></paramdef>
+        <paramdef>const varexp::config_t* <parameter>config</parameter> = 0</paramdef>
+      </funcprototype>
+    </funcsynopsis>
   </refsynopsisdiv>
 
   <refsect1>
     <title>Description</title>
 
-    <para>
-      The routines included in this library, <function>unescape()</function> and
-      <function>expand()</function>, enable application developers to make use
-      of variable expansion in an arbitrary text buffer. Assume, for instance,
-      your application provided the variables
+    <para>The routines included in this library, <function>unescape()</function>
+and <function>expand()</function>, enable application developers to easily
+expand variable expression like <varname>$HOME</varname> in text buffers -- the
+same way <citerefentry>
+        <refentrytitle>sh</refentrytitle>
+        <manvolnum>1</manvolnum>
+      </citerefentry> or <citerefentry>
+        <refentrytitle>make</refentrytitle>
+        <manvolnum>1</manvolnum>
+      </citerefentry> do it. In order to avoid limiting the use of the library
+to environment variables, though, functions like <function>expand()</function>
+will do the actual variable lookup through a user-supplied callback function,
+which can fetch the variable's contents from an arbitrary source. Thus, the
+programmer can use this library to let the user specify variable expressions in
+configuration files, output templates, log messages or whatever else looks
+useful.</para>
 
-      <informalexample>
-        <screen>
-          HOST   = peti.example.org
-          OSTYPE = FreeBSD
-          HOME   = /home/my-application
-        </screen>
-      </informalexample>
+    <para>In addition to being indepedent of the actual source of the variable's
+contents, the library uses a run-time configuration structure to deterime most
+parts of the syntax used in variable expressions. In consequence, the programmer
+can define his syntax to be <varname>${NAME}</varname> or
+<varname>%NAME</varname>; he can define what character ranges are legal for
+variable names, etc.</para>
 
-      and you had obtained the following message from the user via means of
-      a configuration file, the system environment, or the command line:
+    <para>Last but definitely not least, the library supports
+<emphasis>numerous</emphasis> ways to manupilate the contents of variable while
+it is expanded, the set of tools ranging from converting characters between
+lower- and upper-case, doing full-blown regular expression search and replace,
+looping constructs and instructions for creating formatted tables.</para>
 
-      <informalexample>
-        <screen>
-          My-application starting up with the following configuration:
-
-          HOST   = $HOST
-          OSTYPE = $OSTYPE
-          HOME   = $HOME
-        </screen>
-      </informalexample>
-    </para>
-
-    <para>Then you could use <function>expand()</function> to replace the
-      variables in that message by their actual contents.</para>
-
-    <para>The good thing about this kind of approach is that you separate the
-      actual information in a message from the message's layout, language, or
-      content encoding. If the user doesn't like messages as long the one above,
-      he'd simply provide the template
-
-      <informalexample>
-        <screen>
-          my-application: $HOST ($OSTYPE), $HOME
-        </screen>
-      </informalexample>
-
-      to get the result, he's interested in. Maybe all he's interested in
-      is:
-
-      <informalexample>
-        <screen>
-          my-application's home is $HOME
-        </screen>
-      </informalexample>
-    </para>
-
-    <para>To take things one step further, OSSP var provides the user -- the
-      person providing the template file, that is -- with powerful mechanisms to
-      modify the presentation of the variable's contents. For example, the
-      expression <varname>${HOME:l}</varname> would yield the contents of the
-      variable <varname>$HOME</varname> converted to all lower-case. Or, to show
-      on even more powerful construct: The expression
-      <varname>${HOME:y/&nbsp;\t/__/}</varname> would turn all blanks or tabs in
-      the contents of <varname>$HOME</varname> to underscores, before inserting
-      it into the output text.</para>
-
-    <para>Similarly, the function <function>unescape()</function> will expand
-      "quoted pairs", thus allowing the user to speficy non-printable characters
-      is a template, such as the carrige return ('<symbol>\r</symbol>'), the
-      newline ('<symbol>\n</symbol>'), or -- as seen above -- the tab
-      ('<symbol>\t</symbol>').</para>
-
-    <para>Using these two routines in combination, gives the application
-      developer the power to have the user custumize the application's messages
-      as he or she sees fit at virtually no extra cost; incorporating a template
-      mechanism into your own applications with OSSP var is extremely
-      simple.</para>
+    <para>This reference page will walk the reader through the complete
+functionality. To illustrate the library's usage further, several example
+programs that serve as regression tests by the way, are included in the
+distribution.</para>
   </refsect1>
 
   <refsect1>
-    <title>The <function>unescape()</function> Function</title>
+    <title>The <function>varexp::unescape</function> function</title>
 
-    <para>The purpose of <function>unescape()</function> is to expand any quoted
-      pairs found in the input buffer. Its prototype is:
+    <para>This routine will replace so called <quote>quoted pairs</quote> in a
+<type>std::string</type> buffer. A quoted pair is the well-known
+<literal>\n</literal>, for example. Various other useful terms are supported,
+but before we come to that, let's take a look at the function's parameters: The
+<parameter>input</parameter> buffer contains the -- quite intuitively -- the
+buffer in which the quoted pairs shall be replaced with the actual character
+they denote. The <parameter>output</parameter> parameter provides a reference to
+the target where the resulting text will be stored. It is legal to specify the
+same buffer as input and output buffer; the library can cope with that.</para>
 
-      <informalexample>
-        <screen>
-      rc_t unescape(const char *src, size_t len,
-                          char *dst, int unescape_all);
-        </screen>
-      </informalexample>
-    </para>
+    <para>The third parameter is a flag telling <function>unescape()</function>
+whether it should expand all quoted pairs it sees or only the ones actually
+<emphasis>known</emphasis> to the library. This flag is useful in combination
+with the <function>expand()</function> function, which we'll describe later.
+Assume, for example, that the input buffer contains the following text:</para>
 
-    <para>The first parameter, <varname>src</varname>, is a pointer to the input
-      buffer, which should be processed. Unlike most C library functions,
-      <function>unescape()</function> does not expect the buffer to be
-      terminated by a null byte ('<symbol>\0</symbol>'), instead, it expects the
-      length of the buffer's contents as parameter <varname>len</varname>". The
-      third parameter, <varname>dst</varname> is a pointer to a buffer, into
-      which the expanded buffer is copied if processing is successful. The size
-      of this buffer must be at least <varname>len</varname>+1 characters. The
-      reason the result buffer has to be one byte longer than the input buffer
-      is that <function>unescape()</function> always adds a terminating null
-      byte at the end of the output buffer, so that you can use the result
-      comfortably with other C library routines.</para>
+    <informalexample>
+      <screen>This is a variable: $(HOME),\nthis is not: \$(HOME).</screen>
+    </informalexample>
 
-    <para>The last parameter, <varname>unescape_all</varname>, is flag that
-      modifies the behavior of <function>unescape()</function>. If is set to
-      <symbol>TRUE</symbol> (any value except zero, that is),
-      <function>unescape()</function> will expand <emphasis>any</emphasis>
-      quoted pair it sees, even those that it does not know about. Hence, a "\1"
-      will become a "1", even though "\1" has no special meaning to
-      <function>unescape()</function>. If <varname>unescape_all</varname> is set
-      to <symbol>FALSE</symbol> (zero), such quoted pairs will be copied
-      verbatimly to the output buffer.</para>
+    <para>The first quoted pair denotes the <keysym>LINEFEED</keysym> character
+and will be expanded by the function in any case. The second quoted pair,
+though, is not a quoted pair: The backslash escapes the following dollar
+character, which would tell <function>expand()</function> that a variable
+expression starts there -- if it weren't escaped!</para>
 
-    <para>The quoted pairs supported by <function>unescape()</function> are
-      '<symbol>\t</symbol>', '<symbol>\r</symbol>', '<symbol>\n</symbol>',
-      '<symbol>\abc</symbol>' (octal), '<symbol>\xAB</symbol>' (hexadecimal),
-      and '<symbol>\x{&hellip;}</symbol>' (grouped hexadecimal). Please refer to
-      section <citetitle pubwork="section">Supported
-      Named Characters</citetitle> for a more comprehensive description of these
-      quoted pairs.</para>
+    <para>Hence, if you plan to have the unescaped buffer procesed by
+<function>expand()</function>, pass <literal>false</literal> to
+<parameter>unescape_all</parameter>. On the other hand, use
+<literal>false</literal>, if you want to get rid of <emphasis>all</emphasis>
+quoted pairs. The ones <function>unescape()</function> does not know will expand
+to the character being quoted, so <literal>\*</literal> will become
+<literal>*</literal>, etc.</para>
 
-    <para>If <function>unescape()</function> encounters any syntax errors, it
-      will return an error code denoting exactly what kind of error occured;
-      please refer to section "CODES RETURNED BY THE LIBRARY" for a complete
-      list of possible return codes. If no error occured, <symbol>OK</symbol> is
-      returned.</para>
+    <para>In case the buffer contained a syntactial incorrect quoted pair, an
+incomplete quoted pair that is, an exception will be thrown. Refer below for a
+complete list of the exception throw by the library including their
+description.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>Known Quoted Pairs</title>
+
+    <para>The <function>unescape()</function> function knows the following
+quoted pairs:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><symbol>\t</symbol></term>
+        <term><symbol>\r</symbol></term>
+        <term><symbol>\n</symbol></term>
+        <listitem>
+          <para>These expressions are replaced by the appropriate binary
+representation of a tab, a carrige return and a newline respectively.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>\<replaceable>abc</replaceable></term>
+        <listitem>
+          <para>This expression is replaced by the value of the octal number
+<replaceable>abc</replaceable>. Valid digits of <replaceable>a</replaceable> are
+in the range of 0' to 3, for digits <replaceable>b</replaceable> and
+<replaceable>c</replaceable> in the range of 0 to 7. Please note that an octal
+expression is recognized only if the backslash is followed by
+<emphasis>three</emphasis> digits! The expression <literal>\1a7</literal>, for
+example, is interpreted as the quoted pair <literal>\1</literal> followed by the
+verbatim text <literal>a7</literal>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><symbol>\x<replaceable>ab</replaceable></symbol></term>
+        <listitem>
+          <para>This expression is replaced by the value of the hexadecimal
+number $<replaceable>ab</replaceable>. Both characters
+<replaceable>a</replaceable> and <replaceable>b</replaceable> must be in the
+range of 0 to 9, a to f, or A to F.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><symbol>\x{&hellip;}</symbol></term>
+        <listitem>
+          <para>This expression denotes a set of grouped hexadecimal numbers.
+The <replaceable>&hellip;</replaceable> part may consist of an arbitrary number
+of hexadecimal pairs, such as in <literal>\x{}</literal>,
+<literal>\x{ff}</literal>, or <literal>\x{55ffab04}</literal>. The empty
+expression <literal>\x{}</literal> is a no-op; it will not produce any
+output.</para>
+
+          <para>This construct may be useful to specify multi-byte characters
+(as in Unicode). Even though <literal>\x{0102}</literal> is effectively
+equivalent to <literal>\x01\x02</literal>, the grouping of values may be useful
+in other contexts, even though unescape() or expand() make no direct use of
+it.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
   </refsect1>
 
   <refsect1>
@@ -248,63 +242,6 @@ backslash for the C pre-processor. -->
       effect.</para>
   </refsect1>
 
-  <refsect1>
-    <title>Supported Named Characters</title>
-
-    <para>The <function>unescape()</function> function knows the following
-    constructs:</para>
-
-    <variablelist>
-      <varlistentry>
-        <term><symbol>\t</symbol></term>
-        <term><symbol>\r</symbol></term>
-        <term><symbol>\n</symbol></term>
-        <listitem>
-          <para>These expressions are replaced by the appropriate binary
-          representation of a tab, a carrige return and a newline
-          respectively.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>\abc</term>
-        <listitem>
-          <para>This expression is replaced by the value of the octal number
-            "abc". Valid digits of "a" are in the range of '0' to '3', for
-            digits "b" and "c" in the range of '0' to '7'. Please note that an
-            octal expression is recognized only if the backslash is followed by
-            three digits! The expression "\\1a7", for example, is interpreted as
-            the quoted pair "\\1" followed by the verbatim text "a7".</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><symbol>\x<replaceable>AB</replaceable></symbol></term>
-        <listitem>
-          <para>This expression is replaced by the value of the hexadecimal
-            number $AB. Both characters "A" and "B" must be in the range of '0'
-            to '9', 'a' to 'f', or 'A' to 'F'.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><symbol>\x{&hellip;}</symbol></term>
-        <listitem>
-          <para>This expression denotes a set of grouped hexadecimal numbers.
-            The "&hellip;" part may consist of an arbitrary number of hexadecimal
-            pairs, such as in "\\x{}", "\\x{ff}", or "\\x{55ffab04}". The empty
-            expression "\\x{}" is a no-op; it will not produce any
-            output.</para>
-
-          <para>This construct may be useful to specify multi-byte characters
-            (as in Unicode). Even though "\\x{0102}" is effectively equivalent
-            to "\\x01\\x02", the grouping of values may be useful in other
-            contexts, even though unescape() or expand() make no direct use of
-            it.</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-  </refsect1>
 
   <refsect1>
     <title>Supported Variable Expressions</title>
@@ -560,6 +497,7 @@ backslash for the C pre-processor. -->
       In order to distinguish the various causes of failure, the following set
       of defines is provided in <filename>var.h</filename>:</para>
 
+<!--
 =over 4
 
 =item OK
@@ -661,7 +599,7 @@ found to be empty.
 =item ERR_MISSING_PARAMETER_IN_COMMAND
 
 In a ${name:+word}, ${name:-word}, or ${name:*word} expression, the
-"word" part was missing -- that means empty.
+"word" part was missing - that means empty.
 
 =item ERR_INVALID_REGEX_IN_REPLACE
 
@@ -760,25 +698,43 @@ of the input buffer.
 
 .SH "SEE ALSO"
 .BR regex (7)
-
+ -->
 
 
   <refsect1>
     <title>License</title>
 
-    <para>This software is copyrighted by Peter Simons
-      <email>simons@computer.org</email>. Permission is granted to use it under
-      the terms of the GNU General Public License. For further details, refer to
-      the file <filename>LICENSE</filename> included in the software
-      distribution or see <ulink
-      url="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</ulink>
-      in case that file is missing.</para>
+<para>This library is based on the OSSP var library, which I developed for Cable
+&amp; Wireless Deutschland. I hereby grant permission to use all files included
+in this distribution under the same terms as the original version:</para>
 
-    <para>&mapson; uses the Variable Expression Library, which is included in
-      the distribution for comfort. This library is <emphasis>not</emphasis>
-      part of the &mapson; package and is licensed under the terms described in
-      the file <filename>libvarexp/LICENSE</filename>. Should that file be
-      missing in your distribution, contact me for a copy.</para>
-  </refsect1>
+<literallayout>    Copyright (c) 2002 Peter Simons &lt;simons@computer.org&gt;
+    Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
+    Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
+
+    Permission to use, copy, modify, and distribute this software for
+    any purpose with or without fee is hereby granted, provided that
+    the above copyright notice and this permission notice appear in all
+    copies.
+
+    THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+    IN NO EVENT SHALL THE AUTHORS AND COPYRIGHT HOLDERS AND THEIR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+    USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+    OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.</literallayout>
 
 </refentry>
+
+<!--
+Local Variables:
+mode: sgml
+fill-column:80
+End:
+-->

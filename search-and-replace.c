@@ -43,7 +43,42 @@ int search_and_replace(tokenbuf* data, tokenbuf* search, tokenbuf* replace, toke
 
     if (no_regex)
         {
+        tokenbuf tmp;
+        init_tokenbuf(&tmp);
 
+        for (p = data->begin; p != data->end; )
+            {
+            if (case_insensitive)
+                rc = strncasecmp(p, search->begin, search->end - search->begin);
+            else
+                rc = strncmp(p, search->begin, search->end - search->begin);
+            if (rc != 0)
+                {               /* no match, copy character */
+                if (!append_to_tokenbuf(&tmp, p, 1))
+                    {
+                    free_tokenbuf(&tmp);
+                    return VAR_OUT_OF_MEMORY;
+                    }
+                ++p;
+                }
+            else
+                {
+                append_to_tokenbuf(&tmp, replace->begin, replace->end - replace->begin);
+                p += search->end - search->begin;
+                if (!global)
+                    {
+                    if (!append_to_tokenbuf(&tmp, p, data->end - p))
+                        {
+                        free_tokenbuf(&tmp);
+                        return VAR_OUT_OF_MEMORY;
+                        }
+                    break;
+                    }
+                }
+            }
+
+        free_tokenbuf(data);
+        move_tokenbuf(&tmp, data);
         }
     else
         {

@@ -29,43 +29,47 @@ struct test_case
     {
     const char* input;
     const char* expected;
-    var_rc_t    rc;
     };
 
 int main(int argc, char** argv)
     {
     const struct test_case tests[] =
         {
-        { "$HOME",                      "/home/regression-tests",         VAR_OK },
-        { "${FOO}",                     "os",                             VAR_OK },
-        { "${BAR}",                     "type",                           VAR_OK },
-        { "${${FOO:u}${BAR:u}:l}",      "regression-os",                  VAR_OK },
-        { "${UNDEFINED}",               "${UNDEFINED}",                   VAR_OK },
-        { "${OSTYPE:#}",                "13",                             VAR_OK },
-        { "${EMPTY:-test${FOO}test}",   "testostest",                     VAR_OK },
-        { "${EMPTY:-test${FOO:u}test}", "testOStest",                     VAR_OK },
-        { "${TERM:-test${FOO}test}",    "regression-term",                VAR_OK },
-        { "${EMPTY:+FOO}",              "",                               VAR_OK },
-        { "${HOME:+test${FOO}test}",    "${testostest}",                  VAR_OK },
-        { "${HOME:+OS${BAR:u}}",        "regression-os",                  VAR_OK },
-        { "${HOME:+OS${UNDEFINED:u}}",  "${OS${UNDEFINED:u}}",            VAR_OK },
-        { "${UNDEFINED:+OS${BAR:u}}",   "${UNDEFINED:+OS${BAR:u}}",       VAR_OK },
-        { "${HOME:*heinz}",             "",                               VAR_OK },
-        { "${EMPTY:*claus}",            "claus",                          VAR_OK },
-        { "${TERM}",                    "regression-term",                VAR_OK },
-        { "${HOME:s/reg/bla/}",         "/home/blaression-tests",         VAR_OK },
-        { "${HOME:s/e/bla/}",           "/hombla/regression-tests",       VAR_OK },
-        { "${HOME:s/e/bla/g}",          "/hombla/rblagrblassion-tblasts", VAR_OK },
-        { "${HOME:s/\\//_/g}",          "_home_regression-tests",         VAR_OK },
-        { "${HOME:s/[eso]/_/g}",        "/h_m_/r_gr___i_n-t__t_",         VAR_OK },
-        { "${HOME:s/[esO]/_/g}",        "/hom_/r_gr___ion-t__t_",         VAR_OK },
-        { "${HOME:s/[esO]/_/gi}",       "/h_m_/r_gr___i_n-t__t_",         VAR_OK },
-        { "${OSTYPE:s/^[re]/_/g}",      "_egression-os",                  VAR_OK },
-        { "${EMPTY:s/^[re]/_/g}",       "",                               VAR_OK },
-        { "${HOME:s/.*/heinz/}",        "heinz",                          VAR_OK },
+        { "$HOME",                      "/home/regression-tests"          },
+        { "${FOO}",                     "os"                              },
+        { "${BAR}",                     "type"                            },
+        { "${${FOO:u}${BAR:u}:l}",      "regression-os"                   },
+        { "${UNDEFINED}",               "${UNDEFINED}"                    },
+        { "${OSTYPE:#}",                "13"                              },
+        { "${EMPTY:-test${FOO}test}",   "testostest"                      },
+        { "${EMPTY:-test${FOO:u}test}", "testOStest"                      },
+        { "${TERM:-test${FOO}test}",    "regression-term"                 },
+        { "${EMPTY:+FOO}",              ""                                },
+        { "${HOME:+test${FOO}test}",    "${testostest}"                   },
+        { "${HOME:+OS${BAR:u}}",        "regression-os"                   },
+        { "${HOME:+OS${UNDEFINED:u}}",  "${OS${UNDEFINED:u}}"             },
+        { "${UNDEFINED:+OS${BAR:u}}",   "${UNDEFINED:+OS${BAR:u}}"        },
+        { "${HOME:*heinz}",             ""                                },
+        { "${EMPTY:*claus}",            "claus"                           },
+        { "${TERM}",                    "regression-term"                 },
+        { "${HOME:s/reg/bla/}",         "/home/blaression-tests"          },
+        { "${HOME:s/e/bla/}",           "/hombla/regression-tests"        },
+        { "${HOME:s/e/bla/g}",          "/hombla/rblagrblassion-tblasts"  },
+        { "${HOME:s/\\//_/g}",          "_home_regression-tests"          },
+        { "${HOME:s/[eso]/_/g}",        "/h_m_/r_gr___i_n-t__t_"          },
+        { "${HOME:s/[esO]/_/g}",        "/hom_/r_gr___ion-t__t_"          },
+        { "${HOME:s/[esO]/_/gi}",       "/h_m_/r_gr___i_n-t__t_"          },
+        { "${OSTYPE:s/^[re]/_/g}",      "_egression-os"                   },
+        { "${EMPTY:s/^[re]/_/g}",       ""                                },
+        { "${HOME:s/.*/heinz/}",        "heinz"                           },
+        { "${HOME:s/e/bla/t}",          "/hombla/regression-tests"        },
+        { "${HOME:s/E/bla/t}",          "/home/regression-tests"          },
+        { "${HOME:s/E/bla/ti}",         "/hombla/regression-tests"        },
+        { "${HOME:s/E/bla/tig}",        "/hombla/rblagrblassion-tblasts"  },
         };
     /*
-        { "${HOME:s/\\x65/\\x45/g}",    "/homE/rEgrEssion-tEsts",         VAR_OK }
+        { "${HOME:s/g(res)s/x\\\\1x/g}","/homE/rEgrEssion-tEsts"          }
+        { "${HOME:s/\\x65/\\x45/g}",    "/home/regression-tests"          }
     */
     char*    tmp;
     size_t   tmp_len;
@@ -90,9 +94,9 @@ int main(int argc, char** argv)
                         &tmp, &tmp_len, NULL,
                         &env_lookup, NULL,
                         NULL, 0);
-        if (rc != tests[i].rc)
+        if (rc != VAR_OK)
             {
-            printf("Test case #%d: Expected return code %d but got %d.\n", i, tests[i].rc, rc);
+            printf("Test case #%d: var_expand() failed with return code %d.\n", i, rc);
             return 1;
             }
         if (tmp_len != strlen(tests[i].expected) || tmp == NULL || memcmp(tests[i].expected, tmp, tmp_len) != 0)

@@ -130,8 +130,10 @@ int search_and_replace(tokenbuf* data, tokenbuf* search, tokenbuf* replace, toke
                 }
             else
                 {
-                printf("Match from offset %d to %d in string '%s'.\n",
+#if 0
+                printf("Match from offset %ld to %ld in string '%s'.\n",
                        pmatch[0].rm_so, pmatch[0].rm_eo, p);
+#endif
                 if (!append_to_tokenbuf(&tmp, p, pmatch[0].rm_so) ||
                     !append_to_tokenbuf(&tmp, replace->begin, replace->end - replace->begin))
                     {

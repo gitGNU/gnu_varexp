@@ -15,20 +15,20 @@
    eine Callback-Funktion:
 
     enum
-	{
-	VAR_OK,
-	VAR_NOTFOUND,
-	VAR_ERR_XXX,
-	VAR_ERR_XXX,
-	   :
-	}
+        {
+        VAR_OK,
+        VAR_NOTFOUND,
+        VAR_ERR_XXX,
+        VAR_ERR_XXX,
+           :
+        }
     var_rc_t;
 
     var_rc_t (*var_lookup_cb)(void *ctx,
-			      const char *varbegin,
-			      const char* varend,
-			      char *bufptr, size_t bufmax, size_t *buflen
-			      );
+                              const char *varbegin,
+                              const char* varend,
+                              char *bufptr, size_t bufmax, size_t *buflen
+                              );
 
  - Der Aufrufer der Funktion soll steuern können, wie sich die Library
    verhält, wenn eine Variable nicht existiert. Denkbar sind:
@@ -93,20 +93,20 @@
  - Interne Strukturen:
 
     struct configuration
-	{
-	char varinit = '$';
-	char openbracket = '{';
-	char closebracket = '}';
-	char escape = '\\';
-	char force_expand = TRUE;
-	};
+        {
+        char varinit = '$';
+        char openbracket = '{';
+        char closebracket = '}';
+        char escape = '\\';
+        char force_expand = TRUE;
+        };
 
     struct state
-	{
-	char* begin;
-	char* end;
-	char do_we_own_buffer;
-	};
+        {
+        char* begin;
+        char* end;
+        char do_we_own_buffer;
+        };
 
  - Beispiele:
 

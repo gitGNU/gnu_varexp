@@ -68,7 +68,13 @@ int main(int argc, char** argv)
         { "${HOME:o5-}",                "/regression-tests"               },
         { "${HOME:o7,13}",              "egress"                          },
         { "${HOME:y/a-z/A-YZ/}",        "/HOME/REGRESSION-TESTS"          },
-        { "${HOME:y/e-g/a-c/}",         "/homa/racrassion-tasts"          }
+        { "${HOME:y/e-g/a-c/}",         "/homa/racrassion-tasts"          },
+        { "${FOO:p/15/../l}",           "os............."                 },
+        { "${FOO:p/15/12345/l}",        "os1234512345123"                 },
+        { "${FOO:p/15/../r}",           ".............os"                 },
+        { "${FOO:p/15/12345/r}",        "1234512345123os"                 },
+        { "${FOO:p/15/../c}",           "......os......."                 },
+        { "${FOO:p/15/12345/c}",        "123451os1234512"                 }
         };
     /*
         { "${HOME:s/g(res)s/x\\\\1x/g}","/homE/rEgrEssion-tEsts"          }

@@ -1,6 +1,6 @@
 #include "internal.h"
 
-static size_t tokenbuf2int(tokenbuf* number)
+size_t tokenbuf2int(tokenbuf* number)
     {
     const char* p;
     size_t num = 0;

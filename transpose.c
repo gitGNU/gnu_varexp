@@ -36,7 +36,6 @@ int transpose(tokenbuf* data, tokenbuf* search, tokenbuf* replace)
     {
     tokenbuf srcclass, dstclass;
     const char* p;
-    const char* pos;
     int rc;
     size_t i;
 
@@ -79,7 +78,7 @@ int transpose(tokenbuf* data, tokenbuf* search, tokenbuf* replace)
             {
             if (*p == srcclass.begin[i])
                 {
-                *p = dstclass.begin[i];
+                *((char*)p) = dstclass.begin[i];
                 break;
                 }
             }

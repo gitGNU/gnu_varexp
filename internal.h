@@ -79,4 +79,8 @@ int cut_out_offset(tokenbuf* data, tokenbuf* number1, tokenbuf* number2, int isr
 
 int transpose(tokenbuf* data, tokenbuf* search, tokenbuf* replace);
 
+int padding(tokenbuf* data, tokenbuf* width, tokenbuf* fill, char position);
+
+size_t tokenbuf2int(tokenbuf* number);
+
 #endif /* !defined(INTERNAL_H) */

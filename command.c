@@ -298,6 +298,67 @@ int command(const char* begin, const char* end, const var_config_t* config,
             break;
 
 
+        case 'p':               /* Padding. */
+            ++p;
+
+            if (*p != '/')
+                return VAR_MALFORMATTED_PADDING;
+            else
+                ++p;
+
+            rc = number(p, end);
+            if (rc == 0)
+                {
+                rc = VAR_MISSING_PADDING_WIDTH;
+                goto error_return;
+                }
+            else
+                {
+                number1.begin = p;
+                number1.end   = p + rc;
+                number1.buffer_size = 0;
+                p += rc;
+                }
+
+            if (*p != '/')
+                {
+                rc = VAR_MALFORMATTED_PADDING;
+                goto error_return;
+                }
+            else
+                ++p;
+
+            rc = substext_or_variable(p, end, config, nameclass, lookup, lookup_context,
+                                      force_expand, &replace);
+            if (rc < 0)
+                goto error_return;
+            else
+                p += rc;
+
+            if (*p != '/')
+                {
+                rc = VAR_MALFORMATTED_PADDING;
+                goto error_return;
+                }
+            else
+                ++p;
+
+            if (*p != 'l' && *p != 'c' && *p != 'r')
+                {
+                rc = VAR_MALFORMATTED_PADDING;
+                goto error_return;
+                }
+            else
+                ++p;
+
+            if (data->begin)
+                {
+                rc = padding(data, &number1, &replace, p[-1]);
+                if (rc < 0)
+                    goto error_return;
+                }
+            break;
+
         default:
             return VAR_UNKNOWN_COMMAND_CHAR;
         }

@@ -71,7 +71,7 @@
    Groﬂbuchstaben, bevor es die Variable expandiert.
 
  - ${parameter:*word} expandiert zum leeren Wort, wenn "parameter"
-   nicht leer ist.
+   nicht leer ist, sonst zu "word".
 
  - ${parameter:y/ochars/nchars/} expandiert den Inhalt von "parameter"
    und transformiert dabei nach dem Prinzip von tr(1) die "ochars" im
@@ -95,27 +95,50 @@
     struct configuration
         {
         char varinit = '$';
-        char openbracket = '{';
-        char closebracket = '}';
+        char startdelim = '{';
+        char enddelim = '}';
         char escape = '\\';
         char force_expand = TRUE;
+        char special1 = '[';
+        char special2 = ']';
         };
 
-    struct state
-        {
-        char* begin;
-        char* end;
-        char do_we_own_buffer;
-        };
+ - Syntax:
 
- - Beispiele:
+    input           : ( TEXT | variable )*
 
-     $name
-     $name[test]
-     ${name}
-     ${name[test]}
-     $[name\[test\]]
-     $$name
-     $${name}
-     ${name:s/foo/bar/g}
-     ${foobar:s/${name:s/foo/bar/g}/test} ??????
+    variable        : '$' ( name | expression )
+
+    expression      : START-DELIM ( name | variable ) ( ':' command )* END-DELIM
+
+    name            : ( VARNAME | SPECIAL1 | SPECIAL2 )+
+
+    command         : '-' ( EXPTEXT | variable )*
+                    | '?' ( EXPTEXT | variable )*
+                    | '+' ( EXPTEXT | variable )*
+                    | 'o' NUMBER ( '-' NUMBER )?
+                    | '#'
+                    | 's'  '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/' ( 'g' | 'i' | 't' )*
+                    | 'Q'
+                    | 'L'
+                    | 'U'
+                    | '*' ( EXPTEXT | variable )*
+                    | 'y'   '/' ( variable | SUBSTTEXT ) '/' ( variable | SUBSTTEXT ) '/'
+
+    START-DELIM     : '{'
+
+    END-DELIM       : '}'
+
+    VARNAME         : '[a-z0-9_]+'
+
+    SPECIAL1        : '['
+
+    SPECIAL2        : ']'
+
+    NUMBER          : '[0-9]+'
+
+    SUBSTTEXT       : '[^$/]'
+
+    EXPTEXT         : '[^$}:]+'
+
+    TEXT            : '[^$]+'

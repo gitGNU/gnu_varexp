@@ -5,15 +5,14 @@ instead. The reason for this limitation is that the brackets used to specify the
 index (<quote>[</quote> and <quote>]</quote>) have a different meaning in
 ordinary text; see <xref linkend="looping"> for further discussion.</para>
 
-  <para>Which variable is an index and which is not is entirely up to the
-application developer. In some applications, every array may be accessed as an
-array, too. In other applications, normal variables and arrays are different
-things. &varexp; does not dictate this. There exists the convention that
-accessing an array with a negative index, such as <quote>${ARRAY[-1]}</quote>
-should return the number of elements the array contains. But again, this is not
-a behavior required by &varexp;; different applications may behave differently
-here.</para>
-
+  <para>Which variables are arrays -- and which are not -- is entirely up to the
+application developer. In some applications, every variable may be accessed as
+both a normal variable and an array. In other applications, normal variables and
+arrays are different things. &varexp; does not dictate this. There exists the
+convention that accessing an array with a negative index, such as
+<quote>${ARRAY[-1]}</quote> should return the number of elements the array
+contains. But again, this is not a behavior required by &varexp;; different
+applications may behave differently here.</para>
 
   <para>When specifying the index of the array's element you wish to access, you
 can use complete arithmetic expressions to calculate the entry. &varexp;

@@ -26,7 +26,7 @@ would have been expanded, because there weren't any arrays.</para>
 
   <para>Thus, this form of looping only makes sense if you
 <emphasis>do</emphasis> specify arrays in the loop's body. If you do, though,
-you can do some weird things, like <quote>[${ARRAY[#%2]}]</quote>, what expands
+you can do some weird things, like <quote>[${ARRAY[#%2]}]</quote>, which expands
 to <quote>${ARRAY[0]}</quote> for even numbers and to <quote>${ARRAY[1]}</quote>
 for odd numbers. But the expression has another property: It will never
 terminate, because the array-loopup will never fail, assuming that indices 0 and

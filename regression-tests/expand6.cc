@@ -9,6 +9,12 @@ using namespace std;
 struct variable
     {
     const char* name;
+    const char* data;
+    };
+
+struct variable_array
+    {
+    const char* name;
     const int   idx;
     const char* data;
     };
@@ -16,12 +22,21 @@ struct variable
 class var_lookup : public callback_t
     {
   public:
-    var_lookup(const variable* _vars) : vars(_vars)
+    var_lookup(const variable* _vars, const variable_array* _array_vars)
+            : vars(_vars), array_vars(_array_vars)
         {
         }
     virtual void operator()(const string& name, string& data)
         {
-        (*this)(name, 0, data);
+        for (size_t i = 0; vars[i].name; ++i)
+            {
+            if (strncmp(name.data(), vars[i].name, name.size()) == 0)
+                {
+                data = vars[i].data;
+                return;
+                }
+            }
+        throw undefined_variable();
         }
     virtual void operator()(const string& name, int idx, string& data)
         {
@@ -29,25 +44,24 @@ class var_lookup : public callback_t
 
         if (idx >= 0)
             {
-            for (size_t i = 0; vars[i].name; ++i)
+            for (size_t i = 0; array_vars[i].name; ++i)
                 {
-                if (strncmp(name.data(), vars[i].name, name.size()) == 0 && vars[i].idx == idx)
+                if (strncmp(name.data(), array_vars[i].name, name.size()) == 0 && array_vars[i].idx == idx)
                     {
-                    data = vars[i].data;
+                    data = array_vars[i].data;
                     return;
                     }
                 }
             }
         else
             {
-            for (size_t i = 0; vars[i].name; ++i)
+            for (size_t i = 0; array_vars[i].name; ++i)
                 {
-                if (strncmp(name.data(), vars[i].name, name.size()) == 0)
+                if (strncmp(name.data(), array_vars[i].name, name.size()) == 0)
                     {
-                    printf("Found variable at index %d.\n", i);
                     size_t counter = 1;
-                    size_t length  = strlen(vars[i].data);
-                    while (vars[i + counter].data && strncmp(name.data(), vars[i + counter].name, name.size()) == 0)
+                    size_t length  = strlen(array_vars[i].data);
+                    while (array_vars[i + counter].data && strncmp(name.data(), array_vars[i + counter].name, name.size()) == 0)
                         ++counter;
                     if (counter == 1)
                         sprintf(buf, "%d", length);
@@ -61,7 +75,8 @@ class var_lookup : public callback_t
         throw undefined_variable();
         }
   private:
-    const variable* vars;
+    const variable*       vars;
+    const variable_array* array_vars;
     };
 
 struct test_case
@@ -75,21 +90,25 @@ try
     {
     const struct variable vars[] =
         {
+        { "BAR",       "type" },
+        { "EMPTY",     "" },
+        { "FOO",       "os" },
+        { "HOME",      "/home/regression-tests" },
+        { "NUMBER",    "+2" },
+        { "MULTILINE", "line1\nline2\n" },
+        { "NUMEXP",    "((16)%5)" },
+        { "OSTYPE",    "regression-os" },
+        { "TERM",      "regression-term" },
+        { NULL,        NULL }
+        };
+    const struct variable_array array_vars[] =
+        {
         { "ARRAY",     0, "entry0" },
         { "ARRAY",     1, "entry1" },
         { "ARRAY",     2, "entry2" },
         { "ARRAY",     3, "entry3" },
-        { "BAR",       0, "type" },
-        { "EMPTY",     0, "" },
-        { "FOO",       0, "os" },
         { "HEINZ",     0, "heinz0" },
         { "HEINZ",     1, "heinz1" },
-        { "HOME",      0, "/home/regression-tests" },
-        { "NUMBER",    0, "+2" },
-        { "MULTILINE", 0, "line1\nline2\n" },
-        { "NUMEXP",    0, "((16)%5)" },
-        { "OSTYPE",    0, "regression-os" },
-        { "TERM",      0, "regression-term" },
         { NULL,        0, NULL }
         };
 
@@ -148,7 +167,6 @@ try
         { "${ARRAY[(5+(3+4)*2)/9]}",      "entry2",                                                          },
         { "${ARRAY[+1--2]}",              "entry3"                                                           },
         { "${ARRAY[-1]}",                 "4"                                                                },
-        { "${HOME[-1]}",                  "22"                                                               },
         { "${ARRAY[$NUMBER]}",            "entry2"                                                           },
         { "${ARRAY[$NUMEXP]}",            "entry1"                                                           },
         { "${ARRAY[$NUMEXP-1]}",          "entry0"                                                           },
@@ -157,7 +175,7 @@ try
         { "-[${ARRAY[#]}:]{1,$NUMBER}-",  "-entry1:entry2:-"                                                 },
         { "-[${ARRAY[#]}:]{1,3,5}-",      "-entry1::-"                                                       },
         { "[${ARRAY[#+#-#]}]",            "entry0entry1entry2entry3"                                         },
-        { "[${ARRAY}:${ARRAY[#]}-]",      "entry0:entry0-entry0:entry1-entry0:entry2-entry0:entry3-"         },
+        { "[${ARRAY[0]}:${ARRAY[#]}-]",   "entry0:entry0-entry0:entry1-entry0:entry2-entry0:entry3-"         },
         { "[${HEINZ[#]}:${ARRAY[#]}-]",   "heinz0:entry0-heinz1:entry1-:entry2-:entry3-"                     },
         { "[${HEINZ[#]}:[${ARRAY[#]}] ]", "heinz0:entry0entry1entry2entry3 heinz1:entry0entry1entry2entry3 " },
         { "[${ARRAY[#]}:[${ARRAY[#]},]{1,2,} ]{0,2,}", "entry0:entry1,entry3, entry2:entry1,entry3, "        },
@@ -167,7 +185,7 @@ try
         "heinz0: entry0, entry1, entry2, entry3; heinz1: entry0, entry1, entry2, entry3"
         }
         };
-    var_lookup lookup(vars);
+    var_lookup lookup(vars, array_vars);
 
     for (size_t i = 0; i < sizeof(tests) / sizeof(struct test_case); ++i)
         {

@@ -38,46 +38,22 @@ int main(int argc, char** argv)
         return 1;
         }
 
-    try
-        {
-        expand(input1, tmp, lookup);
-        return 1;
-        }
-    catch(const offset_out_of_bounds&)
-        {
-        }
-    try
-        {
-        expand(input2, tmp, lookup);
-        return 1;
-        }
-    catch(const offset_out_of_bounds&)
-        {
-        }
-    try
-        {
-        expand(input3, tmp, lookup);
-        return 1;
-        }
-    catch(const range_out_of_bounds&)
-        {
-        }
-    try
-        {
-        expand(input4, tmp, lookup);
-        return 1;
-        }
-    catch(const range_out_of_bounds&)
-        {
-        }
-    try
-        {
-        expand(input5, tmp, lookup);
-        return 1;
-        }
-    catch(const offset_logic&)
-        {
-        }
+#define fail_test(input, exception)            \
+    try                                        \
+        {                                      \
+        expand(input, tmp, lookup);            \
+        return 1;                              \
+        }                                      \
+    catch(const exception&)                    \
+        {                                      \
+        }                                      \
+        while(false)
+
+    fail_test(input1, offset_out_of_bounds);
+    fail_test(input2, offset_out_of_bounds);
+    fail_test(input3, range_out_of_bounds);
+    fail_test(input4, range_out_of_bounds);
+    fail_test(input5, offset_logic);
 
     return 0;
     }

@@ -22,6 +22,36 @@ int append_to_tokenbuf(tokenbuf* output, const char* data, int len)
             output->buffer_size = VAR_INITIAL_BUFFER_SIZE;
         }
 
+    /* Does the token contain text, but no buffer has been allocated
+       yet? */
+
+    if (output->begin != NULL && output->buffer_size == 0)
+        {
+        /* Check whether data borders to output. If, we can append
+           simly by increasing the end pointer. */
+
+        if (output->end == data)
+            {
+            output->end += len;
+            return 1;
+            }
+
+        /* OK, so copy the contents of output into an allocated buffer
+           so that we can append that way. */
+
+        else
+            {
+            char* tmp = malloc(output->end - output->begin + len + 1);
+            if (!tmp)
+                return 0;
+            memcpy(tmp, output->begin, output->end - output->begin);
+            output->buffer_size = output->end - output->begin;
+            output->begin = tmp;
+            output->end   = tmp + output->buffer_size;
+            output->buffer_size += len + 1;
+            }
+        }
+
     /* Does the token fit into the current buffer? If not, realloc a
        larger buffer that fits. */
 
@@ -48,3 +78,4 @@ int append_to_tokenbuf(tokenbuf* output, const char* data, int len)
     *((char*)output->end) = '\0';
     return 1;
     }
+

@@ -1,8 +1,8 @@
 #include "../internal.h"
 
 int env_lookup(void* context,
-          const char* varname, size_t name_len,
-          const char** data, size_t* data_len, size_t* buffer_size)
+               const char* varname, size_t name_len, int index,
+               const char** data, size_t* data_len, size_t* buffer_size)
     {
     char tmp[256];
 
@@ -15,7 +15,7 @@ int env_lookup(void* context,
     tmp[name_len] = '\0';
     *data = getenv(tmp);
     if (*data == NULL)
-        return 0;
+        return VAR_ERR_UNDEFINED_VARIABLE;
     *data_len = strlen(*data);
     *buffer_size = 0;
     return 1;
@@ -55,10 +55,10 @@ int main(int argc, char** argv)
         return 1;
         }
 
-    rc = expand_named_characters(tmp, tmp_len, tmp);
+    rc = var_unescape(tmp, tmp_len, tmp, 1);
     if (rc != VAR_OK)
         {
-        printf("expand_named_characters() failed with error %d.\n", rc);
+        printf("var_unescape() failed with error %d.\n", rc);
         return 1;
         }
     else

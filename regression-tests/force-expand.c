@@ -1,7 +1,7 @@
 #include "../internal.h"
 
 int dummy(void* context,
-          const char* varname, size_t name_len,
+          const char* varname, size_t name_len, int index,
           const char** data, size_t* data_len, size_t* buffer_size)
     {
     if (name_len != sizeof("heinz_ist_doof")-1)
@@ -14,7 +14,7 @@ int dummy(void* context,
         printf("Callback called for unknown variable.\n");
         exit(1);
         }
-    return 0;                   /* say it's undefined */
+    return VAR_ERR_UNDEFINED_VARIABLE; /* say it's undefined */
     }
 
 int main(int argc, char** argv)
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
                     &tmp, &tmp_len,
                     &dummy, NULL,
                     NULL, 1);
-    if (rc != VAR_UNDEFINED_VARIABLE)
+    if (rc != VAR_ERR_UNDEFINED_VARIABLE)
         {
         printf("var_expand() should have failed with error UNDEFINED_VARIABLE, but returned %d.\n", rc);
         return 1;

@@ -1,8 +1,8 @@
 #include "../internal.h"
 
 int env_lookup(void* context,
-          const char* varname, size_t name_len,
-          const char** data, size_t* data_len, size_t* buffer_size)
+               const char* varname, size_t name_len, int index,
+               const char** data, size_t* data_len, size_t* buffer_size)
     {
     char tmp[256];
 
@@ -15,7 +15,7 @@ int env_lookup(void* context,
     tmp[name_len] = '\0';
     *data = getenv(tmp);
     if (*data == NULL)
-        return 0;
+        return VAR_ERR_UNDEFINED_VARIABLE;
     *data_len = strlen(*data);
     *buffer_size = 0;
     return 1;
@@ -38,29 +38,29 @@ int main(int argc, char** argv)
         printf("Failed to set the environment: %s.\n", strerror(errno));
         return 1;
         }
-    if ((rc = var_expand(input1, strlen(input1), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_OFFSET_OUT_OF_BOUNDS)
+    if ((rc = var_expand(input1, strlen(input1), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_OFFSET_OUT_OF_BOUNDS)
         {
-        printf("var_expand() should have failed with VAR_OFFSET_OUT_OF_BOUNDS but returned %d.\n", rc);
+        printf("var_expand() should have failed with VAR_ERR_OFFSET_OUT_OF_BOUNDS but returned %d.\n", rc);
         return 1;
         }
-    if ((rc = var_expand(input2, strlen(input2), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_OFFSET_OUT_OF_BOUNDS)
+    if ((rc = var_expand(input2, strlen(input2), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_OFFSET_OUT_OF_BOUNDS)
         {
-        printf("var_expand() should have failed with VAR_OFFSET_OUT_OF_BOUNDS but returned %d.\n", rc);
+        printf("var_expand() should have failed with VAR_ERR_OFFSET_OUT_OF_BOUNDS but returned %d.\n", rc);
         return 1;
         }
-    if ((rc = var_expand(input3, strlen(input3), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_RANGE_OUT_OF_BOUNDS)
+    if ((rc = var_expand(input3, strlen(input3), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_RANGE_OUT_OF_BOUNDS)
         {
-        printf("var_expand() should have failed with VAR_RANGE_OUT_OF_BOUNDS but returned %d.\n", rc);
+        printf("var_expand() should have failed with VAR_ERR_RANGE_OUT_OF_BOUNDS but returned %d.\n", rc);
         return 1;
         }
-    if ((rc = var_expand(input4, strlen(input4), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_RANGE_OUT_OF_BOUNDS)
+    if ((rc = var_expand(input4, strlen(input4), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_RANGE_OUT_OF_BOUNDS)
         {
-        printf("var_expand() should have failed with VAR_RANGE_OUT_OF_BOUNDS but returned %d.\n", rc);
+        printf("var_expand() should have failed with VAR_ERR_RANGE_OUT_OF_BOUNDS but returned %d.\n", rc);
         return 1;
         }
-    if ((rc = var_expand(input5, strlen(input5), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_OFFSET_LOGIC_ERROR)
+    if ((rc = var_expand(input5, strlen(input5), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_OFFSET_LOGIC)
         {
-        printf("var_expand() should have failed with VAR_OFFSET_LOGIC_ERROR but returned %d.\n", rc);
+        printf("var_expand() should have failed with VAR_ERR_OFFSET_LOGIC but returned %d.\n", rc);
         return 1;
         }
 

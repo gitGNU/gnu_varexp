@@ -1,7 +1,7 @@
 #include "../internal.h"
 
 int dummy(void* context,
-          const char* varname, size_t name_len,
+          const char* varname, size_t name_len, int index,
           const char** data, size_t* data_len, size_t* buffer_size)
     {
     if (name_len != sizeof("test")-1)

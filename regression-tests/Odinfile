@@ -1,7 +1,7 @@
 # Regression tests for libvarexp.
 
 %test == () +cmd='sh' (%run-tests) \
-                      (expand-named-characters.exe) \
+                      (unescape.exe) \
                       (expand-character-class.exe) \
                       (expand1.exe) \
                       (expand2.exe) \
@@ -15,7 +15,7 @@
                       +output_show \
                       :stdout
 
-expand-named-characters.exe == expand-named-characters.c +(%test.flags) :exe
+unescape.exe == unescape.c +(%test.flags) :exe
 expand-character-class.exe == expand-character-class.c +(%test.flags) :exe
 expand1.exe == expand1.c +(%test.flags) :exe
 expand2.exe == expand2.c +(%test.flags) :exe
@@ -31,6 +31,7 @@ offset-failure.exe == offset-failure.c +(%test.flags) :exe
     +lib=(../libvarexp.a)
     +cc='gcc -Wall -pedantic'
     +debug
+    +define=DEBUG
 
 %run-tests == <<[eof]
     if [ $# -lt 1 ]; then

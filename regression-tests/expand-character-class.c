@@ -28,7 +28,7 @@ int main(int argc, char** argv)
         { "a-eA-Eabcdef-",  "-ABCDEabcdef",                 VAR_OK                   },
         { "-a-eA-Eabcdef-", "-ABCDEabcdef",                 VAR_OK                   },
         { "0-9-",           "-0123456789",                  VAR_OK                   },
-        { "g-a",            NULL,                           VAR_INCORRECT_CLASS_SPEC }
+        { "g-a",            NULL,                           VAR_ERR_INCORRECT_CLASS_SPEC }
         };
     size_t i;
     char class[256];

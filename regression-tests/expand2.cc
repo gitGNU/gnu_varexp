@@ -5,8 +5,8 @@
 #include "../varexp.hh"
 using namespace varexp;
 
-var_rc_t dummy(void* context,
-          const char* varname, size_t name_len, int index,
+int dummy(void* context,
+          const char* varname, size_t name_len, int idx,
           const char** data, size_t* data_len, size_t* buffer_size)
     {
     if (name_len != sizeof("test")-1)
@@ -23,7 +23,7 @@ var_rc_t dummy(void* context,
     *data_len    = sizeof("foobar")-1;
     *buffer_size = 0;
 
-    return var_rc_t(1);
+    return 1;
     }
 
 int main(int argc, char** argv)

@@ -12,10 +12,10 @@ struct variable
     const char* data;
     };
 
-static var_rc_t var_lookup(void* context,
-                           const char* varname, size_t name_len, int idx,
-                           const char** data, size_t* data_len,
-                           size_t* buffer_size)
+static int var_lookup(void* context,
+                      const char* varname, size_t name_len, int idx,
+                      const char** data, size_t* data_len,
+                      size_t* buffer_size)
     {
     const struct variable* vars = (struct variable*)context;
     size_t i, counter, length;

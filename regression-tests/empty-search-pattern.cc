@@ -5,8 +5,8 @@
 #include "../varexp.hh"
 using namespace varexp;
 
-var_rc_t env_lookup(void* context,
-               const char* varname, size_t name_len, int index,
+int env_lookup(void* context,
+               const char* varname, size_t name_len, int idx,
                const char** data, size_t* data_len, size_t* buffer_size)
     {
     char tmp[256];
@@ -23,7 +23,7 @@ var_rc_t env_lookup(void* context,
         throw undefined_variable();
     *data_len = strlen(*data);
     *buffer_size = 0;
-    return var_rc_t(1);
+    return 1;
     }
 
 int main(int argc, char** argv)

@@ -5,8 +5,8 @@
 #include "../varexp.hh"
 using namespace varexp;
 
-var_rc_t dummy(void* context,
-          const char* varname, size_t name_len, int index,
+int dummy(void* context,
+          const char* varname, size_t name_len, int idx,
           const char** data, size_t* data_len, size_t* buffer_size)
     {
     printf("The dummy callback should not have been called!\n");

@@ -1,15 +1,15 @@
 # Regression tests for libvarexp.
 
 %test == () +cmd='sh' (%run-tests) \
-#                       (unescape.exe) \
-#                       (expand-character-class.exe) \
-#                       (expand1.exe) \
-#                       (expand2.exe) \
-#                       (expand3.exe) \
-#                       (expand4.exe) \
-#                       (expand5.exe) \
-#                       (expand6.exe) \
-#                       (empty-search-pattern.exe) \
+#                      (unescape.exe) \
+#                      (expand-character-class.exe) \
+                      (expand1.exe) \
+                      (expand2.exe) \
+                      (expand3.exe) \
+                      (expand4.exe) \
+                      (expand5.exe) \
+                      (expand6.exe) \
+                      (empty-search-pattern.exe) \
                       (offset-failure.exe) \
                       +output_show \
                       :stdout

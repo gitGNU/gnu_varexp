@@ -1,11 +1,6 @@
-#include <string.h>
-#include <ctype.h>
 #include <sys/types.h>
 #include <regex.h>
 #include "internal.h"
-
-#include <stdio.h>
-#include <dmalloc.h>
 
 int search_and_replace(tokenbuf* data, tokenbuf* search, tokenbuf* replace, tokenbuf* flags)
     {

@@ -1,7 +1,4 @@
 #include "internal.h"
-#include <stdlib.h>
-#include <string.h>
-#include <dmalloc.h>
 
 #define VAR_INITIAL_BUFFER_SIZE 1
 

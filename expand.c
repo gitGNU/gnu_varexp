@@ -1,9 +1,4 @@
-#include <stdlib.h>
-#include <assert.h>
 #include "internal.h"
-
-#include <stdio.h>
-#include <dmalloc.h>
 
 const var_config_t var_config_default =
     {

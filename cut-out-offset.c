@@ -1,5 +1,4 @@
 #include "internal.h"
-#include <dmalloc.h>
 
 static size_t tokenbuf2int(tokenbuf* number)
     {

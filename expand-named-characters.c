@@ -1,6 +1,4 @@
 #include "internal.h"
-#include <assert.h>
-#include <dmalloc.h>
 
 /* Internal parsing code for octal. */
 

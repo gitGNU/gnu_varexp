@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
 #include "../internal.h"
-#include <dmalloc.h>
 
 int env_lookup(void* context,
           const char* varname, size_t name_len,
@@ -111,6 +106,7 @@ int main(int argc, char** argv)
             return 1;
             }
         printf("Test case #%02d: '%s' --> '%s'.\n", i, tests[i].input, tmp);
+        free(tmp);
         }
 
     return 0;

@@ -1,6 +1,4 @@
 #include "internal.h"
-#include <assert.h>
-#include <dmalloc.h>
 
 static void expand_range(char a, char b, char class[256])
     {

@@ -1,35 +1,42 @@
                               libvarexp
 
- - Eine Variable kann im Text in der Form $name oder $(name) angegeben
-   werden, wobei die Wahl der Klammern '(' ')' und des '$'
+ - Eine Variable kann im Text in der Form $name oder ${name} angegeben
+   werden, wobei die Wahl der Klammern '{' '}' und des '$'
    parametriesiert werden können.
-
- - Der tatsächliche Lookup des Inhaltes der Variable geschieht über
-   eine Callback-Funktion.
 
  - Gültige Zeichen für einem Variablennamen sind: [a-z0-9_] und '['
    sowie ']' selber.
-
- - In der Form $name muß ein Zeichen folgen, daß nicht zu einem
-   Variablennamen gehören darf, um das Ende des Namens feststellen zu
-   können.
 
  - Ein echtes '$'-Zeichen im Text kann durch Voranstellung eines
    wählbaren Escapezeichen dargestellt werden. Default ist der
    Backslash ('\').
 
- - Kann eine Variable nicht expandiert werden, so entscheidet der
-   Callback: Gibt er "" zurück, wird die Variable durch den leeren
-   String ersetzt, gibt er NULL zurück, bricht die Verarbeitung mit
-   einem Fehler ab.
+ - Der tatsächliche Lookup des Inhaltes der Variable geschieht über
+   eine Callback-Funktion:
 
-   Weiterhin kann der Aufrufer der Funktion ein Flag angeben, welches
-   besagt, ob Variablen, die nicht expandiert werden können einen
-   Fehler auslösen, beziehungsweise zu "" werden, oder ob der Ausdruck
-   unverarbeitet wieder in den Ausgabetext geschrieben wird, wie man
-   es zur Realisierung mehrer Pässe bräuchte.
+    enum
+	{
+	VAR_OK,
+	VAR_NOTFOUND,
+	VAR_ERR_XXX,
+	VAR_ERR_XXX,
+	   :
+	}
+    var_rc_t;
 
- - ${parameter} wird zum Inhalt der Variable "parameter".
+    var_rc_t (*var_lookup_cb)(void *ctx,
+			      const char *varbegin,
+			      const char* varend,
+			      char *bufptr, size_t bufmax, size_t *buflen
+			      );
+
+ - Der Aufrufer der Funktion soll steuern können, wie sich die Library
+   verhält, wenn eine Variable nicht existiert. Denkbar sind:
+
+    - Abbruch mit Fehler,
+    - die Variable wird zu "", oder
+    - der Ausdruck wird unverändert in den Ausgabetext übernommen,
+      sodaß eventuell ein zweiter Pass gemacht werden kann.
 
  - ${parameter:-word} wird normal expandiert. Wenn "parameter" leer
    ist, wird stattdessen "word" eingesetzt.
@@ -41,43 +48,24 @@
  - ${parameter:+word} substituiert die Expansion von "${word}" wenn
    "parameter" nicht leer ist, sonst wird "" substituiert.
 
- - ${parameter:offset} und ${parameter:offset:length} substituiert den
-   Inhalt von "parameter" ab Zeichen "offset" bis zum Ende oder (in
-   der zweiten Form) die nächsten "length" Zeichen.
+ - ${parameter:o<offset>} und ${parameter:o<offset>-<length>}
+   substituiert den Inhalt von "parameter" ab Zeichen "offset" bis zum
+   Ende oder -- in der zweiten Form -- die nächsten "length" Zeichen.
 
- - ${#parameter} expandiert zur Länge des Inhaltes von "parameter".
+ - ${parameter:#} expandiert zur Länge des Inhaltes von "parameter".
 
- - ${parameter:s/pattern/string/[gt]} expandiert "parameter" und führt
-   dann eine Ersetzung mittels des regulären Ausdrucks "pattern"
+ - ${parameter:s/pattern/string/[gti]} expandiert "parameter" und
+   führt dann eine Ersetzung mittels des regulären Ausdrucks "pattern"
    durch. Wird das 'g'-Flag angegeben, wird nicht nur eine Instanz von
    "pattern" durch "string" ersetzt, sondern alle. Das 't'-Flag
    signalisiert, daß eine reine Text-Ersetzung ohne Unterstützung von
-   regulären Ausdrücken gewünscht ist.
+   regulären Ausdrücken gewünscht ist. Das 'i'-Flag besagt, daß die
+   Suche nach "pattern" case-insensitiv durchgeführt wird.
 
- - ${parameter:E} ersetzt jedes Wort in "parameter" durch sein Suffix.
-   Worte ohne Suffix werden dementsprechend zum leeren Wort.
-
- - ${parameter:H} schneidet bei jedem Wort in "parameter" die letzte
-   Komponente des Pfades heraus. Aus "foo/bar" wird "foo", aus "foo"
-   würde bei erneuter Anwendung "." werden.
+ - ${parameter:Q} escaped vor der Expansion alle Shell-Meta-Zeichen.
 
  - ${parameter:L} wandelt den Inhalt von "parameter" in
    Kleinbuchstaben, bevor es die Variable expandiert.
-
- - ${parameter:Mpattern} expandiert zu allen Wörtern in "parameter",
-   die dem Shell-Pattern "pattern" entsprechen.
-
- - ${parameter:Npattern} expandiert zu allen Wörtern in "parameter",
-   die dem Shell-Pattern "pattern" nicht entsprechen.
-
- - ${parameter:Q} escaped for der Expansion alle Shell-Meta-Zeichen.
-
- - ${parameter:R} entfernt vor der Expansion das Suffix jedes Wortes
-   in "parameter". "test.c" wird zu "test" und "test.c.c" würde zu
-   "test.c".
-
- - ${parameter:R} entfernt vor der Expansion die jedem Wort
-   vorangestellten Pfadinformationen. Aus "test/foo" wird so "foo".
 
  - ${parameter:U} wandelt den Inhalt von "parameter" in
    Großbuchstaben, bevor es die Variable expandiert.
@@ -98,43 +86,36 @@
        \f          form feed             (FF)
        \a          alarm (bell)          (BEL)
        \e          escape (think troff)  (ESC)
-       \033        octal char (think of a PDP-11)
+       \033        octal char
        \x1B        hex char
        \x{263a}    wide hex char         (Unicode SMILEY)
-       \c[         control char
-       \N{name}    named char
-       \l          lowercase next char (think vi)
-       \u          uppercase next char (think vi)
-       \L          lowercase till \E (think vi)
-       \U          uppercase till \E (think vi)
-       \E          end case modification (think vi)
-       \Q          quote (disable) pattern metacharacters till \E
 
+ - Interne Strukturen:
 
-struct configuration
-    {
-    char varinit = '$';
-    char openbracket = '{';
-    char closebracket = '}';
-    char escape = '\\';
-    char force_expand = TRUE;
-    };
+    struct configuration
+	{
+	char varinit = '$';
+	char openbracket = '{';
+	char closebracket = '}';
+	char escape = '\\';
+	char force_expand = TRUE;
+	};
 
-struct state
-    {
-    char* begin;
-    char* end;
-    char our_buffer;
-    };
+    struct state
+	{
+	char* begin;
+	char* end;
+	char do_we_own_buffer;
+	};
 
-Beispiele:
+ - Beispiele:
 
- $name
- $name[test]
- ${name}
- ${name[test]}
- $[name\[test\]]
- $$name
- $${name}
- ${name:s/foo/bar/g}
- ${foobar:s/${name:s/foo/bar/g}/test} ??????
+     $name
+     $name[test]
+     ${name}
+     ${name[test]}
+     $[name\[test\]]
+     $$name
+     $${name}
+     ${name:s/foo/bar/g}
+     ${foobar:s/${name:s/foo/bar/g}/test} ??????

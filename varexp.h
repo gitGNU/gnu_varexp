@@ -7,6 +7,11 @@
 
 typedef enum
     {
+    VAR_OFFSET_LOGIC_ERROR           = -25,
+    VAR_OFFSET_OUT_OF_BOUNDS         = -24,
+    VAR_RANGE_OUT_OF_BOUNDS          = -23,
+    VAR_INVALID_OFFSET_DELIMITER     = -22,
+    VAR_MISSING_START_OFFSET         = -21,
     VAR_EMPTY_SEARCH_STRING          = -20,
     VAR_MISSING_PARAMETER_IN_COMMAND = -19,
     VAR_INVALID_REGEX_IN_REPLACE     = -18,
@@ -17,13 +22,9 @@ typedef enum
     VAR_INPUT_ISNT_TEXT_NOR_VARIABLE = -13,
     VAR_UNDEFINED_VARIABLE           = -12,
     VAR_INCOMPLETE_VARIABLE_SPEC     = -11,
-
     VAR_OUT_OF_MEMORY                = -10,
-
     VAR_INVALID_CONFIGURATION        = -9,
-
     VAR_INCORRECT_CLASS_SPEC         = -8,
-
     VAR_INCOMPLETE_GROUPED_HEX       = -7,
     VAR_INCOMPLETE_OCTAL             = -6,
     VAR_INVALID_OCTAL                = -5,
@@ -32,7 +33,6 @@ typedef enum
     VAR_INCOMPLETE_HEX               = -2,
     VAR_INCOMPLETE_NAMED_CHARACTER   = -1,
     VAR_INCOMPLETE_QUOTED_PAIR       = -1,
-
     VAR_OK                           = 0
     }
 var_rc_t;

@@ -63,4 +63,8 @@ int expression(const char* begin, const char* end, const var_config_t* config,
 
 int text(const char* begin, const char* end, char varinit, char escape);
 
+int number(const char* begin, const char* end);
+
+int cut_out_offset(tokenbuf* data, tokenbuf* number1, tokenbuf* number2, int isrange);
+
 #endif /* !defined(INTERNAL_H) */

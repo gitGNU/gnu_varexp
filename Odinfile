@@ -15,6 +15,7 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -pedantic' \
     input.c
     tokenbuf.c
     search-and-replace.c
+    cut-out-offset.c
 
 %clean ! == !<<
     rm -f libvarexp.a

@@ -12,12 +12,16 @@ int command(const char* begin, const char* end, const var_config_t* config,
     const char* p = begin;
     tokenbuf tmptokbuf;
     tokenbuf search, replace, flags;
+    tokenbuf number1, number2;
+    int isrange;
     int rc;
 
     init_tokenbuf(&tmptokbuf);
     init_tokenbuf(&search);
     init_tokenbuf(&replace);
     init_tokenbuf(&flags);
+    init_tokenbuf(&number1);
+    init_tokenbuf(&number2);
 
     if (begin == end)
         return 0;
@@ -61,6 +65,48 @@ int command(const char* begin, const char* end, const var_config_t* config,
                     *ptr = toupper(*ptr);
                 }
             ++p;
+            break;
+
+        case 'o':               /* Cut out substrings. */
+            ++p;
+            rc = number(p, end);
+            if (rc == 0)
+                {
+                rc = VAR_MISSING_START_OFFSET;
+                goto error_return;
+                }
+            else
+                {
+                number1.begin = p;
+                number1.end   = p + rc;
+                number1.buffer_size = 0;
+                p += rc;
+                }
+
+            if (*p == ',')
+                {
+                isrange = 0;
+                ++p;
+                }
+            else if (*p == '-')
+                {
+                isrange = 1;
+                ++p;
+                }
+            else
+                {
+                rc = VAR_INVALID_OFFSET_DELIMITER;
+                goto error_return;
+                }
+
+            rc = number(p, end);
+            number2.begin = p;
+            number2.end   = p + rc;
+            number2.buffer_size = 0;
+            p += rc;
+            rc = cut_out_offset(data, &number1, &number2, isrange);
+            if (rc < 0)
+                goto error_return;
             break;
 
         case '#':               /* Substitute length of the string. */
@@ -268,6 +314,8 @@ int command(const char* begin, const char* end, const var_config_t* config,
     free_tokenbuf(&search);
     free_tokenbuf(&replace);
     free_tokenbuf(&flags);
+    free_tokenbuf(&number1);
+    free_tokenbuf(&number2);
     return p - begin;
 
   error_return:
@@ -276,5 +324,7 @@ int command(const char* begin, const char* end, const var_config_t* config,
     free_tokenbuf(&search);
     free_tokenbuf(&replace);
     free_tokenbuf(&flags);
+    free_tokenbuf(&number1);
+    free_tokenbuf(&number2);
     return rc;
     }

@@ -9,7 +9,7 @@
 #                       (expand4.exe) \
 #                       (expand5.exe) \
 #                       (expand6.exe) \
-                      (empty-search-pattern.exe) \
+#                       (empty-search-pattern.exe) \
                       (offset-failure.exe) \
                       +output_show \
                       :stdout

@@ -5,19 +5,22 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -pedantic' \
                                :a
 
 %libvarexp.a.sm == <<
-    expand-named-characters.c
-    expand-character-class.c
     command.c
-    expression.c
-    variable.c
-    text.c
-    expand.c
-    input.c
-    tokenbuf.c
-    search-and-replace.c
     cut-out-offset.c
-    transpose.c
+    expand-character-class.c
+    expand-named-characters.c
+    expand.c
+    expression.c
+    input.c
+    loop.c
+    num-exp.c
     padding.c
+    search-and-replace.c
+    strerror.c
+    text.c
+    tokenbuf.c
+    transpose.c
+    variable.c
 
 %clean ! == !<<
     rm -f libvarexp.a

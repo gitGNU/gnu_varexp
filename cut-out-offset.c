@@ -1,58 +1,45 @@
 #include "internal.h"
 
-size_t tokenbuf2int(tokenbuf* number)
-    {
-    const char* p;
-    size_t num = 0;
-    for (p = number->begin; p != number->end; ++p)
-        {
-        num *= 10;
-        num += *p - '0';
-        }
-    return num;
-    }
+int cut_out_offset(tokenbuf_t *data, tokenbuf_t *number1,
+                          tokenbuf_t *number2, int isrange)
+{
+    tokenbuf_t res;
+    const char *p;
+    size_t num1;
+    size_t num2;
 
-int cut_out_offset(tokenbuf* data, tokenbuf* number1, tokenbuf* number2, int isrange)
-    {
-    tokenbuf res;
-    const char* p;
-    size_t num1 = tokenbuf2int(number1);
-    size_t num2 = tokenbuf2int(number2);
+    num1 = tokenbuf_toint(number1);
+    num2 = tokenbuf_toint(number2);
 
     /* Determine begin of result string. */
 
     if ((data->end - data->begin) < num1)
-        return VAR_OFFSET_OUT_OF_BOUNDS;
+        return VAR_ERR_OFFSET_OUT_OF_BOUNDS;
     else
         p = data->begin + num1;
 
     /* If num2 is zero, we copy the rest from there. */
 
-    if (num2 == 0)
-        {
-        if (!assign_to_tokenbuf(&res, p, data->end - p))
-            return VAR_OUT_OF_MEMORY;
-        }
-    else                        /* OK, then use num2. */
-        {
-        if (isrange)
-            {
+    if (num2 == 0) {
+        if (!tokenbuf_assign(&res, p, data->end - p))
+            return VAR_ERR_OUT_OF_MEMORY;
+    } else {
+        /* OK, then use num2. */
+        if (isrange) {
             if ((p + num2) > data->end)
-                return VAR_RANGE_OUT_OF_BOUNDS;
-            if (!assign_to_tokenbuf(&res, p, num2))
-                return VAR_OUT_OF_MEMORY;
-            }
-        else
-            {
+                return VAR_ERR_RANGE_OUT_OF_BOUNDS;
+            if (!tokenbuf_assign(&res, p, num2))
+                return VAR_ERR_OUT_OF_MEMORY;
+        } else {
             if (num2 < num1)
-                return VAR_OFFSET_LOGIC_ERROR;
+                return VAR_ERR_OFFSET_LOGIC;
             if ((data->begin + num2) > data->end)
-                return VAR_RANGE_OUT_OF_BOUNDS;
-            if (!assign_to_tokenbuf(&res, p, (data->begin + num2) - p))
-                return VAR_OUT_OF_MEMORY;
-            }
+                return VAR_ERR_RANGE_OUT_OF_BOUNDS;
+            if (!tokenbuf_assign(&res, p, num2 - num1 + 1))
+                return VAR_ERR_OUT_OF_MEMORY;
         }
-    free_tokenbuf(data);
-    move_tokenbuf(&res, data);
-    return VAR_OK;
     }
+    tokenbuf_free(data);
+    tokenbuf_move(&res, data);
+    return VAR_OK;
+}

@@ -2,138 +2,110 @@
 #include <regex.h>
 #include "internal.h"
 
-int padding(tokenbuf* data, tokenbuf* widthstr, tokenbuf* fill, char position)
-    {
-    tokenbuf result;
-    size_t width = tokenbuf2int(widthstr);
+int padding(tokenbuf_t *data, tokenbuf_t *widthstr, tokenbuf_t *fill,
+            char position)
+{
+    tokenbuf_t result;
+    size_t width = tokenbuf_toint(widthstr);
     int i;
 
-    printf("Padding data '%s' to width '%d' by filling in '%s' to position '%c'.\n",
-           data->begin, width, fill->begin, position);
-
     if (fill->begin == fill->end)
-        return VAR_EMPTY_PADDING_FILL_STRING;
+        return VAR_ERR_EMPTY_PADDING_FILL_STRING;
 
-    init_tokenbuf(&result);
+    tokenbuf_init(&result);
 
-    if (position == 'l')
-        {
+    if (position == 'l') {
         i = width - (data->end - data->begin);
-        if (i > 0)
-            {
-            printf("Missing %d characters at the end of the data string.\n", i);
+        if (i > 0) {
             i = i / (fill->end - fill->begin);
-            printf("That's %d times the padding string.\n", i);
-            while(i > 0)
-                {
-                if (!append_to_tokenbuf(data, fill->begin, fill->end - fill->begin))
-                    return VAR_OUT_OF_MEMORY;
-                --i;
-                }
-            i = (width - (data->end - data->begin)) % (fill->end - fill->begin);
-            printf("Plus a remainder of %d characters.\n", i);
-            if (!append_to_tokenbuf(data, fill->begin, i))
-                return VAR_OUT_OF_MEMORY;
+            while (i > 0) {
+                if (!tokenbuf_append
+                    (data, fill->begin, fill->end - fill->begin))
+                    return VAR_ERR_OUT_OF_MEMORY;
+                i--;
             }
+            i = (width - (data->end - data->begin))
+                % (fill->end - fill->begin);
+            if (!tokenbuf_append(data, fill->begin, i))
+                return VAR_ERR_OUT_OF_MEMORY;
         }
-    else if (position == 'r')
-        {
+    } else if (position == 'r') {
         i = width - (data->end - data->begin);
-        if (i > 0)
-            {
-            printf("Missing %d characters at the beginning of the data string.\n", i);
+        if (i > 0) {
             i = i / (fill->end - fill->begin);
-            printf("That's %d times the padding string.\n", i);
-            while(i > 0)
-                {
-                if (!append_to_tokenbuf(&result, fill->begin, fill->end - fill->begin))
-                    {
-                    free_tokenbuf(&result);
-                    return VAR_OUT_OF_MEMORY;
-                    }
-                --i;
+            while (i > 0) {
+                if (!tokenbuf_append
+                    (&result, fill->begin, fill->end - fill->begin)) {
+                    tokenbuf_free(&result);
+                    return VAR_ERR_OUT_OF_MEMORY;
                 }
-            i = (width - (data->end - data->begin)) % (fill->end - fill->begin);
-            printf("Plus a remainder of %d characters.\n", i);
-            if (!append_to_tokenbuf(&result, fill->begin, i))
-                {
-                free_tokenbuf(&result);
-                return VAR_OUT_OF_MEMORY;
-                }
-            if (!append_to_tokenbuf(&result, data->begin, data->end - data->begin))
-                {
-                free_tokenbuf(&result);
-                return VAR_OUT_OF_MEMORY;
-                }
-
-            free_tokenbuf(data);
-            move_tokenbuf(&result, data);
+                i--;
             }
+            i = (width - (data->end - data->begin))
+                % (fill->end - fill->begin);
+            if (!tokenbuf_append(&result, fill->begin, i)) {
+                tokenbuf_free(&result);
+                return VAR_ERR_OUT_OF_MEMORY;
+            }
+            if (!tokenbuf_append(&result, data->begin, data->end - data->begin)) {
+                tokenbuf_free(&result);
+                return VAR_ERR_OUT_OF_MEMORY;
+            }
+
+            tokenbuf_free(data);
+            tokenbuf_move(&result, data);
         }
-     else if (position == 'c')
-        {
+    } else if (position == 'c') {
         i = (width - (data->end - data->begin)) / 2;
-        if (i > 0)
-            {
+        if (i > 0) {
             /* Create the prefix. */
 
-            printf("Missing %d characters at the beginning of the data string.\n", i);
             i = i / (fill->end - fill->begin);
-            printf("That's %d times the padding string.\n", i);
-            while(i > 0)
-                {
-                if (!append_to_tokenbuf(&result, fill->begin, fill->end - fill->begin))
-                    {
-                    free_tokenbuf(&result);
-                    return VAR_OUT_OF_MEMORY;
-                    }
-                --i;
+            while (i > 0) {
+                if (!tokenbuf_append(&result, fill->begin, fill->end - fill->begin)) {
+                    tokenbuf_free(&result);
+                    return VAR_ERR_OUT_OF_MEMORY;
                 }
-            i = ((width - (data->end - data->begin)) / 2) % (fill->end - fill->begin);
-            printf("Plus a remainder of %d characters.\n", i);
-            if (!append_to_tokenbuf(&result, fill->begin, i))
-                {
-                free_tokenbuf(&result);
-                return VAR_OUT_OF_MEMORY;
-                }
+                i--;
+            }
+            i = ((width - (data->end - data->begin)) / 2)
+                % (fill->end - fill->begin);
+            if (!tokenbuf_append(&result, fill->begin, i)) {
+                tokenbuf_free(&result);
+                return VAR_ERR_OUT_OF_MEMORY;
+            }
 
             /* Append the actual data string. */
 
-            if (!append_to_tokenbuf(&result, data->begin, data->end - data->begin))
-                {
-                free_tokenbuf(&result);
-                return VAR_OUT_OF_MEMORY;
-                }
+            if (!tokenbuf_append(&result, data->begin, data->end - data->begin)) {
+                tokenbuf_free(&result);
+                return VAR_ERR_OUT_OF_MEMORY;
+            }
 
             /* Append the suffix. */
 
             i = width - (result.end - result.begin);
-            printf("Missing %d characters at the end of the data string.\n", i);
             i = i / (fill->end - fill->begin);
-            printf("That's %d times the padding string.\n", i);
-            while(i > 0)
-                {
-                if (!append_to_tokenbuf(&result, fill->begin, fill->end - fill->begin))
-                    {
-                    free_tokenbuf(&result);
-                    return VAR_OUT_OF_MEMORY;
-                    }
-                --i;
+            while (i > 0) {
+                if (!tokenbuf_append
+                    (&result, fill->begin, fill->end - fill->begin)) {
+                    tokenbuf_free(&result);
+                    return VAR_ERR_OUT_OF_MEMORY;
                 }
+                i--;
+            }
             i = width - (result.end - result.begin);
-            printf("Plus a remainder of %d characters.\n", i);
-            if (!append_to_tokenbuf(&result, fill->begin, i))
-                {
-                free_tokenbuf(&result);
-                return VAR_OUT_OF_MEMORY;
-                }
+            if (!tokenbuf_append(&result, fill->begin, i)) {
+                tokenbuf_free(&result);
+                return VAR_ERR_OUT_OF_MEMORY;
+            }
 
             /* Move string from temporary buffer to data buffer. */
 
-            free_tokenbuf(data);
-            move_tokenbuf(&result, data);
-            }
+            tokenbuf_free(data);
+            tokenbuf_move(&result, data);
         }
+    }
 
     return VAR_OK;
-    }
+}

@@ -1,173 +1,176 @@
 #include "internal.h"
 
-int text(const char* begin, const char* end, char varinit, char escape)
-    {
-    const char* p;
-    for (p = begin; p != end && *p != varinit; ++p)
-        {
-        if (*p == escape)
-            {
-            if (p+1 == end)
-                return VAR_INCOMPLETE_QUOTED_PAIR;
-            else
-                ++p;
-            }
-        }
-    return p - begin;
-    }
+int text(const char *begin, const char *end, char varinit,
+         char startindex, char endindex, char escape)
+{
+    const char *p;
 
-int varname(const char* begin, const char* end, const char nameclass[256])
+    for (p = begin; p != end; ++p) {
+        if (*p == escape) {
+            if (++p == end)
+                return VAR_ERR_INCOMPLETE_QUOTED_PAIR;
+        }
+        else if (*p == varinit)
+            break;
+        else if (startindex && (*p == startindex || *p == endindex))
+            break;
+    }
+    return p - begin;
+}
+
+int varname(const char *begin, const char *end,
+            const char_class_t nameclass)
+{
+    const char *p;
+
+    for (p = begin; p != end && nameclass[(int) *p]; p++)
+        ;
+    return p - begin;
+}
+
+int number(const char *begin, const char *end)
     {
-    const char* p;
-    for (p = begin; p != end && nameclass[(int)*p]; ++p)
+    const char *p;
+
+    for (p = begin; p != end && isdigit((int)*p); p++)
         ;
     return p - begin;
     }
 
-int number(const char* begin, const char* end)
-    {
-    const char* p;
-    for (p = begin; p != end && isdigit(*p); ++p)
-        ;
-    return p - begin;
-    }
+static int substext(const char *begin, const char *end,
+                    const var_config_t *config)
+{
+    const char *p;
 
-int substext(const char* begin, const char* end, const var_config_t* config)
-    {
-    const char* p;
-    for (p = begin; p != end && *p != config->varinit && *p != '/'; ++p)
-        {
-        if (*p == config->escape)
-            {
-            if (p+1 == end)
-                return VAR_INCOMPLETE_QUOTED_PAIR;
-            else
-                ++p;
-            }
+    for (p = begin; p != end && *p != config->varinit && *p != '/'; p++) {
+        if (*p == config->escape) {
+            if (p + 1 == end)
+                return VAR_ERR_INCOMPLETE_QUOTED_PAIR;
+            p++;
         }
-    return p - begin;
     }
+    return p - begin;
+}
 
-int exptext(const char* begin, const char* end, const var_config_t* config)
-    {
-    const char* p;
-    for (p = begin; p != end && *p != config->varinit && *p != config->enddelim && *p != ':'; ++p)
-        {
-        if (*p == config->escape)
-            {
-            if (p+1 == end)
-                return VAR_INCOMPLETE_QUOTED_PAIR;
-            else
-                ++p;
-            }
+int exptext(const char *begin, const char *end,
+            const var_config_t *config)
+{
+    const char *p;
+
+    for (p = begin;
+            p != end
+         && *p != config->varinit
+         && *p != config->enddelim
+         && *p != ':'; p++) {
+        if (*p == config->escape) {
+            if (p + 1 == end)
+                return VAR_ERR_INCOMPLETE_QUOTED_PAIR;
+            p++;
         }
-    return p - begin;
     }
+    return p - begin;
+}
 
-int exptext_or_variable(const char* begin, const char* end, const var_config_t* config,
-                        const char nameclass[256], var_cb_t lookup, void* lookup_context,
-                        int force_expand, tokenbuf* result)
-    {
-    const char* p = begin;
-    tokenbuf tmp;
+int exptext_or_variable(const char *begin, const char *end,
+                        const var_config_t *config,
+                        const char_class_t nameclass, var_cb_t lookup,
+                        void *lookup_context, int force_expand,
+                        tokenbuf_t *result, int current_index,
+                        int *rel_lookup_flag)
+{
+    const char *p = begin;
+    tokenbuf_t tmp;
     int rc;
 
-    init_tokenbuf(result);
-    init_tokenbuf(&tmp);
+    tokenbuf_init(result);
+    tokenbuf_init(&tmp);
 
     if (begin == end)
         return 0;
 
-    do
-        {
+    do {
         rc = exptext(p, end, config);
         if (rc < 0)
             goto error_return;
-        else if (rc > 0)
-            {
-            if (!append_to_tokenbuf(result, p, rc))
-                {
-                rc = VAR_OUT_OF_MEMORY;
+        if (rc > 0) {
+            if (!tokenbuf_append(result, p, rc)) {
+                rc = VAR_ERR_OUT_OF_MEMORY;
                 goto error_return;
-                }
-            else
-                p += rc;
             }
+            p += rc;
+        }
 
-        rc = variable(p, end, config, nameclass, lookup, lookup_context, force_expand, &tmp);
+        rc = variable(p, end, config, nameclass, lookup, lookup_context,
+                      force_expand, &tmp, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
-        else if (rc > 0)
-            {
+        if (rc > 0) {
             p += rc;
-            if (!append_to_tokenbuf(result, tmp.begin, tmp.end - tmp.begin))
-                {
-                rc = VAR_OUT_OF_MEMORY;
+            if (!tokenbuf_append
+                (result, tmp.begin, tmp.end - tmp.begin)) {
+                rc = VAR_ERR_OUT_OF_MEMORY;
                 goto error_return;
-                }
             }
         }
-    while (rc > 0);
+    } while (rc > 0);
 
-    free_tokenbuf(&tmp);
+    tokenbuf_free(&tmp);
     return p - begin;
 
   error_return:
-    free_tokenbuf(&tmp);
-    free_tokenbuf(result);
+    tokenbuf_free(&tmp);
+    tokenbuf_free(result);
     return rc;
-    }
+}
 
-int substext_or_variable(const char* begin, const char* end, const var_config_t* config,
-                         const char nameclass[256], var_cb_t lookup, void* lookup_context,
-                         int force_expand, tokenbuf* result)
-    {
-    const char* p = begin;
-    tokenbuf tmp;
+int substext_or_variable(const char *begin, const char *end,
+                         const var_config_t *config,
+                         const char_class_t nameclass, var_cb_t lookup,
+                         void *lookup_context, int force_expand,
+                         tokenbuf_t *result, int current_index,
+                         int *rel_lookup_flag)
+{
+    const char *p = begin;
+    tokenbuf_t tmp;
     int rc;
 
-    init_tokenbuf(result);
-    init_tokenbuf(&tmp);
+    tokenbuf_init(result);
+    tokenbuf_init(&tmp);
 
     if (begin == end)
         return 0;
 
-    do
-        {
+    do {
         rc = substext(p, end, config);
         if (rc < 0)
             goto error_return;
-        else if (rc > 0)
-            {
-            if (!append_to_tokenbuf(result, p, rc))
-                {
-                rc = VAR_OUT_OF_MEMORY;
+        if (rc > 0) {
+            if (!tokenbuf_append(result, p, rc)) {
+                rc = VAR_ERR_OUT_OF_MEMORY;
                 goto error_return;
-                }
-            else
-                p += rc;
             }
+            p += rc;
+        }
 
-        rc = variable(p, end, config, nameclass, lookup, lookup_context, force_expand, &tmp);
+        rc = variable(p, end, config, nameclass, lookup, lookup_context,
+                      force_expand, &tmp, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
-        else if (rc > 0)
-            {
+        if (rc > 0) {
             p += rc;
-            if (!append_to_tokenbuf(result, tmp.begin, tmp.end - tmp.begin))
-                {
-                rc = VAR_OUT_OF_MEMORY;
+            if (!tokenbuf_append
+                (result, tmp.begin, tmp.end - tmp.begin)) {
+                rc = VAR_ERR_OUT_OF_MEMORY;
                 goto error_return;
-                }
             }
         }
-    while (rc > 0);
+    } while (rc > 0);
 
-    free_tokenbuf(&tmp);
+    tokenbuf_free(&tmp);
     return p - begin;
 
   error_return:
-    free_tokenbuf(&tmp);
-    free_tokenbuf(result);
+    tokenbuf_free(&tmp);
+    tokenbuf_free(result);
     return rc;
-    }
+}

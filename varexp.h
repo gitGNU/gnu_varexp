@@ -7,6 +7,12 @@
 
 typedef enum
     {
+    VAR_INPUT_ISNT_TEXT_NOR_VARIABLE = -13,
+    VAR_UNDEFINED_VARIABLE          = -12,
+    VAR_INCOMPLETE_VARIABLE_SPEC    = -11,
+
+    VAR_OUT_OF_MEMORY               = -10,
+
     VAR_INVALID_CONFIGURATION       = -9,
 
     VAR_INCORRECT_CLASS_SPEC        = -8,
@@ -18,6 +24,7 @@ typedef enum
     VAR_INVALID_HEX                 = -3,
     VAR_INCOMPLETE_HEX              = -2,
     VAR_INCOMPLETE_NAMED_CHARACTER  = -1,
+    VAR_INCOMPLETE_QUOTED_PAIR      = -1,
 
     VAR_OK                          = 0
     }
@@ -65,7 +72,7 @@ var_rc_t expand_named_characters(const char* src, size_t len, char* dst);
 
 typedef int (*var_cb_t)(void* context,
                         const char* varname, size_t name_len,
-                        char* const* data, size_t* data_len, char* malloced_buffer);
+                        const char** data, size_t* data_len, size_t* buffer_size);
 
 /*
    This structure configures the parser's specials. I think, the fields

@@ -9,6 +9,7 @@ libvarexp.a == %libvarexp.a.sm +cc='gcc -Wall -ansi -pedantic' \
     expand-character-class.c
     parser.c
     expand.c
+    append-to-tokenbuf.c
 
 %clean ! == !<<
     rm -f libvarexp.a

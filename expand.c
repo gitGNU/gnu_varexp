@@ -1,5 +1,8 @@
+#include <stdlib.h>
 #include <assert.h>
 #include "internal.h"
+
+#include <stdio.h>
 
 const var_config_t var_config_default =
     {
@@ -10,7 +13,7 @@ const var_config_t var_config_default =
     "a-zA-Z0-9_"                /* namechars */
     };
 
-var_rc_t var_expand(const char* input, size_t input_len,
+var_rc_t var_expand(const char* input_buf, size_t input_len,
                     char** result, size_t* result_len,
                     const char** error_msg,
                     var_cb_t lookup, void* lookup_context,
@@ -18,6 +21,7 @@ var_rc_t var_expand(const char* input, size_t input_len,
     {
     char nameclass[256];
     var_rc_t rc;
+    tokenbuf output;
 
     /* Assert everything is as we expect it. */
 
@@ -42,6 +46,25 @@ var_rc_t var_expand(const char* input, size_t input_len,
         nameclass[(int)config->enddelim] ||
         nameclass[(int)config->escape])
         return VAR_INVALID_CONFIGURATION;
+
+    /* Call the parser. */
+
+    output.begin = output.end = NULL;
+    output.buffer_size = 0;
+    rc = input(input_buf, input_buf + input_len, config, nameclass,
+               lookup, lookup_context, force_expand, &output);
+    if (rc != VAR_OK)
+        {
+        if (output.buffer_size > 0)
+            free((char*)output.begin);
+        return rc;
+        }
+    *result     = (char*)output.begin;
+    *result_len = output.end - output.begin;
+    if (error_msg)
+        *error_msg  = NULL;
+
+    printf("The expanded version is:\n%s\n", output.begin);
 
     return VAR_OK;
     }

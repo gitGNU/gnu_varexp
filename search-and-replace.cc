@@ -120,7 +120,7 @@ namespace varexp
 
                 // Compile the pattern.
 
-                int rc = regcomp(&preg, search.c_str(), REG_EXTENDED|((case_insensitive)?REG_ICASE:0));
+                int rc = regcomp(&preg, search.c_str(), REG_NEWLINE | REG_EXTENDED|((case_insensitive)?REG_ICASE:0));
                 if (rc != 0)
                     {
                     throw invalid_regex_in_replace();

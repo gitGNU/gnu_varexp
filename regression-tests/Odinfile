@@ -7,6 +7,8 @@
                       (expand2.exe) \
                       (force-expand.exe) \
                       (expand3.exe) \
+                      (expand4.exe) \
+                      (expand5.exe) \
                       +output_show \
                       :stdout
 
@@ -16,6 +18,8 @@ expand1.exe == expand1.c +(%test.flags) :exe
 expand2.exe == expand2.c +(%test.flags) :exe
 force-expand.exe == force-expand.c +(%test.flags) :exe
 expand3.exe == expand3.c +(%test.flags) :exe
+expand4.exe == expand4.c +(%test.flags) :exe
+expand5.exe == expand5.c +(%test.flags) :exe
 
 %test.flags == <<
     +lib=(../libvarexp.a)

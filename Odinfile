@@ -19,7 +19,6 @@ libvarexp.a == %libvarexp.a.sm +gnu \
     padding.cc
     search-and-replace.cc
     text.cc
-    tokenbuf.cc
     transpose.cc
     variable.cc
     error.cc

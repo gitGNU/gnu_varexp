@@ -3,7 +3,7 @@
 var_rc_t input(const char *begin, const char *end,
                const var_config_t *config,
                const char_class_t nameclass, var_cb_t lookup,
-               void *lookup_context, int force_expand,
+               void *lookup_context,
                tokenbuf_t *output, int current_index,
                size_t recursion_level, int *rel_lookup_flag)
 {
@@ -47,7 +47,7 @@ var_rc_t input(const char *begin, const char *end,
                 *rel_lookup_flag = original_rel_lookup_state;
                 output_backup = output->end - output->begin;
                 rc = input(begin, end, config, nameclass, &lookup_wrapper,
-                           &wcon, 1, output, i, recursion_level+1, rel_lookup_flag);
+                           &wcon, output, i, recursion_level+1, rel_lookup_flag);
                 if (rc < 0)
                     goto error_return;
                 if (begin[rc] != config->endindex) {
@@ -98,7 +98,7 @@ var_rc_t input(const char *begin, const char *end,
             goto error_return;
 
         rc = variable(begin, end, config, nameclass, lookup,
-                      lookup_context, force_expand, &result,
+                      lookup_context, &result,
                       current_index, rel_lookup_flag);
         if (rc > 0) {
             if (!tokenbuf_append(output, result.begin, result.end - result.begin)) {

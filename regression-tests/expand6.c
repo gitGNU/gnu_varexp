@@ -187,7 +187,7 @@ int main(int argc, char **argv)
         printf("Test case #%02d: Unescaped input is '%s'.\n", i, buffer);
 #endif
         rc = var_expand(buffer, strlen(buffer), &tmp, &tmp_len,
-            &var_lookup, (void *)vars, NULL, 0);
+            &var_lookup, (void *)vars, NULL);
         if (rc != VAR_OK) {
             printf ("Test case #%d: var_expand() failed with return code %d ('%s').\n",
                     i, rc, var_strerror(rc));

@@ -3,7 +3,7 @@
 int variable(const char *begin, const char *end,
              const var_config_t *config, const char_class_t nameclass,
              var_cb_t lookup, void *lookup_context,
-             int force_expand, tokenbuf_t *result, int current_index,
+             tokenbuf_t *result, int current_index,
              int *rel_lookup_flag)
 {
     const char *p = begin;
@@ -32,12 +32,6 @@ int variable(const char *begin, const char *end,
         return rc;
     if (rc > 0) {
         rc2 = (*lookup)(lookup_context, p, rc, 0, &data, &len, &buffer_size);
-        if (rc2 == VAR_ERR_UNDEFINED_VARIABLE && !force_expand) {
-            result->begin = begin;
-            result->end = begin + 1 + rc;
-            result->buffer_size = 0;
-            return 1 + rc;
-        }
         if (rc2 < 0 /* != VAR_OK */)
             return rc2;
         result->begin = data;
@@ -49,7 +43,7 @@ int variable(const char *begin, const char *end,
     /* OK, we're dealing with a complex expression here. */
 
     rc = expression(p, end, config, nameclass, lookup, lookup_context,
-                    force_expand, result, current_index, rel_lookup_flag);
+                    result, current_index, rel_lookup_flag);
     if (rc > 0)
         rc++;
     return rc;

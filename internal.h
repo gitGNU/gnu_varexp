@@ -37,7 +37,7 @@ size_t tokenbuf_toint(tokenbuf_t *number);
 
 int command(const char *begin, const char *end,
             const var_config_t *config, const char_class_t nameclass,
-            var_cb_t lookup, void *lookup_context, int force_expand,
+            var_cb_t lookup, void *lookup_context,
             tokenbuf_t *data, int current_index, int *rel_lookup_flag);
 
 int cut_out_offset(tokenbuf_t *data, tokenbuf_t *number1,
@@ -49,18 +49,18 @@ var_rc_t var_unescape(const char *src, size_t len, char *dst,
 var_rc_t var_expand(const char *input_buf, size_t input_len,
                     char **result, size_t *result_len,
                     var_cb_t lookup, void *lookup_context,
-                    const var_config_t *config, int force_expand);
+                    const var_config_t *config);
 
 int expression(const char *begin, const char *end,
                const var_config_t *config,
                const char_class_t nameclass, var_cb_t lookup,
-               void *lookup_context, int force_expand,
+               void *lookup_context,
                tokenbuf_t *result, int current_index, int *rel_lookup_flag);
 
 var_rc_t input(const char *begin, const char *end,
                const var_config_t *config,
                const char_class_t nameclass, var_cb_t lookup,
-               void *lookup_context, int force_expand,
+               void *lookup_context,
                tokenbuf_t *output, int current_index,
                size_t recursion_level, int *rel_lookup_flag);
 
@@ -92,14 +92,14 @@ const char* var_strerror(var_rc_t rc);
 int exptext_or_variable(const char *begin, const char *end,
                         const var_config_t *config,
                         const char_class_t nameclass, var_cb_t lookup,
-                        void *lookup_context, int force_expand,
+                        void *lookup_context,
                         tokenbuf_t *result, int current_index,
                         int *rel_lookup_flag);
 
 int substext_or_variable(const char *begin, const char *end,
                          const var_config_t *config,
                          const char_class_t nameclass, var_cb_t lookup,
-                         void *lookup_context, int force_expand,
+                         void *lookup_context,
                          tokenbuf_t *result, int current_index,
                          int *rel_lookup_flag);
 
@@ -111,7 +111,7 @@ var_rc_t expand_character_class(const char *desc, char_class_t class);
 int variable(const char *begin, const char *end,
              const var_config_t *config, const char_class_t nameclass,
              var_cb_t lookup, void *lookup_context,
-             int force_expand, tokenbuf_t *result, int current_index,
+             tokenbuf_t *result, int current_index,
              int *rel_lookup_flag);
 
 int varname(const char *begin, const char *end,

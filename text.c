@@ -74,7 +74,7 @@ int exptext(const char *begin, const char *end,
 int exptext_or_variable(const char *begin, const char *end,
                         const var_config_t *config,
                         const char_class_t nameclass, var_cb_t lookup,
-                        void *lookup_context, int force_expand,
+                        void *lookup_context,
                         tokenbuf_t *result, int current_index,
                         int *rel_lookup_flag)
 {
@@ -101,7 +101,7 @@ int exptext_or_variable(const char *begin, const char *end,
         }
 
         rc = variable(p, end, config, nameclass, lookup, lookup_context,
-                      force_expand, &tmp, current_index, rel_lookup_flag);
+                      &tmp, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         if (rc > 0) {
@@ -126,7 +126,7 @@ int exptext_or_variable(const char *begin, const char *end,
 int substext_or_variable(const char *begin, const char *end,
                          const var_config_t *config,
                          const char_class_t nameclass, var_cb_t lookup,
-                         void *lookup_context, int force_expand,
+                         void *lookup_context,
                          tokenbuf_t *result, int current_index,
                          int *rel_lookup_flag)
 {
@@ -153,7 +153,7 @@ int substext_or_variable(const char *begin, const char *end,
         }
 
         rc = variable(p, end, config, nameclass, lookup, lookup_context,
-                      force_expand, &tmp, current_index, rel_lookup_flag);
+                      &tmp, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         if (rc > 0) {

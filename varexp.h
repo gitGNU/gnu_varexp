@@ -85,7 +85,7 @@ extern const var_config_t var_config_default;
 var_rc_t var_expand(const char *input, size_t input_len,
     char **result, size_t *result_len,
     var_cb_t lookup, void *lookup_context,
-    const var_config_t *config, int force_expand);
+    const var_config_t *config);
 
 /* Map an error code to a text message. */
 

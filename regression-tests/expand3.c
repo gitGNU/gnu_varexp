@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     rc = var_expand(input, strlen(input),
                     &tmp, &tmp_len,
                     &env_lookup, NULL,
-                    NULL, 0);
+                    NULL);
     if (rc != VAR_OK)
         {
         printf("var_expand() failed with error %d.\n", rc);

@@ -2,7 +2,7 @@
 
 int command(const char *begin, const char *end,
                    const var_config_t *config, const char_class_t nameclass,
-                   var_cb_t lookup, void *lookup_context, int force_expand,
+                   var_cb_t lookup, void *lookup_context,
                    tokenbuf_t *data, int current_index, int *rel_lookup_flag)
 {
     const char *p = begin;
@@ -108,7 +108,7 @@ int command(const char *begin, const char *end,
     case '-':                   /* Substitute parameter if data is empty. */
         p++;
         rc = exptext_or_variable(p, end, config, nameclass, lookup,
-                                 lookup_context, force_expand, &tmptokbuf,
+                                 lookup_context, &tmptokbuf,
                                  current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
@@ -126,7 +126,7 @@ int command(const char *begin, const char *end,
     case '*':                   /* Return "" if data is not empty, parameter otherwise. */
         p++;
         rc = exptext_or_variable(p, end, config, nameclass, lookup,
-                                 lookup_context, force_expand, &tmptokbuf, current_index, rel_lookup_flag);
+                                 lookup_context, &tmptokbuf, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         if (rc == 0) {
@@ -149,7 +149,7 @@ int command(const char *begin, const char *end,
     case '+':                   /* Substitute parameter if data is not empty. */
         p++;
         rc = exptext_or_variable(p, end, config, nameclass, lookup,
-                                 lookup_context, force_expand, &tmptokbuf, current_index, rel_lookup_flag);
+                                 lookup_context, &tmptokbuf, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         if (rc == 0) {
@@ -171,7 +171,7 @@ int command(const char *begin, const char *end,
         p++;
 
         rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                  lookup_context, force_expand, &search, current_index, rel_lookup_flag);
+                                  lookup_context, &search, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         p += rc;
@@ -183,7 +183,7 @@ int command(const char *begin, const char *end,
         p++;
 
         rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                  lookup_context, force_expand, &replace, current_index, rel_lookup_flag);
+                                  lookup_context, &replace, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         p += rc;
@@ -217,7 +217,7 @@ int command(const char *begin, const char *end,
         p++;
 
         rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                  lookup_context, force_expand, &search, current_index, rel_lookup_flag);
+                                  lookup_context, &search, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         p += rc;
@@ -229,7 +229,7 @@ int command(const char *begin, const char *end,
         p++;
 
         rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                  lookup_context, force_expand, &replace, current_index, rel_lookup_flag);
+                                  lookup_context, &replace, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         p += rc;
@@ -272,7 +272,7 @@ int command(const char *begin, const char *end,
         p++;
 
         rc = substext_or_variable(p, end, config, nameclass, lookup,
-                                  lookup_context, force_expand, &replace, current_index, rel_lookup_flag);
+                                  lookup_context, &replace, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         p += rc;

@@ -17,7 +17,7 @@ const var_config_t var_config_default =
 var_rc_t var_expand(const char *input_buf, size_t input_len,
                     char **result, size_t *result_len,
                     var_cb_t lookup, void *lookup_context,
-                    const var_config_t *config, int force_expand)
+                    const var_config_t *config)
 {
     char_class_t nameclass;
     var_rc_t rc;
@@ -52,7 +52,7 @@ var_rc_t var_expand(const char *input_buf, size_t input_len,
     /* Call the parser. */
     tokenbuf_init(&output);
     rc = input(input_buf, input_buf + input_len, config, nameclass,
-               lookup, lookup_context, force_expand, &output, 0, 0, NULL);
+               lookup, lookup_context, &output, 0, 0, NULL);
 
     /* Post-process output */
     if (rc >= 0) {

@@ -3,7 +3,7 @@
 int expression(const char *begin, const char *end,
                const var_config_t *config,
                const char_class_t nameclass, var_cb_t lookup,
-               void *lookup_context, int force_expand,
+               void *lookup_context,
                tokenbuf_t *result, int current_index, int *rel_lookup_flag)
     {
     const char *p = begin;
@@ -45,7 +45,7 @@ int expression(const char *begin, const char *end,
         }
 
         rc = variable(p, end, config, nameclass, lookup, lookup_context,
-                      force_expand, &tmp, current_index, rel_lookup_flag);
+                      &tmp, current_index, rel_lookup_flag);
         if (rc < 0)
             goto error_return;
         if (rc > 0) {
@@ -108,29 +108,22 @@ int expression(const char *begin, const char *end,
     else {
         rc = (*lookup) (lookup_context, name.begin, name.end - name.begin, idx,
                         &data, &len, &buffer_size);
-        if (rc == VAR_ERR_UNDEFINED_VARIABLE) {
-            /* The variable is undefined. What we'll do now depends on the
-               force_expand flag. */
-            if (force_expand)
-                goto error_return;
-
-            /* Initialize result to point back to the original text in
-               the buffer. */
-            result->begin = begin - 1;
-            result->end = p;
-            result->buffer_size = 0;
-            failed = 1;
-        }
-        else if (rc < 0 /* != VAR_OK */) {
+        if (rc == VAR_ERR_UNDEFINED_VARIABLE)
+            {
             goto error_return;
-        }
-        else {
+            }
+        else if (rc < 0 /* != VAR_OK */)
+            {
+            goto error_return;
+            }
+        else
+            {
             /* The preliminary result is the contents of the variable.
                This may be modified by the commands that may follow. */
             result->begin = data;
             result->end = data + len;
             result->buffer_size = buffer_size;
-        }
+            }
     }
 
     if (p[-1] == ':') {
@@ -142,11 +135,11 @@ int expression(const char *begin, const char *end,
             p++;
             if (!failed)
                 rc = command(p, end, config, nameclass, lookup,
-                             lookup_context, force_expand, result,
+                             lookup_context, result,
                              current_index, rel_lookup_flag);
             else
                 rc = command(p, end, config, nameclass, lookup,
-                             lookup_context, force_expand, &tmp,
+                             lookup_context, &tmp,
                              current_index, rel_lookup_flag);
             if (rc < 0)
                 goto error_return;

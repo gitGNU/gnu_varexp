@@ -41,11 +41,11 @@ static int num_exp_read_operand(const char *begin, const char *end, int current_
     }
     else if (*p == config->varinit) {
         rc = variable(p, end, config, nameclass, lookup,
-                      lookup_context, 1, &tmp, current_index, rel_lookup_flag);
+                      lookup_context, &tmp, current_index, rel_lookup_flag);
         if (rc == VAR_ERR_UNDEFINED_VARIABLE) {
             *failed = 1;
             rc = variable(p, end, config, nameclass, lookup,
-                          lookup_context, 0, &tmp, current_index, rel_lookup_flag);
+                          lookup_context, &tmp, current_index, rel_lookup_flag);
             if (rc < 0)
                 return rc;
             p += rc;

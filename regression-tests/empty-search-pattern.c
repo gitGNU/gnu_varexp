@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     rc = var_expand(input, strlen(input),
                     &tmp, &tmp_len,
                     &env_lookup, NULL,
-                    NULL, 0);
+                    NULL);
     if (rc != VAR_ERR_EMPTY_SEARCH_STRING)
         {
         printf("var_expand() should have failed with VAR_ERR_EMPTY_SEARCH_STRING but returned %d.\n", rc);

@@ -38,27 +38,27 @@ int main(int argc, char** argv)
         printf("Failed to set the environment: %s.\n", strerror(errno));
         return 1;
         }
-    if ((rc = var_expand(input1, strlen(input1), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_OFFSET_OUT_OF_BOUNDS)
+    if ((rc = var_expand(input1, strlen(input1), &tmp, &tmp_len, &env_lookup, NULL, NULL)) != VAR_ERR_OFFSET_OUT_OF_BOUNDS)
         {
         printf("var_expand() should have failed with VAR_ERR_OFFSET_OUT_OF_BOUNDS but returned %d.\n", rc);
         return 1;
         }
-    if ((rc = var_expand(input2, strlen(input2), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_OFFSET_OUT_OF_BOUNDS)
+    if ((rc = var_expand(input2, strlen(input2), &tmp, &tmp_len, &env_lookup, NULL, NULL)) != VAR_ERR_OFFSET_OUT_OF_BOUNDS)
         {
         printf("var_expand() should have failed with VAR_ERR_OFFSET_OUT_OF_BOUNDS but returned %d.\n", rc);
         return 1;
         }
-    if ((rc = var_expand(input3, strlen(input3), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_RANGE_OUT_OF_BOUNDS)
+    if ((rc = var_expand(input3, strlen(input3), &tmp, &tmp_len, &env_lookup, NULL, NULL)) != VAR_ERR_RANGE_OUT_OF_BOUNDS)
         {
         printf("var_expand() should have failed with VAR_ERR_RANGE_OUT_OF_BOUNDS but returned %d.\n", rc);
         return 1;
         }
-    if ((rc = var_expand(input4, strlen(input4), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_RANGE_OUT_OF_BOUNDS)
+    if ((rc = var_expand(input4, strlen(input4), &tmp, &tmp_len, &env_lookup, NULL, NULL)) != VAR_ERR_RANGE_OUT_OF_BOUNDS)
         {
         printf("var_expand() should have failed with VAR_ERR_RANGE_OUT_OF_BOUNDS but returned %d.\n", rc);
         return 1;
         }
-    if ((rc = var_expand(input5, strlen(input5), &tmp, &tmp_len, &env_lookup, NULL, NULL, 0)) != VAR_ERR_OFFSET_LOGIC)
+    if ((rc = var_expand(input5, strlen(input5), &tmp, &tmp_len, &env_lookup, NULL, NULL)) != VAR_ERR_OFFSET_LOGIC)
         {
         printf("var_expand() should have failed with VAR_ERR_OFFSET_LOGIC but returned %d.\n", rc);
         return 1;

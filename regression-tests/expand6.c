@@ -40,6 +40,8 @@ int main(int argc, char** argv)
         "\\${HEINZ:+FOO}              = '${HEINZ:+FOO}'\\n"                \
         "\\${HOME:+test\\${FOO}test}    = '${HOME:+test${FOO}test}'\\n"    \
         "\\${HOME:+OS\\${BAR:u}}        = '${HOME:+OS${BAR:u}}'\\n"        \
+        "\\${HOME:*heinz}             = '${HOME:*heinz}'\\n"               \
+        "\\${HEINZ:*claus}            = '${HEINZ:*claus}'\\n"              \
         "\\$TERM                      = '${TERM}'\\n";
     const char* output =                                                 \
         "$HOME                      = '/home/regression-tests'\n"        \
@@ -54,6 +56,8 @@ int main(int argc, char** argv)
         "${HEINZ:+FOO}              = ''\n"                              \
         "${HOME:+test${FOO}test}    = '${testostest}'\n"                 \
         "${HOME:+OS${BAR:u}}        = 'regression-os'\n"                 \
+        "${HOME:*heinz}             = ''\n"                              \
+        "${HEINZ:*claus}            = 'claus'\n"                         \
         "$TERM                      = 'regression-term'\n";
     char*    tmp;
     size_t   tmp_len;

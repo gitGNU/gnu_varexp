@@ -432,6 +432,35 @@ int command(const char* begin, const char* end, const var_config_t* config,
             free_tokenbuf(&tmptokbuf);
             break;
 
+        case '*':               /* Return "" if data is not empty, parameter otherwise. */
+            ++p;
+            rc = exptext_or_variable(p, end, config, nameclass, lookup, lookup_context,
+                                     force_expand, &tmptokbuf);
+            if (rc < 0)
+                return rc;
+            else
+                p += rc;
+            if (data->begin != NULL)
+                {
+                if (data->begin == data->end)
+                    {
+                    free_tokenbuf(data);
+                    data->begin = tmptokbuf.begin;
+                    data->end = tmptokbuf.end;
+                    data->buffer_size = tmptokbuf.buffer_size;
+                    }
+                else
+                    {
+                    free_tokenbuf(data);
+                    data->begin = tmptokbuf.begin;
+                    data->end = tmptokbuf.begin;
+                    data->buffer_size = tmptokbuf.buffer_size;
+                    }
+                }
+            else
+                free_tokenbuf(&tmptokbuf);
+            break;
+
         case '+':               /* Substitute ${parameter} if data is not empty. */
             ++p;
             rc = exptext_or_variable(p, end, config, nameclass, lookup, lookup_context,

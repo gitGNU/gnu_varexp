@@ -149,7 +149,7 @@ int expression(const char* begin, const char* end, const var_config_t* config,
             }
         ++p;
         if (failed)
-            result->end += rc;
+            ++result->end;
         }
 
     /* Exit gracefully. */

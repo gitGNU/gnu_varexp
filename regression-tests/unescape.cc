@@ -1,4 +1,9 @@
-#include "../internal.hh"
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
+#include "../varexp.hh"
+using namespace varexp;
 
 struct test_case
     {

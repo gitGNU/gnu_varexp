@@ -1,4 +1,6 @@
 #include "../internal.hh"
+using namespace varexp;
+using namespace varexp::internal;
 
 static void class2string(char char_class[256], char* buf)
     {

@@ -1,4 +1,9 @@
-#include "../internal.hh"
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
+#include "../varexp.hh"
+using namespace varexp;
 
 var_rc_t env_lookup(void* context,
                const char* varname, size_t name_len, int index,

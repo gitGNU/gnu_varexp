@@ -126,3 +126,15 @@ struct state
     char* end;
     char our_buffer;
     };
+
+Beispiele:
+
+ $name
+ $name[test]
+ ${name}
+ ${name[test]}
+ $[name\[test\]]
+ $$name
+ $${name}
+ ${name:s/foo/bar/g}
+ ${foobar:s/${name:s/foo/bar/g}/test} ??????

@@ -12,7 +12,7 @@ namespace varexp
             const char* p = orig->begin;
             size_t i;
 
-            tokenbuf_init(expanded);
+            expanded->clear();
 
             while (p != orig->end)
                 {
@@ -20,47 +20,34 @@ namespace varexp
                     {
                     if (orig->end - p <= 1)
                         {
-                        tokenbuf_free(expanded);
+                        expanded->clear();
                         return VAR_ERR_INCOMPLETE_QUOTED_PAIR;
                         }
                     p++;
                     if (*p == '\\')
                         {
-                        if (!tokenbuf_append(expanded, p, 1))
-                            {
-                            tokenbuf_free(expanded);
-                            return VAR_ERR_OUT_OF_MEMORY;
-                            }
-                        p++;
+                        expanded->append(p, 1);
+                        ++p;
                         continue;
                         }
                     if (!isdigit((int)*p))
                         {
-                        tokenbuf_free(expanded);
+                        expanded->clear();
                         return VAR_ERR_UNKNOWN_QUOTED_PAIR_IN_REPLACE;
                         }
                     i = *p - '0';
                     p++;
                     if (pmatch[i].rm_so == -1)
                         {
-                        tokenbuf_free(expanded);
+                        expanded->clear();
                         return VAR_ERR_SUBMATCH_OUT_OF_RANGE;
                         }
-                    if (!tokenbuf_append(expanded, data + pmatch[i].rm_so,
-                                         pmatch[i].rm_eo - pmatch[i].rm_so))
-                        {
-                        tokenbuf_free(expanded);
-                        return VAR_ERR_OUT_OF_MEMORY;
-                        }
+                    expanded->append(data + pmatch[i].rm_so, pmatch[i].rm_eo - pmatch[i].rm_so);
                     }
                 else
                     {
-                    if (!tokenbuf_append(expanded, p, 1))
-                        {
-                        tokenbuf_free(expanded);
-                        return VAR_ERR_OUT_OF_MEMORY;
-                        }
-                    p++;
+                    expanded->append(p, 1);
+                    ++p;
                     }
                 }
 
@@ -101,7 +88,6 @@ namespace varexp
             if (no_regex)
                 {
                 tokenbuf_t tmp;
-                tokenbuf_init(&tmp);
 
                 for (p = data->begin; p != data->end;)
                     {
@@ -114,32 +100,23 @@ namespace varexp
                     if (rc != 0)
                         {
                         /* no match, copy character */
-                        if (!tokenbuf_append(&tmp, p, 1))
-                            {
-                            tokenbuf_free(&tmp);
-                            return VAR_ERR_OUT_OF_MEMORY;
-                            }
+                        tmp.append(p, 1);
                         ++p;
                         }
                     else
                         {
-                        tokenbuf_append(&tmp, replace->begin,
-                                        replace->end - replace->begin);
+                        tmp.append(replace->begin,
+                                   replace->end - replace->begin);
                         p += search->end - search->begin;
                         if (!global)
                             {
-                            if (!tokenbuf_append(&tmp, p, data->end - p))
-                                {
-                                tokenbuf_free(&tmp);
-                                return VAR_ERR_OUT_OF_MEMORY;
-                                }
+                            tmp.append(p, data->end - p);
                             break;
                             }
                         }
                     }
 
-                tokenbuf_free(data);
-                tokenbuf_move(&tmp, data);
+                data->shallow_move(&tmp);
                 }
             else
                 {
@@ -153,21 +130,15 @@ namespace varexp
                 /* Copy the pattern and the data to our own buffer to make
                    sure they're terminated with a null byte. */
 
-                if (!tokenbuf_assign(&tmp, search->begin, search->end - search->begin))
-                    return VAR_ERR_OUT_OF_MEMORY;
-                if (!tokenbuf_assign(&mydata, data->begin, data->end - data->begin))
-                    {
-                    tokenbuf_free(&tmp);
-                    return VAR_ERR_OUT_OF_MEMORY;
-                    }
+                tmp.append(search->begin, search->end - search->begin);
+                mydata.append(data->begin, data->end - data->begin);
 
                 /* Compile the pattern. */
 
                 rc = regcomp(&preg, tmp.begin, REG_EXTENDED|((case_insensitive)?REG_ICASE:0));
-                tokenbuf_free(&tmp);
+                tmp.clear();
                 if (rc != 0)
                     {
-                    tokenbuf_free(&mydata);
                     return VAR_ERR_INVALID_REGEX_IN_REPLACE;
                     }
 
@@ -184,7 +155,7 @@ namespace varexp
                         (&preg, p, sizeof(pmatch) / sizeof(regmatch_t), pmatch,
                          regexec_flag) == REG_NOMATCH)
                         {
-                        tokenbuf_append(&tmp, p, mydata.end - p);
+                        tmp.append(p, mydata.end - p);
                         break;
                         }
                     else
@@ -193,37 +164,22 @@ namespace varexp
                         if (rc != VAR_OK)
                             {
                             regfree(&preg);
-                            tokenbuf_free(&tmp);
-                            tokenbuf_free(&mydata);
                             return rc;
                             }
-                        if (!tokenbuf_append(&tmp, p, pmatch[0].rm_so) ||
-                            !tokenbuf_append(&tmp, myreplace.begin,
-                                             myreplace.end - myreplace.begin))
-                            {
-                            regfree(&preg);
-                            tokenbuf_free(&tmp);
-                            tokenbuf_free(&mydata);
-                            tokenbuf_free(&myreplace);
-                            return VAR_ERR_OUT_OF_MEMORY;
-                            }
-                        else
-                            {
-                            p += (pmatch[0].rm_eo > 0) ? pmatch[0].rm_eo : 1;
-                            tokenbuf_free(&myreplace);
-                            }
+                        tmp.append(p, pmatch[0].rm_so);
+                        tmp.append(myreplace.begin, myreplace.end - myreplace.begin);
+                        p += (pmatch[0].rm_eo > 0) ? pmatch[0].rm_eo : 1;
+                        myreplace.clear();
                         if (!global)
                             {
-                            tokenbuf_append(&tmp, p, mydata.end - p);
+                            tmp.append(p, mydata.end - p);
                             break;
                             }
                         }
                     }
 
                 regfree(&preg);
-                tokenbuf_free(data);
-                tokenbuf_move(&tmp, data);
-                tokenbuf_free(&mydata);
+                data->shallow_move(&tmp);
                 }
 
             return VAR_OK;

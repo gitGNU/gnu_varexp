@@ -28,8 +28,6 @@ namespace varexp
             tokenbuf_t tmp;
             int rc;
 
-            tokenbuf_init(&tmp);
-
             if (begin == end)
                 return VAR_ERR_INCOMPLETE_INDEX_SPEC;
 
@@ -55,7 +53,7 @@ namespace varexp
                 p += rc;
                 rc = num_exp(tmp.begin, tmp.end, current_index, result,
                              rel_lookup_flag, config, nameclass, lookup, lookup_context);
-                tokenbuf_free(&tmp);
+                tmp.clear();
                 }
             else if (config->current_index && *p == config->current_index)
                 {

@@ -54,7 +54,7 @@ namespace varexp
             return VAR_ERR_INVALID_CONFIGURATION;
 
         /* Call the parser. */
-        tokenbuf_init(&output);
+
         rc = input(input_buf, input_buf + input_len, config, nameclass,
                    lookup, lookup_context, &output, 0, 0, NULL);
 
@@ -62,17 +62,14 @@ namespace varexp
         if (rc >= 0)
             {
             /* always NUL-terminate output for convinience reasons */
-            if (!tokenbuf_append(&output, "\0", 1))
-                {
-                tokenbuf_free(&output);
-                return VAR_ERR_OUT_OF_MEMORY;
-                }
-            output.end--;
+            output.append("\0", 1);
+            --output.end;
 
             /* Provide results */
             *result = (char*)output.begin;
             if (result_len != NULL)
                 *result_len = output.end - output.begin;
+            output.buffer_size = 0;
 
             /* canonify all positive answers */
             rc = VAR_OK;

@@ -12,8 +12,8 @@ namespace varexp
             size_t num1;
             size_t num2;
 
-            num1 = tokenbuf_toint(number1);
-            num2 = tokenbuf_toint(number2);
+            num1 = number1->toint();
+            num2 = number2->toint();
 
             /* Determine begin of result string. */
 
@@ -26,8 +26,7 @@ namespace varexp
 
             if (num2 == 0)
                 {
-                if (!tokenbuf_assign(&res, p, data->end - p))
-                    return VAR_ERR_OUT_OF_MEMORY;
+                res.append(p, data->end - p);
                 }
             else
                 {
@@ -36,8 +35,7 @@ namespace varexp
                     {
                     if ((p + num2) > data->end)
                         return VAR_ERR_RANGE_OUT_OF_BOUNDS;
-                    if (!tokenbuf_assign(&res, p, num2))
-                        return VAR_ERR_OUT_OF_MEMORY;
+                    res.append(p, num2);
                     }
                 else
                     {
@@ -45,12 +43,10 @@ namespace varexp
                         return VAR_ERR_OFFSET_LOGIC;
                     if ((data->begin + num2) > data->end)
                         return VAR_ERR_RANGE_OUT_OF_BOUNDS;
-                    if (!tokenbuf_assign(&res, p, num2 - num1 + 1))
-                        return VAR_ERR_OUT_OF_MEMORY;
+                    res.append(p, num2 - num1 + 1);
                     }
                 }
-            tokenbuf_free(data);
-            tokenbuf_move(&res, data);
+            data->shallow_move(&res);
             return VAR_OK;
             }
         }

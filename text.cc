@@ -92,8 +92,7 @@ namespace varexp
             tokenbuf_t tmp;
             int rc;
 
-            tokenbuf_init(result);
-            tokenbuf_init(&tmp);
+            result->clear();
 
             if (begin == end)
                 return 0;
@@ -105,11 +104,7 @@ namespace varexp
                     goto error_return;
                 if (rc > 0)
                     {
-                    if (!tokenbuf_append(result, p, rc))
-                        {
-                        rc = VAR_ERR_OUT_OF_MEMORY;
-                        goto error_return;
-                        }
+                    result->append(p, rc);
                     p += rc;
                     }
 
@@ -120,22 +115,15 @@ namespace varexp
                 if (rc > 0)
                     {
                     p += rc;
-                    if (!tokenbuf_append
-                        (result, tmp.begin, tmp.end - tmp.begin))
-                        {
-                        rc = VAR_ERR_OUT_OF_MEMORY;
-                        goto error_return;
-                        }
+                    result->append(tmp.begin, tmp.end - tmp.begin);
                     }
                 }
             while (rc > 0);
 
-            tokenbuf_free(&tmp);
             return p - begin;
 
           error_return:
-            tokenbuf_free(&tmp);
-            tokenbuf_free(result);
+            result->clear();
             return rc;
             }
 
@@ -150,8 +138,7 @@ namespace varexp
             tokenbuf_t tmp;
             int rc;
 
-            tokenbuf_init(result);
-            tokenbuf_init(&tmp);
+            result->clear();
 
             if (begin == end)
                 return 0;
@@ -163,11 +150,7 @@ namespace varexp
                     goto error_return;
                 if (rc > 0)
                     {
-                    if (!tokenbuf_append(result, p, rc))
-                        {
-                        rc = VAR_ERR_OUT_OF_MEMORY;
-                        goto error_return;
-                        }
+                    result->append(p, rc);
                     p += rc;
                     }
 
@@ -178,22 +161,15 @@ namespace varexp
                 if (rc > 0)
                     {
                     p += rc;
-                    if (!tokenbuf_append
-                        (result, tmp.begin, tmp.end - tmp.begin))
-                        {
-                        rc = VAR_ERR_OUT_OF_MEMORY;
-                        goto error_return;
-                        }
+                    result->append(tmp.begin, tmp.end - tmp.begin);
                     }
                 }
             while (rc > 0);
 
-            tokenbuf_free(&tmp);
             return p - begin;
 
           error_return:
-            tokenbuf_free(&tmp);
-            tokenbuf_free(result);
+            result->clear();
             return rc;
             }
         }

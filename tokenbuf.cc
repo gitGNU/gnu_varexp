@@ -4,117 +4,123 @@ namespace varexp
     {
     namespace internal
         {
-        /* Routines for manipulation of token buffers. */
+        const size_t tokenbuf_t::INITIAL_BUFSIZE = 1;
 
-#define TOKENBUF_INITIAL_BUFSIZE 1
-
-        void tokenbuf_init(tokenbuf_t* buf)
+        tokenbuf_t::tokenbuf_t() : begin(0), end(0), buffer_size(0)
             {
-            buf->begin = NULL;
-            buf->end = NULL;
-            buf->buffer_size = 0;
-            return;
             }
 
-        void tokenbuf_move(tokenbuf_t* src, tokenbuf_t* dst)
+        tokenbuf_t::~tokenbuf_t()
             {
-            dst->begin = src->begin;
-            dst->end = src->end;
-            dst->buffer_size = src->buffer_size;
-            tokenbuf_init(src);
-            return;
+            clear();
             }
 
-        int tokenbuf_assign(tokenbuf_t* buf, const char* data, size_t len)
+        void tokenbuf_t::clear()
             {
-            char* p;
-
-            if ((p = (char*)malloc(len + 1)) == NULL)
-                return 0;
-            memcpy(p, data, len);
-            buf->begin = p;
-            buf->end = p + len;
-            buf->buffer_size = len + 1;
-            *((char*)(buf->end)) = '\0';
-            return 1;
+            if (buffer_size > 0)
+                free((void*)begin);
+            begin       = 0;
+            end         = 0;
+            buffer_size = 0;
             }
 
-        int tokenbuf_append(tokenbuf_t* output, const char* data, size_t len)
+        void tokenbuf_t::force_copy()
             {
-            char* new_buffer;
+            if (buffer_size == 0)
+                {
+                const char* orig_begin = begin;
+                const char* orig_end   = end;
+                clear();
+                append(orig_begin, orig_end - orig_begin);
+                }
+            }
+
+        void tokenbuf_t::shallow_move(tokenbuf_t* src)
+            {
+            if (src != this)
+                {
+                clear();
+                begin             = src->begin;
+                end               = src->end;
+                buffer_size       = src->buffer_size;
+                src->begin        = 0;
+                src->end          = 0;
+                src->buffer_size  = 0;
+                }
+            }
+
+        void tokenbuf_t::append(const char* data, size_t len)
+            {
+            char*  new_buffer;
             size_t new_size;
-            char* tmp;
+            char*  tmp;
 
-            /* Is the tokenbuffer initialized at all? If not, allocate a
-               standard-sized buffer to begin with. */
-            if (output->begin == NULL)
+            /* Is the tokenbuffer initialized at all? If not,
+               allocate a standard-sized buffer to begin with. */
+
+            if (begin == 0)
                 {
-                if ((output->begin = output->end = (char*)malloc(TOKENBUF_INITIAL_BUFSIZE)) == NULL)
-                    return 0;
-                output->buffer_size = TOKENBUF_INITIAL_BUFSIZE;
+                if ((begin = end = (char*)malloc(INITIAL_BUFSIZE)) == NULL)
+                    throw std::bad_alloc();
+                buffer_size = INITIAL_BUFSIZE;
                 }
 
-            /* Does the token contain text, but no buffer has been allocated yet? */
-            if (output->buffer_size == 0)
+            /* Does the token contain text, but no buffer has been
+               allocated yet? */
+
+            if (buffer_size == 0)
                 {
-                /* Check whether data borders to output. If, we can append
-                   simly by increasing the end pointer. */
-                if (output->end == data)
+                /* Check whether data borders to output. If, we
+                   can append simly by increasing the end pointer. */
+
+                if (end == data)
                     {
-                    output->end += len;
-                    return 1;
+                    end += len;
+                    return;
                     }
-                /* OK, so copy the contents of output into an allocated buffer
-                   so that we can append that way. */
-                if ((tmp = (char*)malloc(output->end - output->begin + len + 1)) == NULL)
-                    return 0;
-                memcpy(tmp, output->begin, output->end - output->begin);
-                output->buffer_size = output->end - output->begin;
-                output->begin = tmp;
-                output->end = tmp + output->buffer_size;
-                output->buffer_size += len + 1;
+
+                /* OK, so copy the contents of output into an
+                   allocated buffer so that we can append that
+                   way. */
+
+                if ((tmp = (char*)malloc(end - begin + len + 1)) == NULL)
+                    throw std::bad_alloc();
+
+                memcpy(tmp, begin, end - begin);
+                buffer_size  = end - begin;
+                begin        = tmp;
+                end          = tmp + buffer_size;
+                buffer_size += len + 1;
                 }
 
-            /* Does the token fit into the current buffer? If not, realloc a
-               larger buffer that fits. */
-            if ((output->buffer_size - (output->end - output->begin)) <= len)
+            /* Does the token fit into the current buffer? If not,
+               realloc a larger buffer that fits. */
+
+            if ((buffer_size - (end - begin)) <= len)
                 {
-                new_size = output->buffer_size;
+                new_size = buffer_size;
                 do
                     {
                     new_size *= 2;
                     }
-                while ((new_size - (output->end - output->begin)) <= len);
-                if ((new_buffer = (char*)realloc((char*)output->begin, new_size)) == NULL)
-                    return var_rc_t(0);
-                output->end = new_buffer + (output->end - output->begin);
-                output->begin = new_buffer;
-                output->buffer_size = new_size;
+                while ((new_size - (end - begin)) <= len);
+                if ((new_buffer = (char*)realloc((char*)begin, new_size)) == NULL)
+                    throw std::bad_alloc();
+                end = new_buffer + (end - begin);
+                begin = new_buffer;
+                buffer_size = new_size;
                 }
 
             /* Append the data at the end of the current buffer. */
-            memcpy((char*)output->end, data, len);
-            output->end += len;
-            *((char*)output->end) = '\0';
-            return 1;
+            memcpy((char*)end, data, len);
+            end += len;
+            *((char*)end) = '\0';
             }
 
-        void tokenbuf_free(tokenbuf_t* buf)
+        unsigned int tokenbuf_t::toint()
             {
-            if (buf->begin != NULL && buf->buffer_size > 0)
-                free((char*)buf->begin);
-            buf->begin = buf->end = NULL;
-            buf->buffer_size = 0;
-            return;
-            }
-
-        size_t tokenbuf_toint(tokenbuf_t* number)
-            {
-            const char* p;
-            size_t num;
-
-            num = 0;
-            for (p = number->begin; p != number->end; ++p)
+            size_t num = 0;
+            for (const char* p = begin; p != end; ++p)
                 {
                 num *= 10;
                 num += *p - '0';

@@ -18,12 +18,6 @@ namespace varexp
             tokenbuf_t name;
             tokenbuf_t tmp;
 
-            /* Clear the tokenbufs to make sure we have a defined state. */
-
-            tokenbuf_init(&name);
-            tokenbuf_init(&tmp);
-            tokenbuf_init(result);
-
             /* Expect STARTDELIM. */
 
             if (p == end || *p != config->startdelim)
@@ -42,11 +36,7 @@ namespace varexp
                     goto error_return;
                 if (rc > 0)
                     {
-                    if (!tokenbuf_append(&name, p, rc))
-                        {
-                        rc = VAR_ERR_OUT_OF_MEMORY;
-                        goto error_return;
-                        }
+                    name.append(p, rc);
                     p += rc;
                     }
 
@@ -56,11 +46,7 @@ namespace varexp
                     goto error_return;
                 if (rc > 0)
                     {
-                    if (!tokenbuf_append(&name, tmp.begin, tmp.end - tmp.begin))
-                        {
-                        rc = VAR_ERR_OUT_OF_MEMORY;
-                        goto error_return;
-                        }
+                    name.append(tmp.begin, tmp.end - tmp.begin);
                     p += rc;
                     }
                 }
@@ -138,7 +124,7 @@ namespace varexp
                 {
                 /* Parse and execute commands. */
 
-                tokenbuf_free(&tmp);
+                tmp.clear();
                 p--;
                 while (p != end && *p == ':')
                     {
@@ -161,16 +147,12 @@ namespace varexp
 
             /* Exit gracefully. */
 
-            tokenbuf_free(&name);
-            tokenbuf_free(&tmp);
             return p - begin;
 
             /* Exit in case of an error. */
 
           error_return:
-            tokenbuf_free(&name);
-            tokenbuf_free(&tmp);
-            tokenbuf_free(result);
+            result->clear();
             return rc;
             }
         }

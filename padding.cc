@@ -10,13 +10,11 @@ namespace varexp
                     char position)
             {
             tokenbuf_t result;
-            size_t width = tokenbuf_toint(widthstr);
+            size_t width = widthstr->toint();
             int i;
 
             if (fill->begin == fill->end)
                 return VAR_ERR_EMPTY_PADDING_FILL_STRING;
-
-            tokenbuf_init(&result);
 
             if (position == 'l')
                 {
@@ -26,15 +24,12 @@ namespace varexp
                     i = i / (fill->end - fill->begin);
                     while (i > 0)
                         {
-                        if (!tokenbuf_append
-                            (data, fill->begin, fill->end - fill->begin))
-                            return VAR_ERR_OUT_OF_MEMORY;
+                        data->append(fill->begin, fill->end - fill->begin);
                         i--;
                         }
                     i = (width - (data->end - data->begin))
                         % (fill->end - fill->begin);
-                    if (!tokenbuf_append(data, fill->begin, i))
-                        return VAR_ERR_OUT_OF_MEMORY;
+                    data->append(fill->begin, i);
                     }
                 }
             else if (position == 'r')
@@ -45,29 +40,14 @@ namespace varexp
                     i = i / (fill->end - fill->begin);
                     while (i > 0)
                         {
-                        if (!tokenbuf_append
-                            (&result, fill->begin, fill->end - fill->begin))
-                            {
-                            tokenbuf_free(&result);
-                            return VAR_ERR_OUT_OF_MEMORY;
-                            }
+                        result.append(fill->begin, fill->end - fill->begin);
                         i--;
                         }
                     i = (width - (data->end - data->begin))
                         % (fill->end - fill->begin);
-                    if (!tokenbuf_append(&result, fill->begin, i))
-                        {
-                        tokenbuf_free(&result);
-                        return VAR_ERR_OUT_OF_MEMORY;
-                        }
-                    if (!tokenbuf_append(&result, data->begin, data->end - data->begin))
-                        {
-                        tokenbuf_free(&result);
-                        return VAR_ERR_OUT_OF_MEMORY;
-                        }
-
-                    tokenbuf_free(data);
-                    tokenbuf_move(&result, data);
+                    result.append(fill->begin, i);
+                    result.append(data->begin, data->end - data->begin);
+                    data->shallow_move(&result);
                     }
                 }
             else if (position == 'c')
@@ -80,28 +60,16 @@ namespace varexp
                     i = i / (fill->end - fill->begin);
                     while (i > 0)
                         {
-                        if (!tokenbuf_append(&result, fill->begin, fill->end - fill->begin))
-                            {
-                            tokenbuf_free(&result);
-                            return VAR_ERR_OUT_OF_MEMORY;
-                            }
+                        result.append(fill->begin, fill->end - fill->begin);
                         i--;
                         }
                     i = ((width - (data->end - data->begin)) / 2)
                         % (fill->end - fill->begin);
-                    if (!tokenbuf_append(&result, fill->begin, i))
-                        {
-                        tokenbuf_free(&result);
-                        return VAR_ERR_OUT_OF_MEMORY;
-                        }
+                    result.append(fill->begin, i);
 
                     /* Append the actual data string. */
 
-                    if (!tokenbuf_append(&result, data->begin, data->end - data->begin))
-                        {
-                        tokenbuf_free(&result);
-                        return VAR_ERR_OUT_OF_MEMORY;
-                        }
+                    result.append(data->begin, data->end - data->begin);
 
                     /* Append the suffix. */
 
@@ -109,25 +77,15 @@ namespace varexp
                     i = i / (fill->end - fill->begin);
                     while (i > 0)
                         {
-                        if (!tokenbuf_append
-                            (&result, fill->begin, fill->end - fill->begin))
-                            {
-                            tokenbuf_free(&result);
-                            return VAR_ERR_OUT_OF_MEMORY;
-                            }
+                        result.append(fill->begin, fill->end - fill->begin);
                         i--;
                         }
                     i = width - (result.end - result.begin);
-                    if (!tokenbuf_append(&result, fill->begin, i))
-                        {
-                        tokenbuf_free(&result);
-                        return VAR_ERR_OUT_OF_MEMORY;
-                        }
+                    result.append(fill->begin, i);
 
                     /* Move string from temporary buffer to data buffer. */
 
-                    tokenbuf_free(data);
-                    tokenbuf_move(&result, data);
+                    data->shallow_move(&result);
                     }
                 }
 

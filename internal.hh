@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cctype>
 #include <string>
+#include <memory>
 #include <cstdio>
 #include <cerrno>
 #include "varexp.hh"
@@ -12,30 +13,31 @@ namespace varexp
     {
     namespace internal
         {
-        /* Turn character class descriptions into a lookup-array. */
+        // Turn character class descriptions into a lookup-array.
 
         typedef char char_class_t[256]; /* 256 == 2 ^ sizeof(unsigned char)*8 */
 
-        /*
-          The tokenbuf structure is used by the parser routines. If
-          buffer_size is >0, it means that the buffer has been allocated by
-          malloc(3) and must be free(3)ed when not used anymore.
-        */
+        // The tokenbuf_t class.
 
-        typedef struct
+        class tokenbuf_t
             {
+          public:
             const char *begin;
             const char *end;
             size_t buffer_size;
-            }
-        tokenbuf_t;
 
-        void tokenbuf_init(tokenbuf_t *buf);
-        void tokenbuf_move(tokenbuf_t *src, tokenbuf_t *dst);
-        int tokenbuf_assign(tokenbuf_t *buf, const char *data, size_t len);
-        int tokenbuf_append(tokenbuf_t *output, const char *data, size_t len);
-        void tokenbuf_free(tokenbuf_t *buf);
-        size_t tokenbuf_toint(tokenbuf_t *number);
+            tokenbuf_t();
+            ~tokenbuf_t();
+            void clear();
+            void force_copy();
+            void assign(const char* data, size_t len);
+            void append(const char* data, size_t len);
+            void shallow_move(tokenbuf_t* src);
+            unsigned int toint();
+
+          private:
+            static const size_t INITIAL_BUFSIZE;
+            };
 
         int command(const char *begin, const char *end,
                     const var_config_t *config, const char_class_t nameclass,

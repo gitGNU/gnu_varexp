@@ -18,7 +18,7 @@ namespace varexp
             /* Clear the result tokenbuf to make sure we're in a defined
                state. */
 
-            tokenbuf_init(result);
+            result->clear();
 
             /* Expect VARINIT. */
 

@@ -22,8 +22,6 @@ namespace varexp
             int original_rel_lookup_state;
             int loop_limit_length;
 
-            tokenbuf_init(&result);
-
             if (rel_lookup_flag == NULL)
                 {
                 rel_lookup_flag  = &my_rel_lookup_flag;
@@ -98,11 +96,7 @@ namespace varexp
                           config->endindex, config->escape);
                 if (rc > 0)
                     {
-                    if (!tokenbuf_append(output, begin, rc))
-                        {
-                        rc = VAR_ERR_OUT_OF_MEMORY;
-                        goto error_return;
-                        }
+                    output->append(begin, rc);
                     begin += rc;
                     continue;
                     }
@@ -115,11 +109,7 @@ namespace varexp
                               current_index, rel_lookup_flag);
                 if (rc > 0)
                     {
-                    if (!tokenbuf_append(output, result.begin, result.end - result.begin))
-                        {
-                        rc = VAR_ERR_OUT_OF_MEMORY;
-                        goto error_return;
-                        }
+                    output->append(result.begin, result.end - result.begin);
                     begin += rc;
                     continue;
                     }
@@ -137,8 +127,7 @@ namespace varexp
             return var_rc_t(begin - p);
 
           error_return:
-            tokenbuf_free(output);
-            tokenbuf_free(&result);
+            output->clear();
             output->begin = p;
             output->end = begin;
             output->buffer_size = 0;

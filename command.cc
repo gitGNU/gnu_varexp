@@ -16,13 +16,6 @@ namespace varexp
             int isrange;
             int rc;
 
-            tokenbuf_init(&tmptokbuf);
-            tokenbuf_init(&search);
-            tokenbuf_init(&replace);
-            tokenbuf_init(&flags);
-            tokenbuf_init(&number1);
-            tokenbuf_init(&number2);
-
             if (begin == end)
                 return 0;
 
@@ -35,14 +28,7 @@ namespace varexp
                         /* If the buffer does not live in an allocated buffer,
                            we have to copy it before modifying the contents. */
 
-                        if (data->buffer_size == 0)
-                            {
-                            if (!tokenbuf_assign(data, data->begin, data->end - data->begin))
-                                {
-                                rc = VAR_ERR_OUT_OF_MEMORY;
-                                goto error_return;
-                                }
-                            }
+                        data->force_copy();
                         for (ptr = (char*)data->begin; ptr != data->end; ++ptr)
                             *ptr = tolower(*ptr);
                         }
@@ -53,15 +39,7 @@ namespace varexp
                     if (data->begin)
                         {
                         char* ptr;
-                        if (data->buffer_size == 0)
-                            {
-                            if (!tokenbuf_assign
-                                (data, data->begin, data->end - data->begin))
-                                {
-                                rc = VAR_ERR_OUT_OF_MEMORY;
-                                goto error_return;
-                                }
-                            }
+                        data->force_copy();
                         for (ptr = (char*) data->begin; ptr != data->end; ++ptr)
                             *ptr = toupper(*ptr);
                         }
@@ -117,12 +95,8 @@ namespace varexp
                         {
                         char buf[((sizeof(int)*8)/3)+10]; /* sufficient size: <#bits> x log_10(2) + safety */
                         sprintf(buf, "%d", (int)(data->end - data->begin));
-                        tokenbuf_free(data);
-                        if (!tokenbuf_assign(data, buf, strlen(buf)))
-                            {
-                            rc = VAR_ERR_OUT_OF_MEMORY;
-                            goto error_return;
-                            }
+                        data->clear();
+                        data->append(buf, strlen(buf));
                         }
                     ++p;
                     break;
@@ -142,8 +116,13 @@ namespace varexp
                     p += rc;
                     if (data->begin != NULL && data->begin == data->end)
                         {
-                        tokenbuf_free(data);
-                        tokenbuf_move(&tmptokbuf, data);
+                        data->clear();
+                        data->begin           = tmptokbuf.begin;
+                        data->end             = tmptokbuf.end;
+                        data->buffer_size     = tmptokbuf.buffer_size;
+                        tmptokbuf.begin       = 0;
+                        tmptokbuf.end         = 0;
+                        tmptokbuf.buffer_size = 0;
                         }
                     break;
 
@@ -163,12 +142,11 @@ namespace varexp
                         {
                         if (data->begin == data->end)
                             {
-                            tokenbuf_free(data);
-                            tokenbuf_move(&tmptokbuf, data);
+                            data->shallow_move(&tmptokbuf);
                             }
                         else
                             {
-                            tokenbuf_free(data);
+                            data->clear();
                             data->begin = data->end = "";
                             data->buffer_size = 0;
                             }
@@ -189,8 +167,7 @@ namespace varexp
                     p += rc;
                     if (data->begin != NULL && data->begin != data->end)
                         {
-                        tokenbuf_free(data);
-                        tokenbuf_move(&tmptokbuf, data);
+                        data->shallow_move(&tmptokbuf);
                         }
                     break;
 
@@ -345,22 +322,10 @@ namespace varexp
 
             /* Exit gracefully. */
 
-            tokenbuf_free(&tmptokbuf);
-            tokenbuf_free(&search);
-            tokenbuf_free(&replace);
-            tokenbuf_free(&flags);
-            tokenbuf_free(&number1);
-            tokenbuf_free(&number2);
             return p - begin;
 
           error_return:
-            tokenbuf_free(data);
-            tokenbuf_free(&tmptokbuf);
-            tokenbuf_free(&search);
-            tokenbuf_free(&replace);
-            tokenbuf_free(&flags);
-            tokenbuf_free(&number1);
-            tokenbuf_free(&number2);
+            data->clear();
             return rc;
             }
         }

@@ -73,7 +73,6 @@ namespace varexp
     define_exception(incomplete_grouped_hex,         "incomplete grouped hex");
     define_exception(incorrect_class_spec,           "incorrect character class specification");
     define_exception(invalid_configuration,          "varex::expand()'s configuration is inconsistent");
-    define_exception(out_of_memory,                  "out of memory");
     define_exception(incomplete_variable_spec,       "incomplete variable");
     define_exception(undefined_variable,             "undefined variable");
     define_exception(input_isnt_text_nor_variable,   "input is neither text nor variable");

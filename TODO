@@ -110,20 +110,3 @@
  - Wir unterstützen PCRE-, POSIX-Regex- oder keine regulären
    Ausdrücke. Dies kann über autoconf zur Compilezeit angegeben
    werden.
-
-
-
-
-   Test:      $         {         foo       $         {         bar       }          1      :      l        }
-  +-----+    +-+       +-+       +---+     +-+       +-+       +---+     +-+        +-+    +-+    +-+      +-+
-   TEXT    VARINIT  STARTDELIM  VARNAME  VARINIT  STARTDELIM  varname   ENDDELIM  VARNAME  exp  command  ENDDELIM
-
-
-
-                                                               name
-                                                    expr                 expr
-                                        variable
-                                name                                                             command
-                      expr                                                                                expr
-           variable
-  input

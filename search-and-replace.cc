@@ -6,17 +6,17 @@ namespace varexp
     {
     namespace internal
         {
-        inline void expand_regex_replace(const char* data, const string& orig,
+        inline void expand_regex_replace(const char* data, const string& replace,
                                          regmatch_t* pmatch, string& expanded)
             {
-            const char* p = orig.c_str();
+            const char* p = replace.c_str();
             size_t i;
 
-            while (p != orig.c_str() + orig.size())
+            while (p != replace.c_str() + replace.size())
                 {
                 if (*p == '\\')
                     {
-                    if (orig.c_str() + orig.size() - p <= 1)
+                    if (replace.c_str() + replace.size() - p <= 1)
                         {
                         throw incomplete_quoted_pair();
                         }
@@ -47,10 +47,10 @@ namespace varexp
                 }
             }
 
-        void search_and_replace(string& data,
-                                const string& search,
-                                const string& replace,
-                                const string& flags)
+        void search_and_replace(std::string& data,
+                                const std::string& search,
+                                const std::string& replace,
+                                const std::string& flags)
             {
             bool case_insensitive = false;
             bool global = false;
@@ -138,7 +138,8 @@ namespace varexp
                         regexec_flag = 0;
                     else
                         regexec_flag = REG_NOTBOL;
-                    if (regexec(&preg, p, sizeof(pmatch) / sizeof(regmatch_t), pmatch, regexec_flag) == REG_NOMATCH)
+                    if (regexec(&preg, p, sizeof(pmatch) / sizeof(regmatch_t), pmatch, regexec_flag) == REG_NOMATCH ||
+                        p + pmatch[0].rm_so == data.c_str() + data.size())
                         {
                         tmp.append(p, data.c_str() + data.size() - p);
                         break;
@@ -148,7 +149,13 @@ namespace varexp
                         string expanded;
                         expand_regex_replace(p, replace, pmatch, expanded);
                         tmp.append(p, pmatch[0].rm_so).append(expanded);
-                        p += (pmatch[0].rm_eo > 0) ? pmatch[0].rm_eo : 1;
+
+                        p += pmatch[0].rm_eo;
+                        if (pmatch[0].rm_eo - pmatch[0].rm_so == 0)
+                            {
+                            tmp.append(p, 1);
+                            ++p;
+                            }
                         if (!global)
                             {
                             tmp.append(p, data.c_str() + data.size() - p);

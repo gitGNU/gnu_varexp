@@ -3,7 +3,7 @@ variables. An array may only be accessed in a complex expression --
 <quote>$NAME[1]</quote> is not correct syntax. Use <quote>${NAME[1]}</quote>
 instead. The reason for this limitation is that the brackets used to specify the
 index (<quote>[</quote> and <quote>]</quote>) have a different meaning in
-ordinary text; see <xref linkend="looping"> for further discussion.</para>
+ordinary text; see <xref linkend="looping"/> for further discussion.</para>
 
   <para>Which variables are arrays -- and which are not -- is entirely up to the
 application developer. In some applications, every variable may be accessed as

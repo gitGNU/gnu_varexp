@@ -1,12 +1,13 @@
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
-<!ENTITY arrays SYSTEM "arrays-of-variables.inc">
-<!ENTITY looping SYSTEM "looping.inc">
-<!ENTITY operations SYSTEM "operations-on-variables.inc">
-<!ENTITY purpose SYSTEM "purpose.inc">
-<!ENTITY quoted-pairs SYSTEM "quoted-pairs.inc">
-<!ENTITY expressions SYSTEM "variable-expressions.inc">
-<!ENTITY varexp "<application>libvarexp</application>">
-]>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"
+  [ <!ENTITY arrays SYSTEM "arrays-of-variables.inc">
+    <!ENTITY looping SYSTEM "looping.inc">
+    <!ENTITY operations SYSTEM "operations-on-variables.inc">
+    <!ENTITY purpose SYSTEM "purpose.inc">
+    <!ENTITY quoted-pairs SYSTEM "quoted-pairs.inc">
+    <!ENTITY expressions SYSTEM "variable-expressions.inc">
+    <!ENTITY varexp "<application>libvarexp</application>">
+    ]>
 
 <article lang="en">
   <articleinfo>
@@ -100,7 +101,7 @@ version:</para>
     <literallayout>libvarexp - Variable Expression Library.
 Copyright (c) 2002 Peter Simons &lt;simons@cryp.to&gt;
 Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
-Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
+Copyright (c) 2001 Cable &amp; Wireless Deutschland (http://www.cw.com/de/)
 
 Permission to use, copy, modify, and distribute this software for
 any purpose with or without fee is hereby granted, provided that

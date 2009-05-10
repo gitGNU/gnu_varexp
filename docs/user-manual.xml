@@ -1,15 +1,16 @@
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
-<!ENTITY arrays SYSTEM "arrays-of-variables.inc">
-<!ENTITY ebnf SYSTEM "ebnf.inc">
-<!ENTITY looping SYSTEM "looping.inc">
-<!ENTITY operations SYSTEM "operations-on-variables.inc">
-<!ENTITY purpose SYSTEM "purpose.inc">
-<!ENTITY quoted-pairs SYSTEM "quoted-pairs.inc">
-<!ENTITY expressions SYSTEM "variable-expressions.inc">
-<!ENTITY varexp "<application>libvarexp</application>">
-<!ENTITY unescape "<function>varexp::unescape</function>">
-<!ENTITY expand "<function>varexp::expand</function>">
-]>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"
+  [ <!ENTITY arrays SYSTEM "arrays-of-variables.inc">
+    <!ENTITY ebnf SYSTEM "ebnf.inc">
+    <!ENTITY looping SYSTEM "looping.inc">
+    <!ENTITY operations SYSTEM "operations-on-variables.inc">
+    <!ENTITY purpose SYSTEM "purpose.inc">
+    <!ENTITY quoted-pairs SYSTEM "quoted-pairs.inc">
+    <!ENTITY expressions SYSTEM "variable-expressions.inc">
+    <!ENTITY varexp "<application>libvarexp</application>">
+    <!ENTITY unescape "<function>varexp::unescape</function>">
+    <!ENTITY expand "<function>varexp::expand</function>">
+    ]>
 
 <article lang="en">
   <articleinfo>
@@ -75,9 +76,9 @@ follows:</para>
     <funcsynopsis>
       <funcprototype>
         <funcdef>void <function>varexp::expand</function></funcdef>
-        <paramdef>const std::string& <parameter>input</parameter></paramdef>
-        <paramdef>std::string& <parameter>result</parameter></paramdef>
-        <paramdef>varexp::callback_t& <parameter>lookup</parameter></paramdef>
+        <paramdef>std::string const &amp;<parameter>input</parameter></paramdef>
+        <paramdef>std::string &amp;<parameter>result</parameter></paramdef>
+        <paramdef>varexp::callback_t &amp;<parameter>lookup</parameter></paramdef>
         <paramdef>varexp::config_t* <parameter>config</parameter> = 0</paramdef>
       </funcprototype>
     </funcsynopsis>
@@ -95,7 +96,7 @@ after the expansion.</para>
 user-supplied class that serves as the lookup callback for accessing variable's
 contents. Such a callback class must be derived from
 <classname>varexp::callback_t</classname>. More details on this topic can be
-found in <xref linkend="callback"> below.</para>
+found in <xref linkend="callback"/> below.</para>
 
     <para>The last parameter, <parameter>config</parameter>, can be used to
 change the lexical tokens of the parser's grammar. If you omit this parameter --
@@ -104,10 +105,10 @@ configuration will be used. The default configuration is what has been used in
 the examples throughout this manual; changing it will hardly be necessary. If
 you want to, though, because you want to disable looping or use variables of the
 form <quote>$(NAME)</quote> rather than <quote>${NAME}</quote>, please refer to
-<xref linkend="config"> for a detailed discussion.</para>
+<xref linkend="config"/> for a detailed discussion.</para>
 
     <para>In case of success, &expand; will return, otherwise, one of the
-exceptions listed in <xref linkend="exceptions"> is thrown.</para>
+exceptions listed in <xref linkend="exceptions"/> is thrown.</para>
 
     <sect2 id="callback">
       <title>Writing Lookup Callbacks</title>
@@ -123,23 +124,23 @@ like this:</para>
         </ooclass>
         <methodsynopsis>
           <modifier>virtual</modifier>
-          <void>
+          <void/>
           <methodname>operator()</methodname>
           <methodparam>
-            <type>const std::string&</type>
+            <type>const std::string &amp;</type>
             <parameter>name</parameter>
           </methodparam>
           <methodparam>
-            <type>std::string&</type>
+            <type>std::string &amp;</type>
             <parameter>data</parameter>
           </methodparam>
         </methodsynopsis>
         <methodsynopsis>
           <modifier>virtual</modifier>
-          <void>
+          <void/>
           <methodname>operator()</methodname>
           <methodparam>
-            <type>const std::string&</type>
+            <type>const std::string &amp;</type>
             <parameter>name</parameter>
           </methodparam>
           <methodparam>
@@ -147,7 +148,7 @@ like this:</para>
             <parameter>idx</parameter>
           </methodparam>
           <methodparam>
-            <type>std::string&</type>
+            <type>std::string &amp;</type>
             <parameter>data</parameter>
           </methodparam>
         </methodsynopsis>
@@ -260,7 +261,7 @@ and what is not. The structure is defined as follows:</para>
         </fieldsynopsis>
         <constructorsynopsis>
           <methodname>config_t</methodname>
-          <void>
+          <void/>
         </constructorsynopsis>
       </classsynopsis>
 
@@ -362,14 +363,14 @@ own configuration for the parser.</para>
     <title>The &unescape; Function</title>
 
     <para>The missing piece in &varexp; is the &unescape; function. It will
-expand the quoted pairs described in <xref linkend="quoted-pairs">. Its
+expand the quoted pairs described in <xref linkend="quoted-pairs"/>. Its
 prototype, as defined in <filename>varexp.hh</filename> is:</para>
 
     <funcsynopsis>
       <funcprototype>
         <funcdef>void <function>varexp::unescape</function></funcdef>
-        <paramdef>const std::string& <parameter>input</parameter></paramdef>
-        <paramdef>std::string& <parameter>result</parameter></paramdef>
+        <paramdef>std::string const &amp;<parameter>input</parameter></paramdef>
+        <paramdef>std::string &amp;<parameter>result</parameter></paramdef>
         <paramdef>bool <parameter>unescape_all</parameter></paramdef>
       </funcprototype>
     </funcsynopsis>
@@ -383,7 +384,7 @@ should expand only the <emphasis>known</emphasis> quoted pairs or whether it
 should expand <emphasis>all</emphasis> quoted pairs.</para>
 
     <para>If this parameter is set to <literal>false</literal>, only the quoted
-pairs described in <xref linkend="quoted-pairs"> are expanded; all other quoted
+pairs described in <xref linkend="quoted-pairs"/> are expanded; all other quoted
 pairs -- the <quote>unknown</quote> ones -- will be left untouched. If
 <parameter>unescape_all</parameter> is set to <literal>true</literal>, though,
 any combination of <quote>\<replaceable>a</replaceable></quote> will be expanded
@@ -412,11 +413,11 @@ pairs must be preserved for &expand;, so the usual approach for combining
     </procedure>
 
     <para>This approach is illustrated in the example program shown in <xref
-linkend="example">.</para>
+linkend="example"/>.</para>
 
     <para>&unescape; will return if no error occured. If the input buffer
 contained syntax errors, the apropriate exception as described in <xref
-linkend="exceptions"> will be thrown.</para>
+linkend="exceptions"/> will be thrown.</para>
   </sect1>
 
   <sect1 id="exceptions">
@@ -440,7 +441,7 @@ interface:</para>
       <constructorsynopsis>
         <methodname>error</methodname>
         <methodparam>
-          <type>const std::string&</type>
+          <type>std::string const &amp;</type>
           <parameter>what_msg</parameter>
         </methodparam>
       </constructorsynopsis>
@@ -448,7 +449,7 @@ interface:</para>
         <modifier>virtual</modifier>
         <type>const char*</type>
         <methodname>what</methodname>
-        <void>
+        <void/>
       </methodsynopsis>
       <fieldsynopsis>
         <type>size_t</type>
@@ -903,7 +904,7 @@ version:</para>
     <literallayout>libvarexp - Variable Expression Library.
 Copyright (c) 2002 Peter Simons &lt;simons@cryp.to&gt;
 Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
-Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
+Copyright (c) 2001 Cable &amp; Wireless Deutschland (http://www.cw.com/de/)
 
 Permission to use, copy, modify, and distribute this software for
 any purpose with or without fee is hereby granted, provided that

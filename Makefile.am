@@ -12,15 +12,4 @@ libvarexp_a_SOURCES   = command.cpp cut-out-offset.cpp          \
 			parser.cpp
 include_HEADERS       = varexp.hpp
 noinst_HEADERS        = internal.hpp
-EXTRA_DIST            = README libvarexp.html
-MAINTAINERCLEANFILES  = README readme.txt readme.html libvarexp.html
 SUBDIRS               = tests
-data_DATA	      = libvarexp.html
-
-libvarexp.html:
-	docbook2html -u >$@ documentation/user-manual.sgml
-
-README:
-	docbook2txt -u documentation/readme.sgml
-	@mv readme.txt $@
-	@rm readme.html

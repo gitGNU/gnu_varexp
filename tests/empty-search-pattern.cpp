@@ -2,7 +2,8 @@
 #include <cstdlib>
 #include <cerrno>
 #include <cstring>
-#include "varexp/varexp.hpp"
+#include "../varexp.hpp"
+
 using namespace varexp;
 using namespace std;
 

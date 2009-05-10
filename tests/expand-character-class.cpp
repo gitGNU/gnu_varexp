@@ -1,5 +1,6 @@
 #include <cstdio>
-#include "varexp/internal.hpp"
+#include "../internal.hpp"
+
 using namespace varexp;
 using namespace varexp::internal;
 

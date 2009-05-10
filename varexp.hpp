@@ -1,20 +1,43 @@
+/*
+ * copyright (c) 2002-2007 Peter Simons <simons@cryp.to>
+ * Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
+ * Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
+ *
+ * Permission to use, copy, modify, and distribute this software for
+ * any purpose with or without fee is hereby granted, provided that
+ * the above copyright notice and this permission notice appear in all
+ * copies.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHORS AND COPYRIGHT HOLDERS AND THEIR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
 #ifndef VAREXP_HPP_INCLUDED
 #define VAREXP_HPP_INCLUDED
 
 #include <cstdlib>
 #include <stdexcept>
 #include <string>
-#include "sanity/platform.hpp"
 
 namespace varexp
 {
   // Expand quoted pairs to their binary representation.
 
-  SANITY_DLL_EXPORT void unescape(const std::string& input, std::string& output, bool unescape_all);
+  void unescape(const std::string& input, std::string& output, bool unescape_all);
 
   // Prototype for the lookup callback used in expand().
 
-  struct SANITY_DLL_EXPORT callback_t
+  struct callback_t
   {
     virtual void operator()(const std::string& name, std::string& data) = 0;
     virtual void operator()(const std::string& name, int idx, std::string& data) = 0;
@@ -23,7 +46,7 @@ namespace varexp
   // Configure the expand() parser's tokens. The respective default
   // setting is shown in the comments.
 
-  struct SANITY_DLL_EXPORT config_t
+  struct config_t
   {
     config_t() : varinit('$'), startdelim('{'), enddelim('}'),
                  startindex('['), endindex(']'), current_index('#'),
@@ -39,15 +62,15 @@ namespace varexp
     char  escape;
     char* namechars;
   };
-  SANITY_DLL_EXPORT extern const config_t config_default;
+  extern const config_t config_default;
 
   // Expand variable expressions in a text buffer.
 
-  SANITY_DLL_EXPORT void expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);
+  void expand(const std::string& input, std::string& result, callback_t& lookup, const config_t* config = 0);
 
   // Exceptions thrown by the varexp library.
 
-  struct SANITY_DLL_EXPORT error : public std::runtime_error
+  struct error : public std::runtime_error
   {
     error(const std::string& _what)
                 : std::runtime_error(_what), current_position(0)
@@ -57,12 +80,12 @@ namespace varexp
     size_t current_position;
   };
 
-#define define_exception(name, msg)                     \
-    struct SANITY_DLL_EXPORT name : public error        \
-        {                                               \
-        name() : error(msg) { }                         \
-        ~name() throw() { }                             \
-        }
+#define define_exception(name, msg)     \
+    struct name : public error          \
+    {                                   \
+      name() : error(msg) { }           \
+      ~name() throw() { }               \
+    }
 
   define_exception(incomplete_quoted_pair,         "incomplete quoted pair");
   define_exception(incomplete_hex,                 "incomplete hex");

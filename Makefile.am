@@ -2,7 +2,7 @@
 # Build libvarexp
 #
 
-lib_LIBRARIES      = libvarexp.a
+lib_LIBRARIES         = libvarexp.a
 libvarexp_a_SOURCES   = command.cpp cut-out-offset.cpp          \
 			expand-character-class.cpp unescape.cpp \
 			expand.cpp expression.cpp input.cpp     \
@@ -12,7 +12,7 @@ libvarexp_a_SOURCES   = command.cpp cut-out-offset.cpp          \
 			parser.cpp
 include_HEADERS       = varexp.hpp
 noinst_HEADERS        = internal.hpp
-EXTRA_DIST            = LICENSE README libvarexp.html
+EXTRA_DIST            = README libvarexp.html
 MAINTAINERCLEANFILES  = README readme.txt readme.html libvarexp.html
 SUBDIRS               = tests
 data_DATA	      = libvarexp.html

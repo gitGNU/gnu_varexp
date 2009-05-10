@@ -13,13 +13,13 @@ TESTS = empty-search-pattern    \
 
 check_PROGRAMS = ${TESTS}
 
-expand1_SOURCES                 = expand1.cc
-expand2_SOURCES                 = expand2.cc
-expand3_SOURCES                 = expand3.cc
-expand4_SOURCES                 = expand4.cc
-expand5_SOURCES                 = expand5.cc
-expand6_SOURCES                 = expand6.cc
-offset_failure_SOURCES          = offset-failure.cc
-unescape_SOURCES                = unescape.cc
-empty_search_pattern_SOURCES    = empty-search-pattern.cc
-expand_character_class_SOURCES  = expand-character-class.cc
+expand1_SOURCES                 = expand1.cpp
+expand2_SOURCES                 = expand2.cpp
+expand3_SOURCES                 = expand3.cpp
+expand4_SOURCES                 = expand4.cpp
+expand5_SOURCES                 = expand5.cpp
+expand6_SOURCES                 = expand6.cpp
+offset_failure_SOURCES          = offset-failure.cpp
+unescape_SOURCES                = unescape.cpp
+empty_search_pattern_SOURCES    = empty-search-pattern.cpp
+expand_character_class_SOURCES  = expand-character-class.cpp

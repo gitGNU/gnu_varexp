@@ -60,7 +60,7 @@ namespace varexp
     char  endindex;
     char  current_index;
     char  escape;
-    char* namechars;
+    char const * namechars;
   };
   extern const config_t config_default;
 

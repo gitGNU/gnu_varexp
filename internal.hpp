@@ -26,6 +26,7 @@
 #define LIB_VARIABLE_EXPAND_INTERNAL_HH
 
 #include <string>
+#include <string.h>
 #include <cctype>
 #include "varexp.hpp"
 

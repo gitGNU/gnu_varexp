@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cerrno>
 #include <cstring>
-#include "../varexp.hh"
+#include "varexp/varexp.hpp"
 using namespace varexp;
 using namespace std;
 
@@ -10,7 +10,10 @@ struct dummy : public callback_t
     {
     virtual void operator()(const string& name, string& data)
         {
-        throw runtime_error("Not implemented.");
+        if (name == "test")
+            data = "foobar";
+        else
+            throw undefined_variable();
         }
     virtual void operator()(const string& name, int idx, string& data)
         {
@@ -20,8 +23,8 @@ struct dummy : public callback_t
 
 int main(int argc, char** argv)
     {
-    const char* input  = "This is a \\$test!";
-    const char* output = "This is a \\$test!";
+    const char* input  = "This is a $test!";
+    const char* output = "This is a foobar!";
     string tmp;
     dummy lookup;
 

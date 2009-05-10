@@ -5,18 +5,17 @@
 <!ENTITY purpose SYSTEM "purpose.inc">
 <!ENTITY quoted-pairs SYSTEM "quoted-pairs.inc">
 <!ENTITY expressions SYSTEM "variable-expressions.inc">
-<!ENTITY version SYSTEM "../VERSION">
 <!ENTITY varexp "<application>libvarexp</application>">
 ]>
 
 <article lang="en">
   <articleinfo>
-    <title>Variable Expression Library &version;</title>
+    <title>Variable Expression Library</title>
     <author>
       <firstname>Peter</firstname>
       <surname>Simons</surname>
       <affiliation>
-        <address><email>simons@computer.org</email></address>
+        <address><email>simons@cryp.to</email></address>
       </affiliation>
     </author>
   </articleinfo>
@@ -86,7 +85,7 @@ has been written in ISO-C++, it will require a fairly recent compiler, though,
 because many older C++ compilers are not ISO C++ compliant. If you're using the
 excellent <ulink url="http://gcc.gnu.org/">GNU C Compiler</ulink>, you should
 not have any problem. If you do, please <ulink
-url="mailto:simons@computer.org">send me an e-mail</ulink> and I'll see what I
+url="mailto:simons@cryp.to">send me an e-mail</ulink> and I'll see what I
 can do.</para>
   </sect1>
 
@@ -99,7 +98,7 @@ included in this distribution under the same terms as the original
 version:</para>
 
     <literallayout>libvarexp - Variable Expression Library.
-Copyright (c) 2002 Peter Simons &lt;simons@computer.org&gt;
+Copyright (c) 2002 Peter Simons &lt;simons@cryp.to&gt;
 Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
 Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
 

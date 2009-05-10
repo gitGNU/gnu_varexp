@@ -6,7 +6,6 @@
 <!ENTITY purpose SYSTEM "purpose.inc">
 <!ENTITY quoted-pairs SYSTEM "quoted-pairs.inc">
 <!ENTITY expressions SYSTEM "variable-expressions.inc">
-<!ENTITY version SYSTEM "../VERSION">
 <!ENTITY varexp "<application>libvarexp</application>">
 <!ENTITY unescape "<function>varexp::unescape</function>">
 <!ENTITY expand "<function>varexp::expand</function>">
@@ -14,12 +13,12 @@
 
 <article lang="en">
   <articleinfo>
-    <title>Variable Expression Library &version;</title>
+    <title>Variable Expression Library</title>
     <author>
       <firstname>Peter</firstname>
       <surname>Simons</surname>
       <affiliation>
-        <address><email>simons@computer.org</email></address>
+        <address><email>simons@cryp.to</email></address>
       </affiliation>
     </author>
   </articleinfo>
@@ -607,7 +606,7 @@ required parameters is missing.</para>
           <para>The required <replaceable>word</replaceable> parameter was
 missing in an <quote>${NAME:-<replaceable>word</replaceable>}</quote>,
 <quote>${NAME:+<replaceable>word</replaceable>}</quote>, or
-<quote>${NAME:*<replaceable>word</replaceable>}</quote> expression.
+<quote>${NAME:*<replaceable>word</replaceable>}</quote> expression.</para>
         </listitem>
       </varlistentry>
 
@@ -615,7 +614,7 @@ missing in an <quote>${NAME:-<replaceable>word</replaceable>}</quote>,
         <term><exceptionname>varexp::empty_search_string</exceptionname></term>
         <listitem>
           <para>In an <quote>${NAME:s&hellip;} expression, the
-<replaceable>search</replaceable> parameter was empty.</quote>
+<replaceable>search</replaceable> parameter was empty.</quote></para>
         </listitem>
       </varlistentry>
 
@@ -902,7 +901,7 @@ included in this distribution under the same terms as the original
 version:</para>
 
     <literallayout>libvarexp - Variable Expression Library.
-Copyright (c) 2002 Peter Simons &lt;simons@computer.org&gt;
+Copyright (c) 2002 Peter Simons &lt;simons@cryp.to&gt;
 Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
 Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
 

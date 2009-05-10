@@ -1,17 +1,16 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
 <!ENTITY varexp "<application>libvarexp</application>">
 <!ENTITY purpose SYSTEM "purpose.inc">
-<!ENTITY version SYSTEM "../VERSION">
 ]>
 
 <article lang="en">
   <articleinfo>
-    <title>&varexp; &version;</title>
+    <title>&varexp</title>
     <author>
       <firstname>Peter</firstname>
       <surname>Simons</surname>
       <affiliation>
-        <address><email>simons@computer.org</email></address>
+        <address><email>simons@cryp.to</email></address>
       </affiliation>
     </author>
   </articleinfo>
@@ -63,7 +62,7 @@ You should really take a look at them if you plan to use this code. :-)</para>
     <title>Copyright</title>
 
     <para>&varexp; is copyrighted by <literal>Peter Simons
-&lt;simons@computer.org&gt;</literal>. Permission is granted to use this code
+&lt;simons@cryp.to&gt;</literal>. Permission is granted to use this code
 under the terms described in the <filename>LICENSE</filename> file.</para>
 
   </section>

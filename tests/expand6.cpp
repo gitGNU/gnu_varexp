@@ -9,15 +9,15 @@ using namespace std;
 
 struct variable
 {
-  char* name;
-  char* data;
+  char const * name;
+  char const * data;
 };
 
 struct variable_array
 {
-  char* name;
-  int   idx;
-  char* data;
+  char const * name;
+  int const    idx;
+  char const * data;
 };
 
 class var_lookup : public callback_t

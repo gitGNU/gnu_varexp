@@ -193,8 +193,7 @@ variable expressions, for example: <quote>${FOO:p/20/${BAR}/r/}</quote>.</para>
 
 <!--
 Local Variables:
-mode: sgml
+mode: xml
 fill-column:80
-sgml-parent-document:("user-manual.sgml" "article" "sect1" "sect2")
 End:
 -->

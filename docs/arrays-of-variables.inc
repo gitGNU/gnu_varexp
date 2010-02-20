@@ -32,8 +32,7 @@ use a simple or complex variable expression. If <quote>$TWO</quote> is
 
 <!--
 Local Variables:
-mode: sgml
+mode: xml
 fill-column:80
-sgml-parent-document:("user-manual.sgml" "article" "sect1" "sect2")
 End:
 -->

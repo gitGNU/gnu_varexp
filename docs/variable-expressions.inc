@@ -27,8 +27,7 @@ variable.</para>
 
 <!--
 Local Variables:
-mode: sgml
+mode: xml
 fill-column:80
-sgml-parent-document:("user-manual.sgml" "article" "sect1" "sect2")
 End:
 -->

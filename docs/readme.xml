@@ -2,6 +2,7 @@
   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"
   [ <!ENTITY varexp "<application>libvarexp</application>">
     <!ENTITY purpose SYSTEM "purpose.inc">
+    <!ENTITY license SYSTEM "license.inc">
     ]>
 
 <article lang="en">
@@ -60,12 +61,8 @@ You should really take a look at them if you plan to use this code. :-)</para>
   </section>
 
   <section>
-    <title>Copyright</title>
-
-    <para>&varexp; is copyrighted by <literal>Peter Simons
-&lt;simons@cryp.to&gt;</literal>. Permission is granted to use this code
-under the terms described in the <filename>LICENSE</filename> file.</para>
-
+    <title>License</title>
+    &license;
   </section>
 
 </article>

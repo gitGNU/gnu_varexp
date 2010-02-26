@@ -1,0 +1,6 @@
+#+TITLE: Variable Expression Library           -*- mode:org;fill-column:79; -*-
+#+STARTUP: showall
+
+* Noteworthy changes in release 1.2 (2010-02-26) [stable]
+
+  Moved the project to <https://savannah.nongnu.org/projects/varexp/>.

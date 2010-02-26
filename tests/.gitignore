@@ -1,0 +1,12 @@
+# test programs
+
+/empty-search-pattern
+/expand-character-class
+/expand1
+/expand2
+/expand3
+/expand4
+/expand5
+/expand6
+/offset-failure
+/unescape

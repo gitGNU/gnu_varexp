@@ -1,8 +1,8 @@
 dnl configure.ac for libvarexp
 
-AC_PREREQ([2.59])
-AC_INIT([libvarexp], [1.2], [simons@cryp.to])
-AM_INIT_AUTOMAKE([foreign 1.9 -Wall])
+AC_INIT([varexp], m4_esyscmd([build-aux/git-version-gen .tarball-version]), [simons@cryp.to], [varexp], [http://savannah.nongnu.org/projects/varexp/])
+AC_CONFIG_AUX_DIR([build-aux])
+AM_INIT_AUTOMAKE([1.11 -Wall gnu])
 AC_CONFIG_SRCDIR([varexp.hpp])
 AC_COPYRIGHT([dnl
 Copyright (c) 2002-2010 Peter Simons <simons@cryp.to>
@@ -24,10 +24,12 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.])
 
-dnl Checks for programs.
+AC_MSG_NOTICE([Variable Expression Library version $VERSION])
+
 AC_PROG_CXX
 AC_PROG_RANLIB
 
-dnl Write results.
 AC_CONFIG_FILES([Makefile tests/Makefile])
 AC_OUTPUT
+
+dnl Responsibility shifts to the user after this point.

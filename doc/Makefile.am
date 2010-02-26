@@ -20,14 +20,8 @@
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-SUBDIRS               = tests doc
-lib_LIBRARIES         = libvarexp.a
-libvarexp_a_SOURCES   = command.cpp cut-out-offset.cpp          \
-                        expand-character-class.cpp unescape.cpp \
-                        expand.cpp expression.cpp input.cpp     \
-                        loop.cpp num-exp.cpp padding.cpp        \
-                        search-and-replace.cpp text.cpp         \
-                        transpose.cpp variable.cpp error.cpp    \
-                        parser.cpp
-include_HEADERS       = varexp.hpp
-noinst_HEADERS        = internal.hpp
+htmldir                 = $(pkgdatadir)/html
+dist_html_DATA          = user-manual.html
+
+user-manual.html:	user-manual.xml
+	xmlto html-nochunks $<

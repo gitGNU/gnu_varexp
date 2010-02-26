@@ -29,7 +29,7 @@ AC_MSG_NOTICE([Variable Expression Library version $VERSION])
 AC_PROG_CXX
 AC_PROG_RANLIB
 
-AC_CONFIG_FILES([Makefile tests/Makefile])
+AC_CONFIG_FILES([Makefile tests/Makefile doc/Makefile])
 AC_OUTPUT
 
 dnl Responsibility shifts to the user after this point.

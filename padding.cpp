@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2002-2010 Peter Simons <simons@cryp.to>
- * Copyright (c) 2001 The OSSP Project (http://www.ossp.org/)
- * Copyright (c) 2001 Cable & Wireless Deutschland (http://www.cw.com/de/)
+ * Copyright (c) 2001 The OSSP Project <http://www.ossp.org/>
+ * Copyright (c) 2001 Cable & Wireless Deutschland <http://www.cw.com/de/>
  *
  * Permission to use, copy, modify, and distribute this software for
  * any purpose with or without fee is hereby granted, provided that

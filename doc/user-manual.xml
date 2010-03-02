@@ -26,12 +26,24 @@
   </articleinfo>
 
   <sect1>
-    <title>Purpose of this Library</title>
-    &purpose;
+    <title>Introduction</title>
+
+    <sect2>
+      <title>Purpose of this library</title>
+      &purpose;
+    </sect2>
+
+    <sect2>
+      <title>Downloading the latest version</title>
+
+      <para>The latest version of &varexp; is available for download is
+<ulink url="http://download.savannah.nongnu.org/releases/varexp/varexp-1.2.tar.gz">
+varexp-1.2.tar.gz</ulink>.</para>
+    </sect2>
   </sect1>
 
   <sect1>
-    <title>Expressions Supported by the Library</title>
+    <title>Supported Expressions</title>
 
     <sect2>
       <title>Variable Expressions</title>

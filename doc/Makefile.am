@@ -23,5 +23,5 @@
 htmldir                 = $(pkgdatadir)/html
 dist_html_DATA          = user-manual.html
 
-user-manual.html:	user-manual.xml
+user-manual.html:	$(srcdir)/user-manual.xml
 	xmlto html-nochunks $<

@@ -27,6 +27,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.])
 AC_MSG_NOTICE([Variable Expression Library version $VERSION])
 
 AC_PROG_CXX
+AM_PROG_AR
 AC_PROG_RANLIB
 
 AC_CONFIG_FILES([Makefile tests/Makefile doc/Makefile])
